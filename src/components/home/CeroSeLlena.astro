@@ -1,7 +1,7 @@
 ---
 /**
  * #cero · "$0 que se llena" (SIG-5) · dark.
- * A giant Nasalization "$0" (SVG text as a clipPath, aqua outline on top) fills with two looping brand-gradient
+ * A giant brand-font "$0" (SVG text as a clipPath, aqua outline on top) fills with two looping brand-gradient
  * waves: scrubbed on the desktop gate, once on view elsewhere, already full with reduced motion or no JS.
  * Then the three offer tickets (stamps on 2 and 3), the financing partners marquee and the WhatsApp CTA.
  *
@@ -19,16 +19,17 @@ const { o, t, lang, asset } = useI18n(Astro);
 const c = pick(copy, lang).cero;
 const clean = (s: string) => s.replace(/[:\s]+$/, '');
 
-// Glyph box of "$0" in Nasalization at 1000 units (fontTools: ink x 40–1185, cap height 689, no kerning pair).
-const X = 28, Y = -701, VW = 1169, VH = 713;
-const CAP = 689;
-const FULL = -Math.round(CAP * 0.92); // water surface ends 8% below the top of the glyphs
-const EMPTY = 44;                    // surface (plus wave amplitude) below the baseline
+// Ink box of "$0" in Orbitron 400 at 1000 units (fontTools: x 34–1572, y −114…835; the $ stroke pokes out of the
+// 720 cap height at both ends). Re-measure if --font-brand changes: the viewBox, clip and water levels depend on it.
+const INK = { x0: 34, x1: 1572, top: 835, bottom: 114 }, PAD = 12;
+const X = INK.x0 - PAD, Y = -(INK.top + PAD), VW = INK.x1 - INK.x0 + 2 * PAD, VH = INK.top + INK.bottom + 2 * PAD;
+const FULL = -Math.round(INK.top * 0.92); // water surface ends 8% below the top of the glyphs
+const EMPTY = INK.bottom + 44;           // surface (plus wave amplitude) below the lowest ink
 // quadratic-chain sine: one period = q + t; the path covers the glyphs at every offset of its loop
 const wave = (P: number, A: number, lift: number) => {
   let d = `M0 ${-lift}`;
   for (let x = 0; x < X + VW + P; x += P) d += ` q${P / 4} ${-A} ${P / 2} 0 t${P / 2} 0`;
-  return `${d} V${800} H0 Z`;
+  return `${d} V${VH - FULL} H0 Z`; // deep enough to still cover the $ tail when raised to FULL
 };
 const P1 = VW / 2, P2 = VW / 1.5;
 

@@ -3,11 +3,12 @@ import { ClientRouter } from 'astro:transitions';
 import '@fontsource-variable/geist/wght.css';
 import '@fontsource/instrument-serif/400-italic.css';
 import '@fontsource/geist-mono/500.css';
+import '@fontsource/orbitron/400.css';
 import 'lenis/dist/lenis.css';
 import '../styles/base.css';
 import '../styles/transitions.css';
 import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
-import nasalization from '../fonts/nasalization.woff2?url';
+import orbitronLatin from '@fontsource/orbitron/files/orbitron-latin-400-normal.woff2?url';
 import { useI18n } from '../i18n/index.js';
 import Header from '../components/chrome/Header.astro';
 import Footer from '../components/chrome/Footer.astro';
@@ -45,7 +46,7 @@ const fullTitle = `${title} · ${t.siteName}`;
     <link rel="alternate" hreflang="es" href={origin + hreflang.es} />
     <link rel="alternate" hreflang="en" href={origin + hreflang.en} />
     <link rel="alternate" hreflang="x-default" href={origin + hreflang.es} />
-    <link rel="preload" href={nasalization} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={orbitronLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={geistLatin} as="font" type="font/woff2" crossorigin />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -57,8 +58,10 @@ const fullTitle = `${title} · ${t.siteName}`;
     <meta property="og:locale" content={t.locale} />
     <meta name="twitter:card" content="summary_large_image" />
     <script is:inline>
-      // `js` lets CSS pre-hide elements the engine reveals (content stays visible without JS)
+      // `js` lets CSS pre-hide elements the engine reveals (content stays visible without JS).
+      // `rw-calm`: the visitor turned motion down with the footer switch (see the motion policy in astro.config.mjs).
       document.documentElement.classList.add('js');
+      try { if (localStorage.getItem('rw-motion') === 'calm') document.documentElement.classList.add('rw-calm'); } catch (e) {}
     </script>
     <ClientRouter />
     <slot name="head" />

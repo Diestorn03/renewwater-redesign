@@ -4,11 +4,6 @@
    amber #F8C000 from the mark, navy #001C38 from renewwaterus.com.
    Sections carry data-theme="dark|light"; there is no theme toggle.
    ========================================================== */
-@font-face {
-  font-family: "Nasalization";
-  src: url("../fonts/nasalization.woff2") format("woff2");
-  font-weight: 400; font-style: normal; font-display: swap;
-}
 @font-face { font-family: "Geist Fallback"; src: local("Arial"); size-adjust: 104%; ascent-override: 92%; descent-override: 22%; }
 
 :root {
@@ -55,7 +50,8 @@
 
   --z-canvas: 0; --z-content: 1; --z-header: 50; --z-fab: 60; --z-menu: 80; --z-loader: 100;
 
-  --font-brand: "Nasalization", "Orbitron", system-ui, sans-serif;
+  /* Orbitron (OFL) stands in for the brand's Nasalization, which can't ship in a public repo; swap back here once licensed */
+  --font-brand: "Orbitron", system-ui, sans-serif;
   --font-sans: "Geist Variable", "Geist Fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: "Instrument Serif", Georgia, serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;

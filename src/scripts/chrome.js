@@ -37,6 +37,16 @@ document.addEventListener('click', (e) => {
   if (a && location.hash) a.href = a.href.split('#')[0] + location.hash;
 }, true);
 
+/* ---------- Motion switch (footer): everything animates by default; this opts out, remembered per browser ---------- */
+document.addEventListener('click', (e) => {
+  if (!e.target.closest?.('[data-motion-toggle]')) return;
+  try { localStorage.setItem('rw-motion', root.classList.contains('rw-calm') ? 'full' : 'calm'); } catch { return; }
+  location.reload(); // pins, WebGL and Lenis are built at boot: reloading switches all of them at once
+});
+onPage(() => {
+  document.querySelectorAll('[data-motion-toggle]').forEach((b) => b.setAttribute('aria-pressed', String(root.classList.contains('rw-calm'))));
+});
+
 /* ---------- Mobile menu (lives in the persisted header: bound once per header element) ---------- */
 let menu = null;
 const menuOpen = () => !!menu?.open;
@@ -65,7 +75,7 @@ function closeMenu(now = false) {
     document.querySelector('[data-menu-open]')?.setAttribute('aria-expanded', 'false');
     document.dispatchEvent(new CustomEvent('rw:menu', { detail: { open: false } }));
   };
-  if (now || matchMedia('(prefers-reduced-motion: reduce)').matches) finish(); else setTimeout(finish, 380);
+  if (now || root.classList.contains('rw-calm')) finish(); else setTimeout(finish, 380);
 }
 function bindHeader(hdr) {
   if (hdr.dataset.bound) return;

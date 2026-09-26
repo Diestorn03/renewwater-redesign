@@ -1,6 +1,6 @@
 # Renew Water · Propuesta de rediseño web
 
-Rediseño de [renewwaterus.com](https://renewwaterus.com) construido con **Astro 7**, **GSAP 3.15** (ScrollTrigger, SplitText, DrawSVG, Flip) y **Lenis**. Reutiliza los textos del sitio actual en español e inglés, el logo, la paleta, la tipografía Nasalization, las fotos de instalaciones y clientes, los 14 folletos de productos, las reseñas de Google, las financieras y las redes sociales. Todo eso va dentro de una experiencia llamada **"Flujo Vivo"**: el degradado aqua→lima del logo funciona como agua limpia que recorre la página.
+Rediseño de [renewwaterus.com](https://renewwaterus.com) construido con **Astro 7**, **GSAP 3.15** (ScrollTrigger, SplitText, DrawSVG, Flip) y **Lenis**. Reutiliza los textos del sitio actual en español e inglés, el logo, la paleta, las fotos de instalaciones y clientes, los 14 folletos de productos, las reseñas de Google, las financieras y las redes sociales. Todo eso va dentro de una experiencia llamada **"Flujo Vivo"**: el degradado aqua→lima del logo funciona como agua limpia que recorre la página.
 
 ## Arrancar en local
 
@@ -68,7 +68,7 @@ Todo termina en WhatsApp (+1 407 639 3366), como en el sitio actual, pero con me
 | `--aqua-ink`, `--leaf-ink`, `--lime-ink` | `#00767A`, `#00745A`, `#4F6A00` | Variantes para texto sobre claro con contraste AA |
 
 Tipografías:
-- **Nasalization**, la de la marca y el sitio actual: números, etiquetas y la marca.
+- **Orbitron** (licencia OFL, vía `@fontsource/orbitron`): números, etiquetas y la marca. Reemplaza a Nasalization, la tipografía de la marca, que no se puede distribuir en un repo público. Si Renew Water tiene la licencia web, se vuelve a poner cambiando `--font-brand` en [src/styles/base.css](src/styles/base.css). Ojo: hay que volver a medir el "$0" de [CeroSeLlena.astro](src/components/home/CeroSeLlena.astro) (constante `INK`) y el tamaño del "RENEW WATER" del pie.
 - **Geist**, también del sitio actual: titulares y cuerpo.
 - **Instrument Serif Italic**: una palabra de acento por titular.
 
@@ -89,7 +89,7 @@ Tipografías:
 ## Accesibilidad y rendimiento
 
 - **Móvil y pantallas táctiles:** sin WebGL, sin escenas fijadas y sin scroll suave. Recorridos nativos con scroll-snap y áreas táctiles de 48 px o más.
-- **`prefers-reduced-motion`:** desactiva el loader, los pins, los scrubs, el WebGL y las marquesinas, y muestra el estado final.
+- **Movimiento:** el sitio anima siempre, aunque el sistema operativo pida "reducir movimiento". Muchos PCs de oficina traen esa opción apagada y la propuesta se vería plana. El pie tiene un interruptor accesible **"Reducir movimiento"** (`aria-pressed`, se recuerda en `localStorage`) que desactiva el loader, los pins, los scrubs, el WebGL y las marquesinas, y muestra el estado final. En el CSS se sigue escribiendo `@media (prefers-reduced-motion: …)` normal: un plugin PostCSS en [astro.config.mjs](astro.config.mjs) lo convierte en la clase `html.rw-calm` al compilar. En JS, `env.reduced` lee esa misma clase.
 - **Canvas accesibles:** todo canvas tiene equivalente en texto (lista de etapas, conteo `aria-live` del laboratorio).
 - **Imágenes:** WebP optimizadas (de 25 MB originales a unos 9 MB en total, con miniaturas), carga diferida y medidas fijas para evitar saltos.
 
@@ -101,4 +101,4 @@ Tipografías:
 4. **Sellos NSF/EPA:** aparecen en los folletos, pero no se usan como texto hasta confirmarlos.
 5. **Noticias:** faltan los enlaces de las noticias 2 y 4 de "Sobre Nosotros".
 6. **Beneficios:** ajustes de redacción propuestos (por ejemplo, quitar "incluyendo la India").
-7. **Licencia de Nasalization:** es de Typodermic y sus metadatos dicen "not freely distributable". El sitio actual ya la usa como web font. Antes de publicar el repo como público, confirma la licencia web, o cambia `--font-brand` en [src/styles/base.css](src/styles/base.css) por Orbitron (Google Fonts).
+7. **Licencia de Nasalization:** es de Typodermic y sus metadatos dicen "not freely distributable". Por eso la propuesta usa Orbitron. Si Renew Water tiene la licencia web, se puede volver a su tipografía.

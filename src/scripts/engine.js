@@ -25,8 +25,9 @@
       return () => { ...remove listeners, cancel rAF, lose WebGL context... };
     });
 
-  Gates:  env.desktop  = (min-width:768px) and (pointer:fine) and (prefers-reduced-motion:no-preference)
-          env.reduced  = prefers-reduced-motion: reduce       env.coarse = pointer: coarse
+  Gates:  env.desktop  = (min-width:768px) and (pointer:fine), unless the visitor chose calm motion
+          env.reduced  = html.rw-calm (footer switch; the OS reduce-motion setting is deliberately not used)
+          env.coarse   = pointer: coarse
   Pins, scrubs, WebGL, Lenis, tilt, magnetic and cursor effects only run when env.desktop is true.
   introGate() resolves when the loader has finished (event 'rw:loader-done') or right away when there is no loader.
 */
@@ -38,15 +39,18 @@ import Lenis from 'lenis';
 
 gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin);
 
-export const DESKTOP_QUERY = '(min-width: 768px) and (pointer: fine) and (prefers-reduced-motion: no-preference)';
+export const DESKTOP_QUERY = '(min-width: 768px) and (pointer: fine)';
 const mqDesktop = window.matchMedia(DESKTOP_QUERY);
-const mqReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 const mqCoarse = window.matchMedia('(pointer: coarse)');
+// Motion is on for everyone. html.rw-calm (set from localStorage 'rw-motion' by Base.astro, toggled by the footer
+// switch) is the only "reduce" signal; CSS media queries on prefers-reduced-motion are rewritten to it at build time.
+export const storedCalm = () => { try { return localStorage.getItem('rw-motion') === 'calm'; } catch { return false; } };
+const calm = () => document.documentElement.classList.contains('rw-calm');
 export const env = {
-  get desktop() { return mqDesktop.matches; },
-  get reduced() { return mqReduced.matches; },
+  get desktop() { return mqDesktop.matches && !calm(); },
+  get reduced() { return calm(); },
   get coarse() { return mqCoarse.matches; },
-  get mobile() { return !mqDesktop.matches; },
+  get mobile() { return !env.desktop; },
 };
 
 // Pinned scenes must not initialise mid-scroll after a reload.
@@ -327,7 +331,11 @@ function boot() {
 document.addEventListener('astro:page-load', boot);
 document.addEventListener('astro:before-swap', teardown);
 // ClientRouter swaps <html> attributes: restore the `js` class the head script set on the first load
-document.addEventListener('astro:after-swap', () => { document.documentElement.classList.add('js'); window.scrollTo(0, 0); lenis?.scrollTo(0, { immediate: true }); });
+document.addEventListener('astro:after-swap', () => {
+  document.documentElement.classList.add('js');
+  document.documentElement.classList.toggle('rw-calm', storedCalm());
+  window.scrollTo(0, 0); lenis?.scrollTo(0, { immediate: true });
+});
 let bpTimer;
 const rebootOnChange = () => { clearTimeout(bpTimer); bpTimer = setTimeout(() => { window.scrollTo(0, 0); boot(); }, 150); };
 mqDesktop.addEventListener('change', rebootOnChange);

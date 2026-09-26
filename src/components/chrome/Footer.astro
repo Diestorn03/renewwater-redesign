@@ -31,6 +31,7 @@ const social = [
       <p class="small muted">© {year} {t.siteName}. {o.footer.rights}{demo && <> · {t.demo}</>}</p>
       <div class="ftr__minright">
         {phoneList.map((p) => <a class="ftr__link" href={`tel:${p.tel}`}><span class="mono">{c.phoneLabels[p.label as 'ES' | 'US']}</span> {p.display}</a>)}
+        <button class="ftr__motion" type="button" data-motion-toggle aria-pressed="false"><span class="ftr__motion-sw" aria-hidden="true"></span>{c.calmMotion}</button>
         <LangSwitch />
       </div>
     </div>
@@ -94,6 +95,7 @@ const social = [
       <p>© {year} {t.siteName}. {o.footer.rights}</p>
       {demo && <p class="ftr__demo mono">{t.demo}</p>}
       <div class="ftr__bottom-right">
+        <button class="ftr__motion" type="button" data-motion-toggle aria-pressed="false"><span class="ftr__motion-sw" aria-hidden="true"></span>{c.calmMotion}</button>
         <LangSwitch />
         <a class="ftr__top" href="#main"><span>{c.backToTop}</span><Icon name="arrow" size={18} class="ftr__top-ico" /></a>
       </div>
@@ -169,7 +171,23 @@ const social = [
     font-size: var(--fs-small); color: var(--fg-muted);
   }
   .ftr__demo { color: var(--sun); }
-  .ftr__bottom-right { display: flex; align-items: center; gap: 1rem; }
+  .ftr__bottom-right { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+  /* motion switch: a small track whose knob slides right when calm motion is on */
+  .ftr__motion {
+    display: inline-flex; align-items: center; gap: .6rem; min-height: 48px; padding: 0; border: 0; background: none;
+    color: var(--fg-muted); font: inherit; cursor: pointer; transition: color var(--d-fast);
+  }
+  .ftr__motion:hover { color: var(--fg); }
+  .ftr__motion-sw {
+    position: relative; flex: none; width: 34px; height: 20px; border-radius: var(--r-pill); border: 1px solid var(--line);
+    transition: border-color var(--d-fast), background-color var(--d-fast);
+  }
+  .ftr__motion-sw::after {
+    content: ''; position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--fg-muted); transition: transform var(--d-base) var(--ease-spring), background-color var(--d-fast);
+  }
+  .ftr__motion[aria-pressed="true"] .ftr__motion-sw { border-color: var(--aqua); background: color-mix(in srgb, var(--aqua) 18%, transparent); }
+  .ftr__motion[aria-pressed="true"] .ftr__motion-sw::after { transform: translateX(14px); background: var(--aqua); }
   .ftr__top { display: inline-flex; align-items: center; gap: .5rem; min-height: 48px; color: var(--fg-muted); transition: color var(--d-fast); }
   .ftr__top:hover { color: var(--fg); }
   .ftr__top :global(.ftr__top-ico) { transform: rotate(-90deg); transition: transform var(--d-base) var(--ease-water); }
@@ -177,7 +195,7 @@ const social = [
 
   .ftr__giant { width: calc(100% - 2 * clamp(8px, 1.5vw, 24px)); margin: clamp(.5rem, 2vw, 1.5rem) auto 0; line-height: 0; }
   .ftr__giant svg { width: 100%; height: auto; overflow: visible; }
-  .ftr__word { font-family: var(--font-brand); font-size: 124px; letter-spacing: 0; }
+  .ftr__word { font-family: var(--font-brand); font-size: 110px; letter-spacing: 0; } /* Orbitron "RENEW WATER" at 110px ≈ 991 units: fits textLength without squeezing */
   .ftr__word--line { fill: none; stroke: rgba(143, 179, 196, .28); stroke-width: 1; vector-effect: non-scaling-stroke; }
   /* mobile bar clearance */
   .ftr { padding-bottom: calc(var(--bar-h) + env(safe-area-inset-bottom)); }

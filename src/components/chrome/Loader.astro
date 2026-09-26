@@ -1,6 +1,6 @@
 ---
 /**
- * Loader "El Trazo": first visit per session only, never under reduced motion, never without JS.
+ * Loader "El Trazo": first visit per session only, never with calm motion (footer switch), never without JS.
  * Pure CSS timeline (starts on first paint, independent of the JS bundle): the mark draws itself (0.55 s,
  * 80 ms stagger, amber last), the wordmark sweeps in left→right, a drop falls toward the hero and the overlay
  * leaves upward with clip-path. ~1.2 s in total. The inline script below removes #loader when it must not run,
@@ -25,7 +25,7 @@ const c = pick(copy, lang);
     var l = document.getElementById('loader');
     if (!l) return;
     var root = document.documentElement, show = false;
-    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var reduced = root.classList.contains('rw-calm'); // footer motion switch (Base.astro sets it from localStorage)
     try { show = !reduced && !window.__rwIntro && !sessionStorage.getItem('rw-intro'); sessionStorage.setItem('rw-intro', '1'); }
     catch (e) { show = !reduced && !window.__rwIntro; }
     window.__rwIntro = 1;

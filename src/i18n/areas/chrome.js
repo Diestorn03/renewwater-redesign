@@ -13,6 +13,7 @@ export default {
     bar: 'WhatsApp · Análisis gratis',
     wqaAlt: 'Miembro de la Water Quality Association (WQA)',
     backToTop: 'Volver arriba',
+    calmMotion: 'Reducir movimiento',
     newTab: '(se abre en una pestaña nueva)',
     notFound: {
       kicker: 'Error 404',
@@ -35,6 +36,7 @@ export default {
     bar: 'WhatsApp · Free analysis',
     wqaAlt: 'Water Quality Association (WQA) member',
     backToTop: 'Back to top',
+    calmMotion: 'Reduce motion',
     newTab: '(opens in a new tab)',
     notFound: {
       kicker: 'Error 404',
