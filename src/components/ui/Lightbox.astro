@@ -1,0 +1,100 @@
+---
+/**
+ * Photo lightbox, rendered once by Base. Any link opts in:
+ *   <a href={asset('/img/big.webp')} data-lightbox="instalaciones" data-caption="…"><img …></a>
+ * Prev/next stay inside the same group (marquee clones are skipped, duplicates collapse by href), Esc / backdrop /
+ * close button close it, focus returns to the thumbnail, and the photo morphs with a View Transition where supported.
+ * Add data-lb-morph on the link to morph the link box itself (e.g. an arch with overflow:hidden) instead of its <img>.
+ * Without JS the link just opens the image.
+ */
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/offer.js';
+const { lang } = useI18n(Astro);
+const c = pick(copy, lang).lightbox;
+const arrow = 'M5 12h14M13 6l6 6-6 6';
+---
+<dialog id="lightbox" class="lb" data-theme="dark" aria-label={c.label} data-lenis-prevent>
+  <button class="lb__btn lb__close" type="button" data-lb="close" aria-label={c.close}>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+  </button>
+  <figure class="lb__fig">
+    <img class="lb__img" alt="" decoding="async" />
+    <figcaption class="lb__cap">
+      <span class="lb__caption"></span>
+      <span class="lb__count" aria-live="polite"></span>
+    </figcaption>
+  </figure>
+  <button class="lb__btn lb__nav lb__prev" type="button" data-lb="prev" aria-label={c.prev}>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:scaleX(-1)"><path d={arrow} /></svg>
+  </button>
+  <button class="lb__btn lb__nav lb__next" type="button" data-lb="next" aria-label={c.next}>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={arrow} /></svg>
+  </button>
+</dialog>
+
+<script>
+  import '../../scripts/lightbox.js';
+</script>
+
+<style>
+  .lb {
+    position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none;
+    margin: 0; padding: 0; border: 0; background: transparent; color: var(--fg);
+    overflow: hidden; overscroll-behavior: contain; touch-action: pinch-zoom;
+  }
+  .lb[open] {
+    display: grid; place-items: center;
+    padding: max(72px, env(safe-area-inset-top)) clamp(16px, 7vw, 112px) max(24px, env(safe-area-inset-bottom));
+  }
+  .lb::backdrop { background: rgba(0, 11, 24, .9); }
+  @media (pointer: fine) { .lb::backdrop { -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); } }
+  /* plain fade when there is no View Transition (the class is set by lightbox.js) */
+  .lb.is-fading[open], .lb.is-fading[open]::backdrop { animation: lb-in .28s var(--ease-water) both; }
+  @keyframes lb-in { from { opacity: 0; } }
+
+  .lb__fig { margin: 0; display: grid; justify-items: center; gap: 14px; }
+  .lb__img {
+    --ar: .75;
+    display: block; aspect-ratio: var(--ar); width: auto; max-width: 100%;
+    height: min(calc(100svh - 176px), calc(min(86vw, 1100px) / var(--ar)));
+    object-fit: contain; border-radius: var(--r-md);
+    background: var(--current);
+    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .7);
+    user-select: none; -webkit-user-drag: none;
+  }
+  .lb__cap { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .lb__caption { font-family: var(--font-mono); font-weight: 500; font-size: var(--fs-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-muted); }
+  .lb__count { font-family: var(--font-brand); font-size: .75rem; letter-spacing: .16em; color: var(--aqua); }
+
+  .lb__btn {
+    position: absolute; display: grid; place-items: center;
+    width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(143, 179, 196, .28);
+    background: rgba(6, 43, 79, .72); color: var(--foam-text);
+    transition: background var(--d-base) var(--ease-water), border-color var(--d-base), transform var(--d-fast) var(--ease-water);
+  }
+  .lb__btn:hover { background: var(--current); border-color: var(--aqua); }
+  .lb__btn:active { transform: scale(.94); }
+  .lb__close { top: max(14px, env(safe-area-inset-top)); right: 14px; }
+  .lb__nav { top: 50%; margin-top: -26px; }
+  .lb__prev { left: clamp(10px, 2.5vw, 36px); }
+  .lb__next { right: clamp(10px, 2.5vw, 36px); }
+  .lb--single .lb__nav, .lb--single .lb__count { display: none; }
+
+  @media (max-width: 767px) {
+    .lb[open] { padding: 72px 12px calc(92px + env(safe-area-inset-bottom)); }
+    .lb__img { height: min(calc(100svh - 230px), calc(92vw / var(--ar))); }
+    .lb__nav { top: auto; bottom: calc(18px + env(safe-area-inset-bottom)); margin: 0; }
+    .lb__prev { left: calc(50% - 64px); }
+    .lb__next { right: calc(50% - 64px); }
+  }
+</style>
+
+<style is:global>
+  /* photo morph (lightbox.js names the thumbnail and the dialog photo "lb-photo"); html.lb-vt keeps the page's
+     own root transition (La Onda) out of it: the page underneath just cross-fades with the backdrop */
+  ::view-transition-group(lb-photo) { animation-duration: .55s; animation-timing-function: cubic-bezier(.65, 0, .35, 1); }
+  ::view-transition-old(lb-photo), ::view-transition-new(lb-photo) { animation-duration: .55s; }
+  html.lb-vt.lb-vt::view-transition-old(root) { animation: none; clip-path: none; transform: none; opacity: 1; }
+  html.lb-vt.lb-vt::view-transition-new(root) { animation: lb-vt-fade .4s cubic-bezier(.33, 1, .68, 1) both; clip-path: none; transform: none; }
+  @keyframes lb-vt-fade { from { opacity: 0; } }
+</style>

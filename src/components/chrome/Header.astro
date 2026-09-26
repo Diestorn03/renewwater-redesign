@@ -1,0 +1,126 @@
+---
+/**
+ * Site header. Persists across ClientRouter navigations (one persist key per language/variant, so switching
+ * language or entering the /analisis landing swaps it). Behaviour lives in src/scripts/chrome.js:
+ * glass after 80px, hide on scroll down / show on scroll up, data-theme copied from the section underneath,
+ * aria-current on the active link, language link refreshed per page, mobile menu.
+ * minimal = /analisis landing: logo, language and call only.
+ */
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/chrome.js';
+import { buildWa, phoneFor } from '../../data/site.js';
+import Icon from '../ui/Icon.astro';
+import LogoMark from './LogoMark.astro';
+import LangSwitch from './LangSwitch.astro';
+import MobileMenu from './MobileMenu.astro';
+interface Props { minimal?: boolean }
+const { minimal = false } = Astro.props;
+const { t, lang, url, asset } = useI18n(Astro);
+const c = pick(copy, lang);
+const links = [['home', t.nav.home], ['about', t.nav.about], ['products', t.nav.products], ['join', t.nav.join], ['contact', t.nav.contact]] as const;
+const phone = phoneFor(lang);
+---
+<header class:list={['hdr', minimal && 'hdr--min']} data-theme="dark" transition:persist={`hdr-${lang}${minimal ? '-min' : ''}`}>
+  <div class="hdr__bar wrap">
+    <a class="hdr__logo" href={url('home')} aria-label={c.homeLabel}>
+      <LogoMark size={40} weight={1.35} />
+      <span class="hdr__word" style={`--wm:url(${asset('/img/brand/logo.webp')})`} aria-hidden="true"></span>
+    </a>
+    {!minimal && (
+      <nav class="hdr__nav" aria-label={t.nav.primary}>
+        <ul>{links.map(([k, label]) => <li><a href={url(k)} data-nav={k}>{label}</a></li>)}</ul>
+      </nav>
+    )}
+    <div class="hdr__actions">
+      <LangSwitch class="hdr__lang" />
+      {minimal ? (
+        <a class="btn btn--ghost btn--sm hdr__call" href={`tel:${phone.tel}`} aria-label={`${t.cta.call} ${phone.display}`}>
+          <Icon name="phone" size={18} /><span class="hdr__call-num">{phone.display}</span>
+        </a>
+      ) : (
+        <a class="btn btn--primary btn--sm hdr__cta" href={buildWa({ text: t.wa.analysis, ref: 'web-header' })} target="_blank" rel="noopener">
+          <Icon name="whatsapp" size={18} />{t.cta.freeAnalysis}
+        </a>
+      )}
+      {!minimal && (
+        <button class="hdr__burger" type="button" aria-haspopup="dialog" aria-controls="rw-menu" aria-expanded="false" data-menu-open>
+          <span class="sr-only">{t.nav.openMenu}</span><span class="hdr__lines" aria-hidden="true"><i></i><i></i></span>
+        </button>
+      )}
+    </div>
+  </div>
+  {!minimal && <MobileMenu />}
+</header>
+
+<script>
+  import '../../scripts/chrome.js';
+</script>
+
+<style>
+  .hdr {
+    position: fixed; inset: 0 0 auto; z-index: var(--z-header); height: var(--header-h);
+    color: var(--fg); view-transition-name: site-header;
+    transition: transform .35s var(--ease-water), color .35s var(--ease-water);
+  }
+  /* glass layer: transparent over the hero, 78% + blur after 80px (94% solid on touch) */
+  .hdr::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    border-bottom: 1px solid var(--line);
+    transition: opacity .35s var(--ease-water), background-color .35s;
+  }
+  @media (pointer: fine) { .hdr::before { -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); } }
+  @media (pointer: coarse) { .hdr::before { background: color-mix(in srgb, var(--bg) 94%, transparent); } }
+  .hdr.is-scrolled::before { opacity: 1; }
+  .hdr.is-hidden { transform: translateY(-100%); }
+  .hdr:has(:focus-visible) { transform: none; }
+
+  .hdr__bar { position: relative; height: 100%; display: flex; align-items: center; gap: clamp(1rem, 2.4vw, 2.5rem); }
+  .hdr__logo { display: flex; align-items: center; gap: .7rem; min-height: 48px; flex: none; margin-right: auto; }
+  /* the real wordmark letters (logo.webp) used as a mask, so the fill follows the theme: brand on dark, ink on light */
+  .hdr__word {
+    --h: 15px; display: block; height: var(--h); aspect-ratio: 715 / 71;
+    background: var(--grad-brand);
+    -webkit-mask: var(--wm) 95.59% 50.56% / 131.75% 225.35% no-repeat;
+    mask: var(--wm) 95.59% 50.56% / 131.75% 225.35% no-repeat;
+  }
+  .hdr[data-theme='light'] .hdr__word { background: var(--grad-ink); }
+
+  .hdr__nav { display: none; }
+  .hdr__nav ul { list-style: none; display: flex; gap: clamp(.9rem, 1.8vw, 1.9rem); }
+  .hdr__nav a { position: relative; display: inline-flex; align-items: center; min-height: 48px; font-size: .95rem; font-weight: 500; letter-spacing: -.005em; opacity: .8; transition: opacity var(--d-fast); }
+  .hdr__nav a::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 11px; height: 2px; border-radius: 2px;
+    background: var(--grad-brand); transform: scaleX(0); transform-origin: left; transition: transform .45s var(--ease-out);
+  }
+  .hdr[data-theme='light'] .hdr__nav a::after { background: var(--grad-ink); }
+  .hdr__nav a:hover, .hdr__nav a[aria-current] { opacity: 1; }
+  .hdr__nav a:hover::after { transform: scaleX(.35); }
+  .hdr__nav a[aria-current]::after { transform: scaleX(1); }
+
+  .hdr__actions { display: flex; align-items: center; gap: .75rem; flex: none; }
+  .hdr__cta { gap: .45rem; }
+  .hdr :global(.hdr__lang), .hdr__cta { display: none; }
+  .hdr--min :global(.hdr__lang) { display: inline-flex; }
+  .hdr__call { gap: .45rem; padding-inline: .9rem; }
+  .hdr__call-num { display: none; }
+
+  .hdr__burger { display: grid; place-items: center; width: 48px; height: 48px; margin-right: -8px; border: 0; border-radius: 50%; background: transparent; color: inherit; }
+  .hdr__lines { display: grid; gap: 6px; width: 22px; }
+  .hdr__lines i { display: block; height: 2px; border-radius: 2px; background: currentColor; transform-origin: right; transition: transform var(--d-base) var(--ease-water); }
+  .hdr__lines i:last-child { width: 14px; justify-self: end; }
+  .hdr__burger:hover .hdr__lines i:last-child { transform: scaleX(1.57); }
+
+  @media (min-width: 768px) {
+    .hdr :global(.hdr__lang), .hdr__cta { display: inline-flex; }
+    .hdr__call-num { display: inline; }
+    .hdr__word { --h: 17px; }
+  }
+  @media (min-width: 1100px) {
+    .hdr__nav { display: block; margin-inline: auto; }
+    .hdr:not(.hdr--min) .hdr__logo { margin-right: 0; }
+    .hdr__burger { display: none; }
+  }
+  @media (max-width: 419px) { .hdr--min .hdr__word { --h: 13px; } .hdr--min .hdr__logo { gap: .5rem; } }
+  @media (prefers-reduced-motion: reduce) { .hdr, .hdr::before { transition-duration: .01ms; } }
+</style>

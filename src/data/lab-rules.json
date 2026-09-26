@@ -1,0 +1,21 @@
+{
+  "_note": "Laboratorio en Casa (spec §6.5). Orientation only, to be confirmed by Renew's technical team. Rules are evaluated in order; the first whose `when` matches wins. `when` keys: origin (ciudad|pozo|nose), home (casa|apto), anySymptom (list of symptom ids). product null = no product, analysis first.",
+  "symptoms": [
+    { "id": "cloro", "spawn": { "cloro": 22 } },
+    { "id": "dureza", "spawn": { "dureza": 22 } },
+    { "id": "metal", "spawn": { "metal": 18 } },
+    { "id": "turbia", "spawn": { "sedimento": 24 } },
+    { "id": "piel", "spawn": { "cloro": 10, "dureza": 10 } },
+    { "id": "botellones", "spawn": {}, "flag": "beber" },
+    { "id": "nada", "spawn": { "quimico": 12 }, "exclusive": true }
+  ],
+  "rules": [
+    { "when": { "origin": "nose" }, "product": null, "alt": null },
+    { "when": { "origin": "pozo", "anySymptom": ["metal", "turbia"] }, "product": "agua-de-pozo-plus", "alt": "agua-de-pozo" },
+    { "when": { "origin": "pozo" }, "product": "agua-de-pozo", "alt": "agua-de-pozo-plus" },
+    { "when": { "home": "apto" }, "product": "renew-apto-4-pasos", "alt": "renew-small-4-pasos" },
+    { "when": { "origin": "ciudad", "home": "casa" }, "product": "renew-city", "alt": "renew-duo" }
+  ],
+  "fallback": { "product": null, "alt": null },
+  "drinking": { "flag": "beber", "products": ["osmosis-inversa", "astrid"] }
+}

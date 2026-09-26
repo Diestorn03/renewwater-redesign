@@ -1,0 +1,30 @@
+---
+// Home — section order and theme rhythm from the "Flujo Vivo" spec (§6). Owned by the lead; sections are owned by their agents.
+import Base from '../layouts/Base.astro';
+import Hero from '../components/home/Hero.astro';
+import Invisible from '../components/home/Invisible.astro';
+import SeisEtapas from '../components/home/SeisEtapas.astro';
+import Soluciones from '../components/home/Soluciones.astro';
+import Laboratorio from '../components/lab/Laboratorio.astro';
+import CalleRenew from '../components/home/CalleRenew.astro';
+import CeroSeLlena from '../components/home/CeroSeLlena.astro';
+import Familias from '../components/home/Familias.astro';
+import Sostenible from '../components/home/Sostenible.astro';
+import Beneficios from '../components/home/Beneficios.astro';
+import Encuentranos from '../components/home/Encuentranos.astro';
+import { useI18n } from '../i18n/index.js';
+const { t } = useI18n(Astro);
+---
+<Base title={t.meta.home}>
+  <Hero />
+  <Invisible />
+  <SeisEtapas />
+  <Soluciones />
+  <Laboratorio ref="web-lab" />
+  <CalleRenew />
+  <CeroSeLlena />
+  <Familias />
+  <Sostenible />
+  <Beneficios />
+  <Encuentranos />
+</Base>

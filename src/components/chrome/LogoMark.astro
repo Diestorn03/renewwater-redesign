@@ -1,0 +1,73 @@
+---
+/**
+ * Renew Water mark as stroked paths: three overlapping line triangles, least-squares fitted to the edges of
+ * public/img/brand/mark.png (170×139), aqua→lime gradient, plus the amber (#F8C000) top-right strokes drawn last.
+ *   <LogoMark size={40} />                 static
+ *   <LogoMark size={96} draw="load" />     draws itself with CSS on first paint (loader)
+ *   <LogoMark size={72} draw="view" />     hidden until `.is-drawn` is added to the <svg> (chrome.js does it in view)
+ * No pathLength attribute, so GSAP DrawSVG also works on `.lm__tri` / `.lm__sun`.
+ * weight scales the stroke for small sizes (optical sizing: the 1× stroke is 2.2% of the width).
+ */
+interface Props { size?: number | string; draw?: 'none' | 'load' | 'view'; weight?: number; class?: string; label?: string }
+const { size = 40, draw = 'none', weight = 1, class: cls, label } = Astro.props;
+const uid = `lm-${Math.random().toString(36).slice(2, 8)}`;
+type P = [number, number];
+const tris: P[][] = [
+  [[3.8, 21.1], [166.2, 21.2], [85.3, 137.8]],
+  [[17.1, 2.0], [167.0, 47.4], [65.8, 129.0]],
+  [[151.1, 2.1], [2.7, 47.2], [103.7, 129.3]],
+];
+// the amber part of the original: each triangle's top-right corner
+const suns: P[][] = [
+  [[128, 21.15], [166.2, 21.2], [140.6, 58.1]],
+  [[134, 37.4], [167.0, 47.4], [146.4, 64]],
+  [[130, 8.5], [151.1, 2.1], [129.1, 61]],
+];
+const dist = (a: P, b: P) => Math.hypot(b[0] - a[0], b[1] - a[1]);
+const length = (pts: P[], closed: boolean) => {
+  let l = 0;
+  for (let i = 1; i < pts.length; i++) l += dist(pts[i - 1], pts[i]);
+  return +(closed ? l + dist(pts[pts.length - 1], pts[0]) : l).toFixed(1);
+};
+const d = (pts: P[], closed = false) => `M${pts.map((p) => p.join(' ')).join('L')}${closed ? 'Z' : ''}`;
+const w = typeof size === 'number' ? `${size}px` : size;
+---
+<svg
+  class:list={['lm', cls]}
+  data-draw={draw === 'none' ? undefined : draw}
+  viewBox="0 0 170 140"
+  style={`--lm-size:${w};--lm-w:${(3.8 * weight).toFixed(2)}px`}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  focusable="false"
+>
+  <defs>
+    <linearGradient id={uid} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="170" y2="0">
+      <stop offset="0" stop-color="#00D0D0" /><stop offset=".32" stop-color="#00D0D0" />
+      <stop offset=".42" stop-color="#00D08C" /><stop offset=".5" stop-color="#00CC60" />
+      <stop offset=".57" stop-color="#98C400" /><stop offset="1" stop-color="#98C400" />
+    </linearGradient>
+  </defs>
+  {tris.map((t, i) => <path class="lm__tri" d={d(t, true)} stroke={`url(#${uid})`} style={`--len:${length(t, true)};--i:${i}`} />)}
+  {suns.map((s, i) => <path class="lm__sun" d={d(s)} stroke="#F8C000" style={`--len:${length(s, false)};--i:${i}`} />)}
+</svg>
+
+<style>
+  .lm { width: var(--lm-size); height: auto; aspect-ratio: 170 / 140; overflow: visible; flex: none; }
+  .lm path { fill: none; stroke-width: var(--lm-w); stroke-linejoin: bevel; }
+  .lm__sun { stroke-width: calc(var(--lm-w) + .25px); }
+  .lm[data-draw] path { stroke-dasharray: var(--len) var(--len); stroke-dashoffset: var(--len); }
+  /* first paint: triangles 0.55s staggered 80ms, amber strokes last */
+  .lm[data-draw='load'] .lm__tri { animation: lm-draw .55s cubic-bezier(.65, 0, .35, 1) calc(var(--lm-delay, 0ms) + var(--i) * 80ms) forwards; }
+  .lm[data-draw='load'] .lm__sun { animation: lm-draw .2s cubic-bezier(.16, 1, .3, 1) calc(var(--lm-delay, 0ms) + 560ms + var(--i) * 40ms) forwards; }
+  /* in view: chrome.js adds .is-drawn */
+  .lm[data-draw='view'] .lm__tri { transition: stroke-dashoffset .9s cubic-bezier(.65, 0, .35, 1) calc(var(--i) * 90ms); }
+  .lm[data-draw='view'] .lm__sun { transition: stroke-dashoffset .3s cubic-bezier(.16, 1, .3, 1) calc(.85s + var(--i) * 50ms); }
+  .lm[data-draw='view'].is-drawn path { stroke-dashoffset: 0; }
+  @keyframes lm-draw { to { stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .lm[data-draw] path { stroke-dasharray: none; stroke-dashoffset: 0; animation: none; transition: none; }
+  }
+  @media (scripting: none) { .lm[data-draw='view'] path { stroke-dasharray: none; stroke-dashoffset: 0; } }
+</style>

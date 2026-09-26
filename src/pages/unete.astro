@@ -1,0 +1,120 @@
+---
+// Únete a Nosotros (/unete, /en/join-us via wrapper). Spec §7: dark hero → light "work with us" + advantages →
+// dark profile self-check → light closing. All client copy comes from o.joinUs / o.landingPage.
+import Base from '../layouts/Base.astro';
+import JoinHero from '../components/join/JoinHero.astro';
+import ProfileCheck from '../components/join/ProfileCheck.astro';
+import Icon from '../components/ui/Icon.astro';
+import { useI18n, pick } from '../i18n/index.js';
+import copy from '../i18n/areas/join.js';
+import { buildWa } from '../data/site.js';
+import { team } from '../data/photos.js';
+const { t, o, lang, url, asset } = useI18n(Astro);
+const c = pick(copy, lang);
+const accentSplit = (text: string, word: string) => {
+  const i = text.lastIndexOf(word);
+  return i < 0 ? [text, '', ''] : [text.slice(0, i), word, text.slice(i + word.length)];
+};
+const [workPre, workAcc, workPost] = accentSplit(o.joinUs.workWithUs, c.workAccent);
+const advantages = [o.joinUs.advantage1, o.joinUs.advantage2].map((title, i) => ({ title, ...c.advantages[i] }));
+const applyHref = buildWa({ text: c.applyMsg, ref: 'web-empleo' });
+const group = team[0];
+---
+<Base title={t.meta.join} description={c.metaDescription}>
+  <JoinHero />
+
+  <section class="section jw" data-theme="light">
+    <div class="wrap jw__grid">
+      <div class="jw__copy">
+        <h2 class="h2" data-reveal="up">{workPre}<span class="accent">{workAcc}</span>{workPost}</h2>
+        <p class="lead jw__lead" data-lit>{o.joinUs.workWithUsText}</p>
+        <div class="jw__why" data-reveal="up">
+          <h3 class="h3">{o.joinUs.whyTitle}</h3>
+          <p class="muted">{o.joinUs.whyText}</p>
+        </div>
+      </div>
+      <figure class="jw__polaroid" data-reveal="up">
+        <span class="jw__tape" aria-hidden="true"></span>
+        <img src={asset('/img/join/booth.webp')} width="600" height="367" alt={c.boothAlt} loading="lazy" decoding="async" />
+        <figcaption>{c.boothCaption}</figcaption>
+      </figure>
+    </div>
+
+    <div class="wrap jw__adv">
+      <h3 class="kicker">{o.joinUs.advantagesTitle}</h3>
+      <div class="grid-2 jw__cards" data-stagger="0.1">
+        {advantages.map((a, i) => (
+          <article class="card jw__card" data-tilt="4" data-glow>
+            <span class="jw__ico"><Icon name={a.icon} size={30} grad /></span>
+            <span class="jw__numeral num num--outline" aria-hidden="true">0{i + 1}</span>
+            <h4 class="h3">{a.title}</h4>
+            <p class="muted">{a.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ProfileCheck />
+
+  <section class="section jc" data-theme="light">
+    <div class="wrap jc__grid">
+      <figure class="jc__photo frame" data-reveal="clip">
+        <img src={asset(group.src)} width={group.w} height={group.h} alt={c.closingAlt} loading="lazy" decoding="async" sizes="(min-width: 1024px) 50vw, 100vw" />
+      </figure>
+      <div class="jc__copy stack">
+        <p class="kicker">{c.closingKicker}</p>
+        <h2 class="h2" data-reveal="up">{c.closingTitle} <span class="accent">{c.closingAccent}</span>{c.closingTitleEnd}</h2>
+        <p class="lead" data-reveal="up">{o.joinUs.profileText}</p>
+        <div class="cta-row" data-reveal="up">
+          <a class="btn btn--primary btn--wa" href={applyHref} target="_blank" rel="noopener" data-magnetic>
+            <span class="btn__glyph"><Icon name="whatsapp" size={22} /></span>{c.apply}
+          </a>
+          <a class="btn btn--text" href={url('about')}>{c.about}<Icon name="arrow" size={18} class="arrow" /></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* work with us */
+  .jw__grid { display: grid; gap: clamp(3rem, 6vw, 5rem); align-items: center; }
+  .jw__copy { display: grid; gap: 1.5rem; }
+  .jw__lead { color: var(--fg); }
+  .jw__why { display: grid; gap: .75rem; padding-top: 1.5rem; border-top: 1px solid var(--line); max-width: var(--measure); }
+  .jw__polaroid {
+    position: relative; justify-self: center; width: min(100%, 420px); margin: 0; padding: 14px 14px 0;
+    background: #fff; border-radius: 6px; transform: rotate(2deg);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset, 0 30px 60px -30px rgba(0, 28, 56, .45), 0 8px 18px -10px rgba(0, 28, 56, .2);
+  }
+  .jw__polaroid img { width: 100%; aspect-ratio: 600 / 367; object-fit: cover; border-radius: 2px; filter: saturate(1.05) contrast(1.02); }
+  .jw__polaroid figcaption { padding: 1rem .25rem 1.3rem; font-family: var(--font-serif); font-style: italic; font-size: 1.35rem; line-height: 1.2; color: var(--navy); text-align: center; }
+  .jw__tape {
+    position: absolute; top: -14px; left: 50%; width: 112px; height: 30px; transform: translateX(-50%) rotate(-3deg);
+    background: linear-gradient(90deg, rgba(0, 208, 208, .35), rgba(152, 196, 0, .35)); backdrop-filter: blur(2px);
+    clip-path: polygon(3% 0, 97% 4%, 100% 100%, 0 96%);
+  }
+  .jw__adv { margin-top: clamp(4rem, 8vw, 7rem); display: grid; gap: 1.75rem; }
+  .jw__cards { align-items: stretch; }
+  .jw__card { display: grid; gap: .9rem; align-content: start; overflow: hidden; min-height: 260px; padding: clamp(1.6rem, 3.4vw, 2.75rem); }
+  .jw__card::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity var(--d-base);
+    background: radial-gradient(360px circle at var(--gx, 50%) var(--gy, 0%), rgba(0, 208, 208, .12), transparent 60%);
+  }
+  .jw__card:hover::after { opacity: 1; }
+  .jw__ico { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 20px; background: var(--mist); }
+  .jw__numeral { position: absolute; right: clamp(1rem, 3vw, 2rem); top: .5rem; font-size: clamp(4.5rem, 3rem + 5vw, 8rem); color: var(--aqua-ink); opacity: .25; }
+  .jw__card .h3 { font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.1rem); letter-spacing: -.02em; margin-top: .75rem; }
+  .jw__card p { max-width: 38ch; }
+
+  /* closing */
+  .jc__grid { display: grid; gap: clamp(2.5rem, 5vw, 5rem); align-items: center; }
+  .jc__photo { margin: 0; aspect-ratio: 4 / 3; box-shadow: var(--sh-card-light); }
+  .jc__copy .h2 { max-width: 16ch; }
+
+  @media (min-width: 1024px) {
+    .jw__grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+    .jc__grid { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
+  }
+</style>

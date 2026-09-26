@@ -1,0 +1,93 @@
+---
+// /sobre-nosotros and /en/about-us (wrapper). Theme rhythm: dark hero → light advantages → dark history → light goals
+// → dark technology + six stages → light news → dark CTA.
+import Base from '../layouts/Base.astro';
+import AboutHero from '../components/about/AboutHero.astro';
+import Historia from '../components/about/Historia.astro';
+import Objetivos from '../components/about/Objetivos.astro';
+import Noticias from '../components/about/Noticias.astro';
+import CeroSeLlena from '../components/home/CeroSeLlena.astro';
+import SeisEtapas from '../components/home/SeisEtapas.astro';
+import Icon from '../components/ui/Icon.astro';
+import copy from '../i18n/areas/about.js';
+import { pick, useI18n } from '../i18n/index.js';
+import { buildWa } from '../data/site.js';
+
+const { t, o, lang, url, asset } = useI18n(Astro);
+const c = pick(copy, lang);
+const a = o.aboutUs;
+---
+<Base title={t.meta.about} description={c.meta.description}>
+  <AboutHero />
+
+  <section id="ventajas" class="section adv" data-theme="light" aria-labelledby="adv-title">
+    <div class="wrap">
+      <div class="adv__head">
+        <p class="kicker">{c.advantages.kicker}</p>
+        <h2 id="adv-title" class="h2" data-split="lines">{c.advantages.title} <span class="accent">{c.advantages.titleAccent}</span></h2>
+      </div>
+      <CeroSeLlena compact />
+    </div>
+  </section>
+
+  <Historia />
+  <Objetivos />
+
+  <section id="tecnologia" class="section tech" data-theme="dark" aria-labelledby="tech-title">
+    <div class="wrap tech__grid">
+      <div class="stack tech__copy">
+        <p class="kicker">{c.tech.kicker}</p>
+        <h2 id="tech-title" class="h2" data-split="lines">{a.techTitle}</h2>
+        <p class="tech__sub" data-reveal="up">{a.techSubtitle}</p>
+        <p class="muted" data-reveal="up" data-delay=".1">{a.techText}</p>
+      </div>
+      <figure class="tech__photo" data-reveal="clip">
+        <img src={asset('/img/about/filter-system.webp')} width="1400" height="973" alt={c.tech.photoAlt} loading="lazy" decoding="async" />
+      </figure>
+    </div>
+  </section>
+  <SeisEtapas mode="static" />
+
+  <Noticias />
+
+  <section id="analiza" class="section ab-cta" data-theme="dark" aria-labelledby="ab-cta-title">
+    <div class="wrap ab-cta__inner">
+      <h2 id="ab-cta-title" class="ab-cta__title" data-split="lines">{c.cta.title} <span class="accent">{c.cta.accent}</span></h2>
+      <p class="lead" data-reveal="up">{c.cta.text}</p>
+      <div class="cta-row ab-cta__row" data-reveal="up" data-delay=".1">
+        <a class="btn btn--primary btn--wa" href={buildWa({ text: t.wa.analysis, ref: 'web-about' })} target="_blank" rel="noopener" data-magnetic>
+          <span class="btn__glyph"><Icon name="whatsapp" size={22} /></span>{t.cta.freeAnalysisLong}
+        </a>
+        <a class="btn btn--ghost" href={url('analysis')}>{c.cta.lab}<Icon name="arrow" size={18} class="arrow" /></a>
+      </div>
+      <p class="trust-note">{t.cta.trust}</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* TicketStub keys its dark paper off any [data-theme="dark"] ancestor, <html> included: keep the tickets light here
+     (remove once TicketStub resolves the nearest theme) */
+  .adv.adv :global(.ticket__paper) { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+  .adv.adv :global(.ticket) { filter: drop-shadow(0 18px 22px rgba(0, 28, 56, .12)); }
+  .adv.adv :global(.ticket__stub svg) { stroke: url(#rw-grad-ink); }
+  .adv__head { display: grid; gap: 1.25rem; max-width: 44rem; margin-bottom: clamp(1.5rem, 4vw, 3rem); }
+
+  .tech__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 6vw, 6rem); align-items: center; }
+  .tech__sub { font-size: var(--fs-lead); line-height: 1.45; color: var(--fg); font-weight: 500; }
+  .tech__photo { margin: 0; border-radius: var(--r-lg); overflow: hidden; aspect-ratio: 4 / 3; box-shadow: var(--sh-card-dark); position: relative; }
+  .tech__photo img { width: 100%; height: 100%; object-fit: cover; object-position: 60% 40%; }
+  .tech__photo::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgba(0, 208, 208, .25); pointer-events: none; }
+
+  .ab-cta { overflow: clip; text-align: center; }
+  .ab-cta::before {
+    content: ""; position: absolute; inset: auto -10% -40% -10%; height: 90%; z-index: -1;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(0, 208, 208, .22), rgba(0, 208, 208, 0) 70%);
+  }
+  .ab-cta__inner { display: grid; justify-items: center; gap: 1.5rem; }
+  .ab-cta__title { font-size: var(--fs-h2); line-height: 1.02; letter-spacing: -.03em; max-width: 18ch; }
+  .ab-cta__inner .lead { margin-inline: auto; }
+  .ab-cta__row { justify-content: center; }
+
+  @media (max-width: 900px) { .tech__grid { grid-template-columns: 1fr; } }
+</style>

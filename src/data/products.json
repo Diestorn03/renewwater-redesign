@@ -1,0 +1,841 @@
+[
+  {
+    "slug": "renew-city",
+    "name": "Renew City",
+    "title": {
+      "es": "Renew City",
+      "en": "Renew City"
+    },
+    "categories": [
+      "ciudad"
+    ],
+    "stages": 6,
+    "order": 1,
+    "flyers": [
+      "/img/products/product-9.webp",
+      "/img/products/product-12.webp",
+      "/img/products/product-10.webp"
+    ],
+    "thumb": "/img/products/product-9-sm.webp",
+    "cutout": "/img/products/cut-renew-city.webp",
+    "cutoutSize": [
+      376,
+      778
+    ],
+    "tagline": {
+      "es": "Máxima purificación para el agua de ciudad",
+      "en": "Maximum purification for city water"
+    },
+    "taglineAccent": {
+      "es": "agua de ciudad",
+      "en": "city water"
+    },
+    "description": {
+      "es": "En zonas urbanas, el agua que llega a nuestros hogares a través del sistema municipal puede parecer limpia, pero en realidad suele contener niveles elevados de cloro, metales pesados, bacterias, pesticidas y otros contaminantes invisibles que afectan directamente nuestra salud y calidad de vida. Conscientes de esta realidad, en Renew Water desarrollamos el sistema Renew City, una solución avanzada de purificación diseñada específicamente para los hogares exigentes de la ciudad.\n\nEste sistema de 6 etapas de filtrado profundo no solo elimina impurezas, sino que también acondiciona el agua para cuidar tu bienestar desde el primer uso. Al mejorar el pH y reducir la acidez, Renew City protege tu piel, tu sistema digestivo y te brinda una experiencia de agua más saludable y equilibrada en cada gota.",
+      "en": "In urban areas, the water that reaches our homes through the municipal system may look clean, but it often contains high levels of chlorine, heavy metals, bacteria, pesticides, and other invisible contaminants that directly affect our health and quality of life. With this in mind, Renew Water developed the Renew City system, an advanced purification solution designed specifically for demanding city households.\n\nThis 6-stage deep filtration system doesn't just remove impurities; it also conditions your water to support your well-being from the very first use. By improving pH and reducing acidity, Renew City protects your skin and digestive system and delivers healthier, more balanced water in every drop."
+    },
+    "highlights": {
+      "es": [
+        "Purificación de alta eficiencia en 6 pasos, con filtración multicapa para garantizar resultados superiores.",
+        "Eliminación efectiva de cloro, metales pesados, sedimentos, pesticidas y otros compuestos nocivos.",
+        "Mejora del pH, proporcionando agua más alcalina y balanceada.",
+        "Tecnología de autolimpieza inteligente, que prolonga la vida útil del sistema y reduce el mantenimiento."
+      ],
+      "en": [
+        "High-efficiency 6-step purification with multi-layer filtration for superior results.",
+        "Effective removal of chlorine, heavy metals, sediment, pesticides, and other harmful compounds.",
+        "Improved pH for more alkaline, balanced water.",
+        "Smart self-cleaning technology that extends system life and reduces maintenance."
+      ]
+    },
+    "idealFor": {
+      "es": "Casas y apartamentos conectados a sistemas de agua municipales, especialmente en áreas donde la calidad del agua es baja o presenta un sabor y olor desagradables debido al cloro.",
+      "en": "Houses and apartments on municipal water, especially in areas where water quality is poor or has an unpleasant chlorine taste and odor."
+    },
+    "closing": {
+      "es": "Con Renew City, el agua de tu hogar no solo se ve limpia: se transforma en una fuente real de salud y bienestar.",
+      "en": "With Renew City, your home's water doesn't just look clean: it becomes a real source of health and well-being."
+    },
+    "alt": {
+      "es": "Tanque Renew City de acero inoxidable con válvula de control digital, junto a su tanque de salmuera negro",
+      "en": "Renew City stainless-steel tank with a digital control valve, next to its black brine tank"
+    },
+    "stageList": {
+      "es": [
+        "Paso 1: Grava - Clarifica",
+        "Paso 2: Garnet - Refina",
+        "Paso 3: Resina Catiónica - Suaviza",
+        "Paso 4: Resina Aniónica - Acondiciona",
+        "Paso 5: Carbón Activado - Filtra",
+        "Paso 6: KDF - Descontamina"
+      ],
+      "en": [
+        "Step 1: Gravel - Clarifies",
+        "Step 2: Garnet - Refines",
+        "Step 3: Cation Resin - Softens",
+        "Step 4: Anion Resin - Conditions",
+        "Step 5: Activated Carbon - Filters",
+        "Step 6: KDF - Decontaminates"
+      ]
+    },
+    "visual": "Tall brushed stainless-steel filtration tank with a black digital control valve (showing 09:27, branded Renew Water), shown in cutaway with six colored media layers, next to a black square brine/salt tank."
+  },
+  {
+    "slug": "renew-duo",
+    "name": "Renew Duo",
+    "title": {
+      "es": "Renew Duo",
+      "en": "Renew Duo"
+    },
+    "categories": [
+      "ciudad"
+    ],
+    "stages": null,
+    "order": 2,
+    "flyers": [
+      "/img/products/product-5.webp"
+    ],
+    "thumb": "/img/products/product-5-sm.webp",
+    "cutout": "/img/products/cut-renew-duo.webp",
+    "cutoutSize": [
+      492,
+      766
+    ],
+    "badge": {
+      "es": "Doble tanque",
+      "en": "Dual tank"
+    },
+    "tagline": {
+      "es": "Alto rendimiento sin comprometer la presión de tu hogar",
+      "en": "High performance without losing your home's water pressure"
+    },
+    "taglineAccent": {
+      "es": "la presión",
+      "en": "water pressure"
+    },
+    "description": {
+      "es": "El sistema Duo de Renew Water es una solución de purificación de alto rendimiento, diseñada para hogares que exigen lo mejor en calidad de agua, sin comprometer la presión ni la eficiencia del sistema hidráulico. Esta innovadora configuración de doble tanque trabaja en conjunto para ofrecer una filtración avanzada, una corrección precisa del pH y una experiencia de agua suave, limpia y saludable en cada punto de uso del hogar.",
+      "en": "The Renew Water Duo system is a high-performance purification solution designed for homes that demand the best in water quality without sacrificing pressure or the efficiency of the plumbing system. This innovative dual-tank configuration works together to deliver advanced filtration, precise pH correction, and soft, clean, healthy water at every point of use in your home."
+    },
+    "highlights": {
+      "es": [
+        "Purificación profunda y balance químico del agua.",
+        "Mejora del pH y eliminación de impurezas complejas.",
+        "Doble tanque para mayor capacidad de tratamiento.",
+        "Mantiene la presión de agua original del hogar."
+      ],
+      "en": [
+        "Deep purification and chemical balancing of your water.",
+        "Improves pH and removes complex impurities.",
+        "Dual tanks for greater treatment capacity.",
+        "Maintains your home's original water pressure."
+      ]
+    },
+    "idealFor": {
+      "es": "Viviendas con necesidades exigentes de calidad de agua.",
+      "en": "Homes with demanding water-quality needs."
+    },
+    "alt": {
+      "es": "Dos tanques Renew Duo de acero inoxidable, uno con válvula de control digital, y un tanque de salmuera negro",
+      "en": "Two Renew Duo stainless-steel tanks, one with a digital control valve, and a black brine tank"
+    },
+    "stageList": {
+      "es": [],
+      "en": []
+    },
+    "visual": "Two tall polished stainless-steel tanks with the teal/lime Renew Water logo printed vertically (left tank topped by a black digital control valve showing 09:27, right tank by a black bypass head), beside a short black rectangular brine/salt tank."
+  },
+  {
+    "slug": "5-pasos-eco",
+    "name": "5 Pasos Eco",
+    "title": {
+      "es": "5 Pasos Eco",
+      "en": "5 Pasos Eco"
+    },
+    "categories": [
+      "ciudad"
+    ],
+    "stages": 5,
+    "order": 3,
+    "flyers": [
+      "/img/products/product-2.webp"
+    ],
+    "thumb": "/img/products/product-2-sm.webp",
+    "cutout": "/img/products/cut-5-pasos-eco.webp",
+    "cutoutSize": [
+      357,
+      800
+    ],
+    "tagline": {
+      "es": "Calidad, diseño y eficiencia para tu hogar",
+      "en": "Quality, design and efficiency for your home"
+    },
+    "taglineAccent": {
+      "es": "tu hogar",
+      "en": "your home"
+    },
+    "description": {
+      "es": "Este equipo de purificación de agua de 5 pasos ha sido diseñado para brindar agua limpia, segura y de excelente sabor directamente en el punto de entrada de tu hogar. Su estructura compacta, moderna y robusta lo convierte en la solución ideal para interiores residenciales.",
+      "en": "This 5-stage water purification system is designed to deliver clean, safe, great-tasting water right at your home's point of entry. Its compact, modern and sturdy build makes it the ideal solution for indoor residential installation."
+    },
+    "highlights": {
+      "es": [
+        "Agua más pura en todos los puntos del hogar",
+        "Mayor protección para electrodomésticos y tuberías",
+        "Sabor natural y agradable sin olores indeseados",
+        "Mejora en la calidad de vida y salud familiar"
+      ],
+      "en": [
+        "Purer water at every tap in your home",
+        "Better protection for your appliances and plumbing",
+        "Natural, pleasant taste with no unwanted odors",
+        "A better quality of life and healthier family"
+      ]
+    },
+    "idealFor": {
+      "es": "Interiores residenciales: agua limpia en el punto de entrada de tu hogar.",
+      "en": "Indoor residential installation: clean water at your home's point of entry."
+    },
+    "alt": {
+      "es": "Tanque negro 5 Pasos Eco con cabezal de control color crema, junto a su gabinete de salmuera",
+      "en": "Black 5 Pasos Eco tank with a cream control head, next to its brine cabinet"
+    },
+    "stageList": {
+      "es": [],
+      "en": []
+    },
+    "visual": "A single tall matte-black resin tank with a beige/cream control head, the vertical RENEW WATER logo in a teal-to-lime gradient, and a shorter black rectangular brine/salt cabinet beside it."
+  },
+  {
+    "slug": "linea-clasica",
+    "name": "Línea Clásica",
+    "title": {
+      "es": "Línea Clásica",
+      "en": "Classic Line"
+    },
+    "categories": [
+      "ciudad",
+      "pozo",
+      "linea"
+    ],
+    "stages": null,
+    "order": 4,
+    "flyers": [
+      "/img/products/product-8.webp"
+    ],
+    "thumb": "/img/products/product-8-sm.webp",
+    "cutout": "/img/products/cut-linea-clasica.webp",
+    "cutoutSize": [
+      454,
+      748
+    ],
+    "stageOptions": [
+      2,
+      3,
+      4
+    ],
+    "tagline": {
+      "es": "Agua segura, clara y confiable en cada grifo",
+      "en": "Safe, clear, reliable water at every faucet"
+    },
+    "taglineAccent": {
+      "es": "cada grifo",
+      "en": "every faucet"
+    },
+    "description": {
+      "es": "La línea clásica está pensada para hogares que exigen un mayor nivel de purificación, sin llegar al costo de soluciones industriales, pero que valoran la tranquilidad de contar con agua segura, clara y confiable en cada grifo del hogar.",
+      "en": "The Classic Line is designed for homes that demand a higher level of purification without the cost of industrial systems, and that value the peace of mind of safe, clear, reliable water at every faucet in the house."
+    },
+    "highlights": {
+      "es": [
+        "Mayor nivel de purificación, sin llegar al costo de soluciones industriales.",
+        "Agua segura, clara y confiable en cada grifo del hogar.",
+        "Tres configuraciones: 2, 3 y 4 pasos, según el agua de tu casa."
+      ],
+      "en": [
+        "A higher level of purification without the cost of industrial systems.",
+        "Safe, clear, reliable water at every faucet in the house.",
+        "Three configurations: 2, 3 and 4 stages, depending on your home's water."
+      ]
+    },
+    "idealFor": {
+      "es": "Hogares que exigen un mayor nivel de purificación, con agua de ciudad o de pozo.",
+      "en": "Homes that demand a higher level of purification, on city or well water."
+    },
+    "variants": [
+      {
+        "stages": 2,
+        "name": {
+          "es": "2 Pasos",
+          "en": "2-Stage"
+        },
+        "size": "9 × 48",
+        "idealFor": {
+          "es": "Hogares que reciben agua de ciudad con tratamiento previo.",
+          "en": "Homes on city water that has already been treated."
+        }
+      },
+      {
+        "stages": 3,
+        "name": {
+          "es": "3 Pasos",
+          "en": "3-Stage"
+        },
+        "size": "10 × 48",
+        "idealFor": {
+          "es": "Familias que buscan una solución más completa y confiable sin elevar demasiado su presupuesto.",
+          "en": "Families who want a more complete, reliable solution without stretching their budget."
+        }
+      },
+      {
+        "stages": 4,
+        "name": {
+          "es": "4 Pasos",
+          "en": "4-Stage"
+        },
+        "size": "13 × 54",
+        "idealFor": {
+          "es": "Hogares que utilizan agua de pozo, zonas rurales o clientes exigentes que desean agua altamente purificada.",
+          "en": "Homes on well water, rural areas, or demanding customers who want highly purified water."
+        }
+      }
+    ],
+    "alt": {
+      "es": "Tres tanques de acero inoxidable de la Línea Clásica, de 2, 3 y 4 pasos, con válvulas de control digitales",
+      "en": "Three stainless-steel Classic Line tanks, 2, 3 and 4 stages, with digital control valves"
+    },
+    "stageList": {
+      "es": [],
+      "en": []
+    },
+    "visual": "Three brushed stainless-steel cylindrical whole-house filter tanks of increasing height (2, 3 and 4 stages), each with a black digital control valve head on top (display showing 09:27) and the green/teal Renew Water triangle logo and wordmark printed vertically on the tank."
+  },
+  {
+    "slug": "linea-economica",
+    "name": "Línea Económica",
+    "title": {
+      "es": "Línea Económica",
+      "en": "Economy Line"
+    },
+    "categories": [
+      "ciudad",
+      "pozo",
+      "linea"
+    ],
+    "stages": null,
+    "order": 5,
+    "flyers": [
+      "/img/products/product-7.webp"
+    ],
+    "thumb": "/img/products/product-7-sm.webp",
+    "cutout": "/img/products/cut-linea-economica.webp",
+    "cutoutSize": [
+      408,
+      714
+    ],
+    "stageOptions": [
+      2,
+      3,
+      4
+    ],
+    "tagline": {
+      "es": "Purificación accesible para agua de ciudad y de pozo",
+      "en": "Affordable purification for city and well water"
+    },
+    "taglineAccent": {
+      "es": "accesible",
+      "en": "Affordable"
+    },
+    "description": {
+      "es": "Nuestra línea económica ha sido diseñada para brindar soluciones accesibles y eficientes a las familias que buscan mejorar la calidad del agua sin comprometer la seguridad ni la durabilidad. Adaptable a aguas de ciudad y pozo, cada modelo cuenta con materiales resistentes, sistema multietapas, garantía y asistencia continua.",
+      "en": "Our economy line is designed to give families affordable, efficient solutions for better water quality without compromising safety or durability. Suitable for both city and well water, every model features durable materials, a multi-stage system, a warranty, and ongoing support."
+    },
+    "highlights": {
+      "es": [
+        "Adaptable a aguas de ciudad y pozo",
+        "Materiales resistentes",
+        "Sistema multietapas",
+        "Garantía y asistencia continua"
+      ],
+      "en": [
+        "Works with city and well water",
+        "Durable materials",
+        "Multi-stage system",
+        "Warranty and ongoing support"
+      ]
+    },
+    "idealFor": {
+      "es": "Familias que buscan mejorar la calidad del agua sin comprometer la seguridad ni la durabilidad.",
+      "en": "Families who want better water without compromising on safety or durability."
+    },
+    "variants": [
+      {
+        "stages": 2,
+        "name": {
+          "es": "Renew 2 Pasos",
+          "en": "Renew 2-Stage"
+        },
+        "size": "9 × 48",
+        "idealFor": {
+          "es": "Hogares que reciben agua de ciudad con tratamiento previo.",
+          "en": "Homes on city water that has already been treated."
+        }
+      },
+      {
+        "stages": 3,
+        "name": {
+          "es": "Renew 3 Pasos",
+          "en": "Renew 3-Stage"
+        },
+        "size": "10 × 48",
+        "idealFor": {
+          "es": "Familias que buscan una solución más completa y confiable sin elevar demasiado su presupuesto.",
+          "en": "Families who want a more complete, reliable solution without stretching their budget."
+        }
+      },
+      {
+        "stages": 4,
+        "name": {
+          "es": "Renew 4 Pasos",
+          "en": "Renew 4-Stage"
+        },
+        "size": "13 × 54",
+        "idealFor": {
+          "es": "Hogares que utilizan agua de pozo, zonas rurales o clientes exigentes que desean agua altamente purificada.",
+          "en": "Homes on well water, rural areas, or demanding customers who want highly purified water."
+        }
+      }
+    ],
+    "alt": {
+      "es": "Tres tanques negros de la Línea Económica, Renew 2, 3 y 4 Pasos, con válvulas de control digitales",
+      "en": "Three black Economy Line tanks, Renew 2, 3 and 4-Stage, with digital control valves"
+    },
+    "stageList": {
+      "es": [],
+      "en": []
+    },
+    "visual": "Three tall matte-black cylindrical filter tanks of increasing height (2, 3 and 4 Pasos), each with a digital control-valve head on top and a vertical teal-to-green \"RENEW WATER\" logo, set on a white background with a teal band below."
+  },
+  {
+    "slug": "agua-de-pozo",
+    "name": "Agua de Pozo",
+    "title": {
+      "es": "Agua de Pozo",
+      "en": "Well Water"
+    },
+    "categories": [
+      "pozo"
+    ],
+    "stages": null,
+    "order": 6,
+    "flyers": [
+      "/img/products/product-3.webp"
+    ],
+    "thumb": "/img/products/product-3-sm.webp",
+    "cutout": "/img/products/cut-agua-de-pozo.webp",
+    "cutoutSize": [
+      554,
+      762
+    ],
+    "badge": {
+      "es": "Doble tanque",
+      "en": "Dual tank"
+    },
+    "tagline": {
+      "es": "Doble tanque, diseñado para agua de pozo",
+      "en": "A dual-tank system built for well water"
+    },
+    "taglineAccent": {
+      "es": "agua de pozo",
+      "en": "well water"
+    },
+    "description": {
+      "es": "Diseñado especialmente para tratar agua de pozo, este sistema de purificación de doble tanque garantiza agua limpia, segura y de excelente calidad para el consumo doméstico o comercial.",
+      "en": "Designed specifically to treat well water, this dual-tank purification system delivers clean, safe, high-quality water for home or commercial use."
+    },
+    "highlights": {
+      "es": [
+        "Alto rendimiento de purificación",
+        "Mejora sabor, olor y claridad del agua",
+        "Bajo mantenimiento",
+        "Apto para uso familiar o comercial"
+      ],
+      "en": [
+        "High-performance purification",
+        "Improves water taste, odor, and clarity",
+        "Low maintenance",
+        "Suitable for family or commercial use"
+      ]
+    },
+    "idealFor": {
+      "es": "Consumo doméstico o comercial con agua de pozo.",
+      "en": "Home or business use on well water."
+    },
+    "alt": {
+      "es": "Dos tanques blancos Renew Water para agua de pozo, con un portafiltro azul y un prefiltro de sedimentos",
+      "en": "Two white Renew Water well-water tanks, with a blue filter housing and a sediment pre-filter"
+    },
+    "stageList": {
+      "es": [],
+      "en": []
+    },
+    "visual": "Two tall white cylindrical tanks with white valve-head covers and a vertical teal-to-green \"RENEW WATER\" logo, next to a blue big-blue filter housing and a clear spin-down sediment pre-filter with a red valve."
+  },
+  {
+    "slug": "agua-de-pozo-plus",
+    "name": "Agua de Pozo Plus",
+    "title": {
+      "es": "Agua de Pozo Plus",
+      "en": "Well Water Plus"
+    },
+    "categories": [
+      "pozo"
+    ],
+    "stages": null,
+    "order": 7,
+    "flyers": [
+      "/img/products/product-4.webp"
+    ],
+    "thumb": "/img/products/product-4-sm.webp",
+    "cutout": "/img/products/cut-agua-de-pozo-plus.webp",
+    "cutoutSize": [
+      1172,
+      738
+    ],
+    "badge": {
+      "es": "Multietapa",
+      "en": "Multi-stage"
+    },
+    "tagline": {
+      "es": "Tratamiento completo para agua de pozo",
+      "en": "Complete treatment for well water"
+    },
+    "taglineAccent": {
+      "es": "agua de pozo",
+      "en": "well water"
+    },
+    "description": {
+      "es": "Este completo sistema de purificación está diseñado para transformar el agua de pozo en agua limpia, segura y confiable para el uso diario en el hogar. Su estructura modular y de alta eficiencia combina múltiples etapas de tratamiento, garantizando una purificación profunda y sostenida.",
+      "en": "This complete purification system is designed to turn well water into clean, safe, dependable water for everyday use at home. Its modular, high-efficiency design combines multiple treatment stages to deliver thorough, long-lasting purification."
+    },
+    "highlights": {
+      "es": [
+        "Tratamiento completo para agua de pozo",
+        "Agua libre de metales, bacterias y malos olores",
+        "Bajo mantenimiento y alta durabilidad"
+      ],
+      "en": [
+        "Complete treatment for well water",
+        "Water free of metals, bacteria, and bad odors",
+        "Low maintenance and long-lasting"
+      ]
+    },
+    "idealFor": {
+      "es": "Viviendas unifamiliares o propiedades rurales.",
+      "en": "Single-family homes or rural properties."
+    },
+    "alt": {
+      "es": "Sistema completo para agua de pozo: tanque de salmuera, tres tanques blancos, filtros de sedimentos, lámpara UV, tanque dosificador y tanque de presión",
+      "en": "Complete well-water system: brine tank, three white tanks, sediment filters, UV lamp, feed tank and pressure tank"
+    },
+    "stageList": {
+      "es": [],
+      "en": []
+    },
+    "visual": "A complete well-water setup: a white brine tank, three tall white tanks with white valve heads and a vertical Renew Water logo, a blue sediment filter housing, a stainless-steel UV sterilizer tube, a clear spin-down sediment filter with a red valve, a translucent chemical feed tank, and a large white fiberglass pressure tank on a navy base."
+  },
+  {
+    "slug": "renew-apto-4-pasos",
+    "name": "Renew Apto 4 Pasos",
+    "title": {
+      "es": "Renew Apto 4 Pasos",
+      "en": "Renew Apto 4-Stage"
+    },
+    "categories": [
+      "apartamento"
+    ],
+    "stages": 4,
+    "order": 8,
+    "flyers": [
+      "/img/products/product-13.webp"
+    ],
+    "thumb": "/img/products/product-13-sm.webp",
+    "cutout": "/img/products/cut-renew-apto-4-pasos.webp",
+    "cutoutSize": [
+      282,
+      794
+    ],
+    "line": {
+      "es": "Línea Clásica",
+      "en": "Classic Line"
+    },
+    "tagline": {
+      "es": "Purificación efectiva y duradera para tu apartamento",
+      "en": "Effective, long-lasting purification for your apartment"
+    },
+    "taglineAccent": {
+      "es": "tu apartamento",
+      "en": "your apartment"
+    },
+    "description": {
+      "es": "El sistema Renew Apto 4 Pasos – Plastic es la solución perfecta para quienes buscan purificación efectiva y duradera en el hogar o apartamento. Gracias a sus 4 etapas de filtrado, este equipo está diseñado para eliminar impurezas, olores, sabores y sedimentos no deseados del agua potable.",
+      "en": "The Renew Apto 4-Stage – Plastic system is the perfect solution for anyone looking for effective, long-lasting water purification at home or in an apartment. With 4 filtration stages, it is designed to remove unwanted impurities, odors, tastes, and sediment from your drinking water."
+    },
+    "highlights": {
+      "es": [
+        "Filtración en 4 etapas: Garantiza una purificación completa para mejorar la calidad del agua en cada gota.",
+        "Diseño compacto y funcional: Ideal para espacios residenciales, con instalación sencilla y mantenimiento práctico.",
+        "Material plástico resistente: Fabricado con materiales de alta calidad que ofrecen durabilidad sin comprometer la estética.",
+        "Color gris moderno: Combina fácilmente con cocinas y espacios contemporáneos.",
+        "5 botones de control: Permiten un manejo seguro y cómodo del sistema."
+      ],
+      "en": [
+        "4-stage filtration: Delivers thorough purification to improve the quality of every drop.",
+        "Compact, functional design: Ideal for homes and apartments, with easy installation and simple maintenance.",
+        "Durable plastic construction: Made from high-quality materials that last without sacrificing looks.",
+        "Modern gray finish: Blends easily with contemporary kitchens and living spaces.",
+        "5 control buttons: Safe, convenient operation of the system."
+      ]
+    },
+    "idealFor": {
+      "es": "Espacios residenciales: hogar o apartamento.",
+      "en": "Residential spaces: house or apartment."
+    },
+    "alt": {
+      "es": "Tanque Renew Apto 4 Pasos de plástico gris con franja oscura y logo vertical",
+      "en": "Gray plastic Renew Apto 4-Stage tank with a dark band and vertical logo"
+    },
+    "stageList": {
+      "es": [],
+      "en": []
+    },
+    "visual": "A single tall, light-gray plastic cylindrical tank with a rounded gray cap and control head on top and a dark charcoal band below the cap. The Renew Water logo and wordmark run vertically down the front in teal-to-green gradient letters."
+  },
+  {
+    "slug": "renew-small-4-pasos",
+    "name": "Renew Small 4 Pasos",
+    "title": {
+      "es": "Renew Small 4 Pasos",
+      "en": "Renew Small 4-Stage"
+    },
+    "categories": [
+      "apartamento"
+    ],
+    "stages": 4,
+    "order": 9,
+    "flyers": [
+      "/img/products/product-14.webp"
+    ],
+    "thumb": "/img/products/product-14-sm.webp",
+    "cutout": "/img/products/cut-renew-small-4-pasos.webp",
+    "cutoutSize": [
+      215,
+      800
+    ],
+    "line": {
+      "es": "Línea Clásica",
+      "en": "Classic Line"
+    },
+    "tagline": {
+      "es": "Sistema compacto de purificación",
+      "en": "Compact purification system"
+    },
+    "taglineAccent": {
+      "es": "compacto",
+      "en": "Compact"
+    },
+    "description": {
+      "es": "El modelo Renew Small es la opción ideal para quienes necesitan un sistema de purificación eficiente y de menor tamaño, sin comprometer la calidad del agua. Su diseño práctico, en color beige y con opción de 3 o 5 botones, lo convierte en una solución versátil para espacios pequeños y familias modernas.",
+      "en": "The Renew Small is the ideal choice if you need an efficient, smaller purification system without compromising water quality. Its practical design, in beige with a choice of 3 or 5 buttons, makes it a versatile solution for small spaces and modern families."
+    },
+    "highlights": {
+      "es": [
+        "Purificación eficiente en menor tamaño, sin comprometer la calidad del agua.",
+        "Diseño práctico en color beige.",
+        "Opción de 3 o 5 botones de control.",
+        "Solución versátil para espacios pequeños y familias modernas."
+      ],
+      "en": [
+        "Efficient purification in a smaller size, without compromising water quality.",
+        "Practical design in beige.",
+        "Choice of 3 or 5 control buttons.",
+        "A versatile solution for small spaces and modern families."
+      ]
+    },
+    "idealFor": {
+      "es": "Apartamentos, familias pequeñas o clientes que buscan una opción económica y funcional sin perder calidad de filtración.",
+      "en": "Apartments, small families, or anyone looking for an affordable, functional option without sacrificing filtration quality."
+    },
+    "alt": {
+      "es": "Tanque delgado Renew Small 4 Pasos color beige con cabezal de control blanco",
+      "en": "Slim beige Renew Small 4-Stage tank with a white control head"
+    },
+    "stageList": {
+      "es": [],
+      "en": []
+    },
+    "visual": "One slim beige/off-white cylindrical filter tank with a white-and-black control-valve head on top and the RENEW WATER logo printed vertically in a teal-to-green gradient."
+  },
+  {
+    "slug": "osmosis-inversa",
+    "name": "Ósmosis Inversa",
+    "title": {
+      "es": "Ósmosis Inversa",
+      "en": "Reverse Osmosis"
+    },
+    "categories": [
+      "bajo-fregadero"
+    ],
+    "stages": null,
+    "order": 10,
+    "flyers": [
+      "/img/products/product-11.webp"
+    ],
+    "thumb": "/img/products/product-11-sm.webp",
+    "cutout": "/img/products/cut-osmosis-inversa.webp",
+    "cutoutSize": [
+      572,
+      606
+    ],
+    "stageOptions": [
+      3,
+      5,
+      6,
+      7
+    ],
+    "tagline": {
+      "es": "Agua pura directo del grifo: máxima seguridad en cada gota",
+      "en": "Pure water straight from the tap: maximum safety in every drop"
+    },
+    "taglineAccent": {
+      "es": "cada gota",
+      "en": "every drop"
+    },
+    "description": {
+      "es": "La Ósmosis Inversa de Renew Water está disponible en 4 configuraciones según el nivel de pureza deseado. Este sistema elimina hasta el 99% de los contaminantes del agua, incluyendo sales, virus, bacterias, cloro, metales pesados y microplásticos. Ideal para instalar bajo el fregadero de la cocina para obtener agua potable de alta calidad al instante.",
+      "en": "Renew Water Reverse Osmosis comes in 4 configurations, depending on the level of purity you want. The system removes up to 99% of water contaminants, including salts, viruses, bacteria, chlorine, heavy metals and microplastics. It's designed to install under your kitchen sink, so you get high-quality drinking water on demand."
+    },
+    "highlights": {
+      "es": [
+        "Elimina hasta el 99% de los contaminantes del agua: sales, virus, bacterias, cloro, metales pesados y microplásticos.",
+        "4 configuraciones según el nivel de pureza deseado.",
+        "Se instala bajo el fregadero de la cocina."
+      ],
+      "en": [
+        "Removes up to 99% of water contaminants: salts, viruses, bacteria, chlorine, heavy metals and microplastics.",
+        "4 configurations, depending on the level of purity you want.",
+        "Installs under the kitchen sink."
+      ]
+    },
+    "idealFor": {
+      "es": "Instalar bajo el fregadero de la cocina para obtener agua potable de alta calidad al instante.",
+      "en": "Under-sink installation in the kitchen for high-quality drinking water on demand."
+    },
+    "configs": {
+      "3": {
+        "es": "Filtrado básico de sedimentos y cloro.",
+        "en": "Basic sediment and chlorine filtration."
+      },
+      "5": {
+        "es": "Filtración profunda con membrana.",
+        "en": "Deep filtration with a membrane."
+      },
+      "6": {
+        "es": "Añade remineralización y corrección de pH.",
+        "en": "Adds remineralization and pH correction."
+      },
+      "7": {
+        "es": "Incluye lámpara UV para desinfección total.",
+        "en": "Includes a UV lamp for complete disinfection."
+      }
+    },
+    "alt": {
+      "es": "Equipo de ósmosis inversa bajo fregadero con prefiltros ACB, GAC y SED, cartuchos PAC, ALK y ROM, tanque de almacenamiento y grifo de acero",
+      "en": "Under-sink reverse osmosis unit with ACB, GAC and SED pre-filters, PAC, ALK and ROM cartridges, storage tank and steel faucet"
+    },
+    "stageList": {
+      "es": [
+        "3 Etapas: filtrado básico de sedimentos y cloro.",
+        "5 Etapas: filtración profunda con membrana.",
+        "6 Etapas: añade remineralización y corrección de pH.",
+        "7 Etapas: incluye lámpara UV para desinfección total."
+      ],
+      "en": [
+        "3 Stages: basic sediment and chlorine filtration.",
+        "5 Stages: deep filtration with a membrane.",
+        "6 Stages: adds remineralization and pH correction.",
+        "7 Stages: includes a UV lamp for complete disinfection."
+      ]
+    },
+    "visual": "Under-sink reverse osmosis unit: three clear-housing pre-filters labeled ACB (blue), GAC (green) and SED (yellow) under a white bracket with a blue \"RO System\" band, three horizontal inline cartridges on top labeled PAC (orange), ALK (purple) and ROM (dark blue), a white pressurized storage tank on the right, and a brushed-steel gooseneck faucet."
+  },
+  {
+    "slug": "astrid",
+    "name": "Astrid",
+    "title": {
+      "es": "Astrid",
+      "en": "Astrid"
+    },
+    "categories": [
+      "dispensador"
+    ],
+    "stages": null,
+    "order": 11,
+    "flyers": [
+      "/img/products/product-6.webp"
+    ],
+    "thumb": "/img/products/product-6-sm.webp",
+    "cutout": "/img/products/cut-astrid.webp",
+    "cutoutSize": [
+      538,
+      764
+    ],
+    "badge": {
+      "es": "Multietapa",
+      "en": "Multi-stage"
+    },
+    "tagline": {
+      "es": "Tecnología avanzada al servicio de tu bienestar",
+      "en": "Advanced technology for your well-being"
+    },
+    "taglineAccent": {
+      "es": "tu bienestar",
+      "en": "your well-being"
+    },
+    "description": {
+      "es": "Este moderno purificador de agua combina diseño elegante, funcionalidad inteligente y máxima eficiencia para ofrecer agua segura y de excelente sabor directamente en tu hogar u oficina.",
+      "en": "This modern water purifier combines sleek design, smart functionality and top efficiency to deliver safe, great-tasting water right in your home or office."
+    },
+    "highlights": {
+      "es": [
+        "Pantalla digital inteligente: Control táctil intuitivo.",
+        "Purificación multietapa: Incluye filtros que eliminan sedimentos, cloro, metales pesados, bacterias y otros contaminantes.",
+        "Diseño compacto y elegante: Perfecto para espacios interiores modernos, sin necesidad de instalaciones complejas.",
+        "Ecológico y seguro: Reduce el consumo de botellas plásticas, con materiales libres de BPA y sistema de autoapagado."
+      ],
+      "en": [
+        "Smart digital display: Intuitive touch controls.",
+        "Multi-stage purification: Includes filters that remove sediment, chlorine, heavy metals, bacteria and other contaminants.",
+        "Compact, elegant design: Perfect for modern interiors, with no complex installation required.",
+        "Eco-friendly and safe: Cuts down on plastic bottles, with BPA-free materials and an auto shut-off system."
+      ]
+    },
+    "idealFor": {
+      "es": "Hogares, oficinas, consultorios y espacios comerciales.",
+      "en": "Homes, offices, medical practices and commercial spaces."
+    },
+    "closing": {
+      "es": "Ahorro a largo plazo y garantía de calidad en cada gota.",
+      "en": "Long-term savings and quality you can count on in every drop."
+    },
+    "alt": {
+      "es": "Purificador dispensador Astrid blanco con pantalla táctil y un vaso de agua",
+      "en": "White Astrid dispenser purifier with a touch display and a glass of water"
+    },
+    "stageList": {
+      "es": [],
+      "en": []
+    },
+    "visual": "White countertop dispenser purifier with a black glossy touch-panel on top showing a digital temperature readout (95 °C), a single chrome spout and a stainless drip tray with a glass of water."
+  }
+]

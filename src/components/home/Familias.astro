@@ -1,0 +1,131 @@
+---
+/**
+ * #familias · Reseñas · light.
+ * The four water reviews (Gloria Perez is about solar panels, so she is left out) re-typed as HTML cards.
+ * Desktop gate: sticky card stack (engine .stack-card scales/tilts the card underneath) with the heading pinned
+ * beside it, stars filling with a 0.05 stagger. Touch/narrow: snap deck. Reduced motion on desktop: 2×2 grid.
+ * Below, "Familias Renew en Florida": the 11 client photos in two marquee rows running in opposite directions,
+ * never paired with a review (one row on phones, a static grid with reduced motion).
+ */
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/offer.js';
+import reviews from '../../data/reviews.json';
+import { clients } from '../../data/photos.js';
+import ReviewCard from '../ui/ReviewCard.astro';
+const { o, lang, asset } = useI18n(Astro);
+const c = pick(copy, lang).familias;
+const water = reviews.filter((r) => !r.solar);
+const photos = clients.map((p, i) => ({ ...p, n: i + 1, smW: 520, smH: Math.round((520 * p.h) / p.w) }));
+const rows = [photos, [...photos.slice(5), ...photos.slice(0, 5)]];
+---
+<section id="familias" class="section fam" data-theme="light" aria-labelledby="fam-title">
+  <div class="wrap fam__grid">
+    <header class="fam__head">
+      <p class="kicker">{o.home.reviewsTitle}</p>
+      <h2 id="fam-title" class="h2">{c.title[0]} <span class="accent">{c.title[1]}</span></h2>
+      <p class="lead">{c.lead}</p>
+    </header>
+    <div class="fam__deck">
+      {water.map((r, i) => <ReviewCard review={r} lang={lang} class={`stack-card fam__card fam__card--${i}`} />)}
+    </div>
+  </div>
+
+  <div class="fam__photos">
+    <div class="wrap fam__photos-head">
+      <h3 class="fam__photos-title">{c.photosTitle}</h3>
+      <p class="fam__photos-text">{c.photosText}</p>
+    </div>
+    {rows.map((row, r) => (
+      <div class:list={['marquee', 'fam__row', r === 1 && 'fam__row--2']} data-direction={r === 1 ? 'right' : undefined} data-speed=".45" aria-hidden={r === 1 ? 'true' : undefined}>
+        <ul class="marquee__track fam__track" role="list">
+          {row.map((p) => (
+            <li class="fam__photo">
+              <a href={asset(p.src)} data-lightbox="familias" data-caption={c.photoCaption} data-lb-morph tabindex={r === 1 ? -1 : undefined}>
+                <img src={asset(p.sm)} width={p.smW} height={p.smH} alt={c.photoAlt(p.n)} loading="lazy" decoding="async" draggable="false" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  import { onPage } from '../../scripts/engine.js';
+  // stars fill in (0.05 stagger) as each review card comes up
+  onPage(({ gsap, env }) => {
+    const root = document.getElementById('familias');
+    if (!root || env.reduced) return;
+    root.querySelectorAll('.fam__card').forEach((card) => {
+      gsap.from(card.querySelectorAll('.stars__f'), {
+        scale: 0, duration: 0.5, ease: 'back.out(3)', stagger: 0.05,
+        scrollTrigger: { trigger: card, start: 'top 80%', once: true },
+      });
+    });
+  });
+</script>
+
+<style>
+  .fam { overflow: clip; }
+  .fam__grid { display: grid; gap: var(--s-6); }
+  .fam__head { display: grid; gap: var(--s-4); justify-items: start; }
+  .fam__head .lead { max-width: 30ch; }
+
+  /* ---------- deck: touch / narrow = horizontal snap ---------- */
+  .fam__deck {
+    display: flex; gap: 14px; align-items: stretch;
+    margin-inline: calc(-1 * var(--gutter)); padding: 8px var(--gutter) 28px;
+    overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter);
+    overscroll-behavior-x: contain; scrollbar-width: none;
+  }
+  .fam__deck::-webkit-scrollbar { display: none; }
+  .fam__deck > :global(.fam__card) { flex: 0 0 min(85vw, 420px); scroll-snap-align: start; }
+
+  /* ---------- desktop, reduced motion: 2×2 ---------- */
+  @media (min-width: 768px) and (pointer: fine) and (prefers-reduced-motion: reduce) {
+    .fam__deck { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-5); margin: 0; padding: 0; overflow: visible; }
+  }
+
+  /* ---------- desktop gate: sticky stack beside a pinned heading ---------- */
+  @media (min-width: 768px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .fam__grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 6vw, 6rem); align-items: start; }
+    .fam__head { position: sticky; top: calc(var(--header-h) + 10vh); }
+    .fam__deck { display: block; margin: 0; padding: 0; overflow: visible; }
+    .fam__deck > :global(.fam__card) {
+      position: sticky; top: calc(var(--header-h) + 6vh + var(--k) * 18px);
+      margin-bottom: 34vh; min-height: min(420px, 60vh); transform-origin: 50% 0;
+    }
+    .fam__deck > :global(.fam__card:last-child) { margin-bottom: 0; }
+    .fam__deck > :global(.fam__card--0) { --k: 0; }
+    .fam__deck > :global(.fam__card--1) { --k: 1; }
+    .fam__deck > :global(.fam__card--2) { --k: 2; }
+    .fam__deck > :global(.fam__card--3) { --k: 3; }
+  }
+
+  /* ---------- client photos ---------- */
+  .fam__photos { margin-top: clamp(4rem, 10vw, 8rem); display: grid; gap: var(--s-4); }
+  .fam__photos-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem 2rem; margin-bottom: var(--s-3); }
+  .fam__photos-title { font-size: var(--fs-h3); line-height: 1.2; letter-spacing: -.01em; }
+  .fam__photos-text { color: var(--fg-muted); font-size: var(--fs-small); }
+  .fam__row { overflow: hidden; }
+  .fam__track { list-style: none; display: flex; width: max-content; will-change: transform; }
+  .fam__photo { flex: none; padding-right: 14px; }
+  .fam__photo a { display: block; height: 200px; border-radius: var(--r-md); overflow: hidden; background: var(--mist); box-shadow: 0 18px 30px -22px rgba(0, 28, 56, .5); }
+  .fam__photo img { height: 100%; width: auto; transition: scale var(--d-slow) var(--ease-out); }
+  @media (hover: hover) { .fam__photo a:hover img { scale: 1.05; } }
+  .fam__row--2 { display: none; }
+
+  @media (min-width: 768px) {
+    .fam__photo { padding-right: 18px; }
+    .fam__photo a { height: clamp(220px, 22vw, 300px); }
+    .fam__row--2 { display: block; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fam__row--2 { display: none; }
+    .fam__track { flex-wrap: wrap; justify-content: center; width: auto; gap: 12px; padding-inline: var(--gutter); transform: none !important; }
+    .fam__track > [aria-hidden="true"] { display: none; }
+    .fam__photo { padding: 0; }
+    .fam__photo a { height: 180px; }
+  }
+</style>

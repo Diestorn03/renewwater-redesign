@@ -1,0 +1,23 @@
+---
+/**
+ * Amber rubber stamp ("GRATIS", "$0"), rotated −4°, navy ink. <Stamp text="GRATIS" />
+ * Decorative by default: the offer it stamps must also be said in text next to it.
+ */
+interface Props { text?: string; class?: string; decorative?: boolean }
+const { text = 'GRATIS', class: cls, decorative = true } = Astro.props;
+---
+<span class:list={['stamp', cls]} aria-hidden={decorative ? 'true' : undefined}>{text}</span>
+
+<style>
+  .stamp {
+    display: inline-grid; place-items: center;
+    padding: .62em 1.05em .55em;
+    font-family: var(--font-brand); font-size: .8rem; letter-spacing: .18em; line-height: 1;
+    color: var(--navy); background: var(--sun);
+    border-radius: 7px;
+    outline: 1.5px solid var(--navy); outline-offset: -5px;
+    box-shadow: 0 10px 22px -10px rgba(0, 11, 24, .55);
+    transform: rotate(-4deg);
+    white-space: nowrap; user-select: none;
+  }
+</style>

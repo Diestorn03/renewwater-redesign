@@ -1,0 +1,11 @@
+---
+// /en/products/<slug>: same component as the Spanish page; the locale comes from the URL.
+import Base from '../../../layouts/Base.astro';
+import ProductDetail from '../../../components/products/ProductDetail.astro';
+import products from '../../../data/products.json';
+import { useI18n } from '../../../i18n/index.js';
+export function getStaticPaths() { return products.map((p) => ({ params: { slug: p.slug }, props: { p } })); }
+const { p } = Astro.props;
+const { lang } = useI18n(Astro);
+---
+<Base title={p.title[lang]} description={`${p.title[lang]}: ${p.tagline[lang]}. ${p.idealFor[lang]}`}><ProductDetail product={p} /></Base>

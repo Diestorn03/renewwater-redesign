@@ -1,0 +1,26 @@
+---
+/**
+ * Amber rating stars. <Stars n={5} label="5 de 5 estrellas" size={16} />
+ * Without `label` the stars are decorative (aria-hidden). Each filled star has .stars__f, which a section can
+ * scale from 0 to "fill" them in (transform-box: fill-box, so the origin is the star's own centre).
+ */
+interface Props { n?: number; size?: number; label?: string; class?: string }
+const { n = 5, size = 16, label, class: cls } = Astro.props;
+const d = 'M12 2.4 14.9 8.6l6.8.8-5 4.7 1.3 6.7L12 17.5l-6 3.3 1.3-6.7-5-4.7 6.8-.8Z';
+---
+<span class:list={['stars', cls]} role={label ? 'img' : undefined} aria-label={label} aria-hidden={label ? undefined : 'true'}>
+  {Array.from({ length: 5 }, (_, i) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path class="stars__o" d={d} />
+      {i < n && <path class="stars__f" d={d} />}
+    </svg>
+  ))}
+</span>
+
+<style>
+  .stars { display: inline-flex; gap: 3px; line-height: 0; }
+  /* deeper amber edge on light surfaces; light-dark() follows the nearest [data-theme]'s color-scheme */
+  .stars { --edge: #D9A200; --edge: light-dark(#D9A200, #F8C000); }
+  .stars__o { fill: none; stroke: var(--edge); stroke-width: 1.4; stroke-linejoin: round; }
+  .stars__f { fill: var(--sun); stroke: var(--edge); stroke-width: 1.4; stroke-linejoin: round; transform-box: fill-box; transform-origin: center; }
+</style>

@@ -1,0 +1,103 @@
+---
+// Catalogue card. The media box carries transition:name="prod-<slug>" and morphs into the detail page's stage.
+import Icon from '../ui/Icon.astro';
+import copy from '../../i18n/areas/products.js';
+import { pick, useI18n } from '../../i18n/index.js';
+import { buildWa } from '../../data/site.js';
+import { badge } from '../../scripts/products/meta.js';
+
+interface Props { product: any; eager?: boolean }
+const { product: p, eager = false } = Astro.props;
+const { t, lang, productUrl, asset } = useI18n(Astro);
+const c = pick(copy, lang);
+const title = p.title[lang];
+const tag = badge(p, lang, c.stages);
+const href = productUrl(p.slug);
+const [w, h] = p.cutoutSize;
+const cats = p.categories.filter((k) => k !== 'linea');
+---
+<article class="pcard" data-theme="light" data-cats={p.categories.join(' ')} data-flip-id={p.slug}>
+  <div class="pcard__media" transition:name={`prod-${p.slug}`}>
+    <img src={asset(p.cutout)} width={w} height={h} alt="" loading={eager ? 'eager' : 'lazy'} decoding="async" />
+  </div>
+  <div class="pcard__body">
+    {tag && <span class="badge-num pcard__badge">{tag}</span>}
+    <h3 class="pcard__title"><a class="pcard__link" href={href}>{title}</a></h3>
+    <p class="pcard__tag">{p.tagline[lang]}</p>
+    <ul class="pcard__cats" role="list">
+      {cats.map((k) => <li>{c.cats[k]}</li>)}
+    </ul>
+    <div class="pcard__actions">
+      <a class="btn btn--ghost btn--sm pcard__detail" href={href} aria-label={`${c.card.detail}: ${title}`}>
+        <span class="pcard__detail-txt">{c.card.detail}</span><Icon name="arrow" size={18} class="arrow" />
+      </a>
+      <a class="btn btn--primary btn--sm" href={buildWa({ text: t.wa.quote(title), ref: 'web-producto' })} target="_blank" rel="noopener" aria-label={`${c.card.quote} ${title} (WhatsApp)`}>
+        <Icon name="whatsapp" size={18} />{c.card.quote}
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .pcard {
+    position: relative; display: flex; flex-direction: column;
+    background: var(--white); color: var(--navy); border-radius: var(--r-lg);
+    border: 1px solid var(--line); box-shadow: var(--sh-card-light);
+    transition: box-shadow var(--d-base) var(--ease-water), transform var(--d-base) var(--ease-water), border-color var(--d-base);
+  }
+  .pcard__media {
+    position: relative; margin: 10px 10px 0; aspect-ratio: 5 / 4; border-radius: var(--r-md);
+    display: grid; place-items: center; overflow: hidden; isolation: isolate;
+    background:
+      radial-gradient(52% 44% at 50% 56%, rgba(0, 208, 208, .30), rgba(0, 208, 208, 0) 72%),
+      radial-gradient(90% 60% at 50% 110%, rgba(152, 196, 0, .16), rgba(152, 196, 0, 0) 70%),
+      linear-gradient(180deg, #EEF9F6 0%, var(--mist) 100%);
+  }
+  /* contact shadow under the product */
+  .pcard__media::after {
+    content: ""; position: absolute; left: 22%; right: 22%; bottom: 7%; height: 7%; z-index: -1;
+    background: radial-gradient(closest-side, rgba(0, 28, 56, .22), rgba(0, 28, 56, 0)); filter: blur(2px);
+  }
+  .pcard__media img {
+    position: absolute; top: 7%; bottom: 9%; left: 8%; right: 8%; width: 84%; height: 84%; object-fit: contain;
+    mix-blend-mode: multiply; transform-origin: 50% 90%;
+    transition: transform .7s var(--ease-out);
+  }
+  .pcard__body { display: flex; flex-direction: column; gap: .55rem; padding: 1.1rem 1.35rem 1.35rem; flex: 1; }
+  .pcard__badge { align-self: flex-start; color: var(--aqua-ink); }
+  .pcard__title { font-size: 1.4rem; line-height: 1.15; letter-spacing: -.015em; }
+  .pcard__link { color: inherit; }
+  .pcard__link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: 1; }
+  .pcard__link:focus-visible { outline: none; }
+  .pcard:has(.pcard__link:focus-visible) { outline: 3px solid var(--aqua-ink); outline-offset: 3px; }
+  .pcard__tag {
+    color: var(--slate); font-size: .95rem; line-height: 1.45;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .pcard__cats { list-style: none; display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .15rem; }
+  .pcard__cats li {
+    font-family: var(--font-mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase;
+    padding: .3rem .6rem; border-radius: var(--r-pill); background: var(--foam); border: 1px solid var(--line); color: var(--slate);
+  }
+  .pcard__actions { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-top: auto; padding-top: .8rem; }
+  .pcard__actions .btn { padding: 0 .9rem; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .pcard:hover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), 0 34px 60px -30px rgba(0, 118, 122, .45); border-color: #BFE6E3; }
+    .pcard:hover .pcard__media img { transform: translateY(-8px) scale(1.03); }
+  }
+
+  /* phones: horizontal card, media left */
+  @media (max-width: 559px) {
+    .pcard { flex-direction: row; align-items: stretch; }
+    .pcard__media { width: 40%; flex: none; aspect-ratio: auto; min-height: 200px; margin: 8px 0 8px 8px; }
+    .pcard__body { padding: 1rem 1rem 1rem .9rem; gap: .4rem; min-width: 0; }
+    .pcard__title { font-size: 1.15rem; }
+    .pcard__tag { font-size: .88rem; }
+    .pcard__cats { display: none; }
+    .pcard__actions { grid-template-columns: minmax(0, 1fr) 48px; padding-top: .5rem; }
+    .pcard__actions .btn--primary { order: -1; }
+    .pcard__detail { padding: 0 !important; width: 48px; }
+    .pcard__detail-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  }
+</style>

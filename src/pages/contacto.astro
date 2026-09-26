@@ -1,0 +1,119 @@
+---
+// /contacto · /en/contact (spec §7): dark shell, light cards, WhatsApp composer, map facade.
+import Base from '../layouts/Base.astro';
+import ContactCards from '../components/contact/ContactCards.astro';
+import WaComposer from '../components/contact/WaComposer.astro';
+import MapFacade from '../components/contact/MapFacade.astro';
+import Icon from '../components/ui/Icon.astro';
+import { useI18n, pick } from '../i18n/index.js';
+import copy from '../i18n/areas/contact.js';
+import { address, mapLink, socials } from '../data/site.js';
+
+const { t, o, lang, url } = useI18n(Astro);
+const c = pick(copy, lang);
+const email = 'info@renewsolarus.com';   // client to confirm: suggest info@renewwaterus.com
+const social = [
+  { key: 'instagram', name: 'Instagram', ...socials.instagram, note: c.page.igFollowers },
+  { key: 'tiktok', name: 'TikTok', ...socials.tiktok },
+  { key: 'facebook', name: 'Facebook', ...socials.facebook },
+];
+---
+<Base title={t.meta.contact}>
+  <section class="section contact" data-theme="dark" aria-labelledby="contact-title">
+    <div class="contact__bg" aria-hidden="true"></div>
+    <div class="wrap">
+      <header class="contact__head" data-reveal="up">
+        <p class="kicker">{c.page.kicker}</p>
+        <h1 id="contact-title" class="h-display contact__title">{c.page.title} <span class="accent">{c.page.accent}</span></h1>
+        <p class="lead">{c.page.lead}</p>
+      </header>
+
+      <ContactCards />
+
+      <div class="contact__grid">
+        <WaComposer />
+
+        <aside class="contact__aside">
+          <div class="contact__card" data-theme="light" data-reveal="up">
+            <h2 class="h3">{o.home.whereTitle}</h2>
+            <address class="contact__addr"><span>{address.line}</span><span>{address.city}</span></address>
+            <a class="btn btn--text" href={mapLink} target="_blank" rel="noopener">{c.map.open} <Icon name="external" size={16} /></a>
+            <MapFacade />
+          </div>
+
+          <div class="contact__card contact__card--row" data-theme="light" data-reveal="up">
+            <span class="contact__ic"><Icon name="mail" size={22} /></span>
+            <div>
+              <p class="contact__label mono">{c.page.emailLabel}</p>
+              <a class="contact__mail" href={`mailto:${email}`}>{email}</a>
+            </div>
+          </div>
+
+          <div class="contact__card" data-theme="light" data-reveal="up">
+            <p class="contact__label mono">{c.page.socialsTitle}</p>
+            <ul class="contact__social" role="list">
+              {social.map((s) => (
+                <li>
+                  <a href={s.url} target="_blank" rel="noopener">
+                    <span class="contact__ic"><Icon name={s.key} size={20} /></span>
+                    <span class="contact__social-text"><b>{s.name}</b><span>{s.handle}{s.note && <> · {s.note}</>}</span></span>
+                    <Icon name="arrow-up-right" size={18} class="contact__go" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <a class="contact__lab" href={url('analysis')} data-reveal="up">
+            <span class="contact__lab-icon"><Icon name="flask" size={24} grad /></span>
+            <span>{c.page.labLink}</span>
+            <Icon name="arrow" size={20} class="contact__go" />
+          </a>
+        </aside>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact { padding-top: calc(var(--header-h) + clamp(2.5rem, 7vw, 6rem)); overflow: clip; }
+  .contact__bg {
+    position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(50% 40% at 85% 8%, rgba(0, 208, 208, .16), transparent 70%),
+      radial-gradient(40% 30% at 5% 40%, rgba(152, 196, 0, .07), transparent 70%),
+      linear-gradient(180deg, var(--navy), #00152B);
+  }
+  .contact__head { display: grid; gap: 1.1rem; justify-items: start; margin-bottom: clamp(2rem, 5vw, 3.5rem); }
+  .contact__title { max-width: 12ch; }
+  .contact__grid { display: grid; gap: 1.25rem; margin-top: clamp(1.25rem, 3vw, 2rem); align-items: start; }
+  .contact__aside { display: grid; gap: 1.25rem; }
+  .contact__card {
+    background: var(--surface); color: var(--fg); border-radius: var(--r-lg); padding: clamp(1.25rem, 3vw, 1.75rem);
+    box-shadow: 0 30px 60px -36px rgba(0, 0, 0, .75); display: grid; gap: .8rem; justify-items: start;
+  }
+  .contact__card > :global(.mapf) { justify-self: stretch; }
+  .contact__card--row { display: flex; align-items: center; gap: 1rem; }
+  .contact__addr { font-style: normal; display: grid; font-size: 1.05rem; line-height: 1.45; }
+  .contact__label { color: var(--accent-text); }
+  .contact__mail { font-weight: 600; font-size: 1.05rem; overflow-wrap: anywhere; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+  .contact__ic { width: 44px; height: 44px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--mist); color: var(--aqua-ink); }
+  .contact__social { list-style: none; display: grid; width: 100%; }
+  .contact__social li + li { border-top: 1px solid var(--line); }
+  .contact__social a { display: flex; align-items: center; gap: .85rem; min-height: 64px; padding-block: .5rem; }
+  .contact__social-text { display: grid; line-height: 1.3; flex: 1; min-width: 0; }
+  .contact__social-text span { font-size: var(--fs-small); color: var(--fg-muted); }
+  .contact :global(.contact__go) { flex: none; color: var(--fg-muted); transition: transform var(--d-base) var(--ease-water); }
+  .contact__social a:hover :global(.contact__go), .contact__lab:hover :global(.contact__go) { transform: translate(3px, -1px); }
+  .contact__lab {
+    display: flex; align-items: center; gap: 1rem; min-height: 72px; padding: 1rem 1.25rem; border-radius: var(--r-lg);
+    border: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 60%, transparent); font-weight: 600;
+    transition: border-color var(--d-base), background var(--d-base);
+  }
+  .contact__lab:hover { border-color: var(--aqua); background: color-mix(in srgb, var(--aqua) 8%, var(--surface)); }
+  .contact__lab > span:nth-child(2) { flex: 1; }
+  .contact__lab-icon { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--aqua) 12%, transparent); flex: none; }
+  @media (min-width: 1000px) {
+    .contact__grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 1.5rem; }
+  }
+</style>

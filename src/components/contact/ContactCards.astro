@@ -1,0 +1,64 @@
+---
+// /contacto · three touch cards: WhatsApp (primary), call in Spanish, call in English (English line first on /en/).
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/contact.js';
+import { buildWa, phones } from '../../data/site.js';
+import Icon from '../ui/Icon.astro';
+
+const { t, lang } = useI18n(Astro);
+const p = pick(copy, lang).page;
+const es = phones.find((x) => x.label === 'ES'), us = phones.find((x) => x.label === 'US');
+const callEs = { href: `tel:${es.tel}`, title: t.cta.callEs, detail: es.display, text: p.callEsText, icon: 'phone', lang: 'es' };
+const callEn = { href: `tel:${us.tel}`, title: t.cta.callEn, detail: us.display, text: p.callEnText, icon: 'phone', lang: 'en' };
+const cards = [
+  { href: buildWa({ text: t.wa.analysis, ref: 'web-contacto' }), title: p.waTitle, detail: es.display, text: p.waText, icon: 'whatsapp', primary: true, external: true },
+  ...(lang === 'en' ? [callEn, callEs] : [callEs, callEn]),
+];
+---
+<ul class="cc" role="list" data-stagger=".08">
+  {cards.map((c) => (
+    <li>
+      <a class:list={['cc__card', { 'cc__card--primary': c.primary }]} href={c.href} {...(c.external ? { target: '_blank', rel: 'noopener' } : {})}>
+        <span class="cc__icon"><Icon name={c.icon} size={26} /></span>
+        <span class="cc__body">
+          <span class="cc__title" lang={c.lang}>{c.title}{c.primary && <span class="cc__badge">{p.waBadge}</span>}</span>
+          <span class="cc__detail">{c.detail}</span>
+          <span class="cc__text" lang={c.lang}>{c.text}</span>
+        </span>
+        <Icon name={c.external ? 'arrow-up-right' : 'arrow'} size={22} class="cc__arrow" />
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .cc { list-style: none; display: grid; gap: .9rem; }
+  .cc__card {
+    --bg: var(--white); --fg: var(--navy); --fg-muted: var(--slate); --line: #D6EEEE; --focus: var(--aqua);
+    position: relative; display: flex; align-items: center; gap: 1rem; height: 100%; min-height: 104px;
+    padding: 1.25rem 1.25rem; border-radius: var(--r-lg); background: var(--bg); color: var(--fg);
+    box-shadow: 0 24px 50px -30px rgba(0, 0, 0, .7);
+    transition: transform var(--d-base) var(--ease-water), box-shadow var(--d-base) var(--ease-water);
+  }
+  .cc__card:hover { transform: translateY(-4px); box-shadow: 0 30px 60px -28px rgba(0, 0, 0, .8), 0 0 0 1px rgba(0, 208, 208, .4); }
+  .cc__card--primary { background: var(--grad-brand); background-size: 200% 100%; transition: background-position .8s var(--ease-out), transform var(--d-base) var(--ease-water); }
+  .cc__card--primary:hover { background-position: 100% 0; }
+  .cc__icon { width: 56px; height: 56px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--mist); color: #00767A; }
+  .cc__card--primary .cc__icon { background: #fff; color: #128C4B; }
+  .cc__body { display: grid; gap: .1rem; min-width: 0; flex: 1; }
+  .cc__title { font-weight: 600; font-size: 1.15rem; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+  .cc__badge { font-family: var(--font-mono); font-weight: 500; font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; padding: .25rem .55rem; border-radius: var(--r-pill); background: var(--navy); color: #fff; }
+  .cc__detail { font-variant-numeric: tabular-nums; font-weight: 500; }
+  .cc__text { font-size: var(--fs-small); color: var(--fg-muted); }
+  .cc__card--primary .cc__text { color: var(--navy); opacity: .8; }
+  .cc :global(.cc__arrow) { flex: none; color: var(--fg-muted); transition: transform var(--d-base) var(--ease-water); }
+  .cc__card--primary :global(.cc__arrow) { color: var(--navy); }
+  .cc__card:hover :global(.cc__arrow) { transform: translateX(4px); }
+  @media (min-width: 900px) {
+    .cc { grid-template-columns: 1.25fr 1fr 1fr; }
+    .cc__card { flex-direction: column; align-items: flex-start; min-height: 220px; padding: 1.6rem; }
+    .cc :global(.cc__arrow) { position: absolute; top: 1.6rem; right: 1.6rem; }
+    .cc__body { align-content: end; }
+    .cc__title { font-size: 1.35rem; }
+  }
+</style>

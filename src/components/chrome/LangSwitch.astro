@@ -1,0 +1,41 @@
+---
+/**
+ * Segmented "ES | EN" pill. The current language is plain text; the other one links to the same page in that
+ * language (alt.href). The header persists across navigations, so chrome.js refreshes [data-lang-alt] hrefs from
+ * <link rel="alternate" hreflang> on every page load and keeps the #hash on click.
+ */
+import { useI18n } from '../../i18n/index.js';
+import copy from '../../i18n/areas/chrome.js';
+import { pick } from '../../i18n/index.js';
+interface Props { class?: string; size?: 'sm' | 'md' }
+const { class: cls, size = 'sm' } = Astro.props;
+const { t, lang, alt } = useI18n(Astro);
+const c = pick(copy, lang);
+const opts = ['es', 'en'] as const;
+---
+<div class:list={['lang', `lang--${size}`, cls]} role="group" aria-label={c.langGroup}>
+  {opts.map((l) =>
+    l === lang
+      ? <span class="lang__opt is-current" aria-current="true" lang={l}>{l.toUpperCase()}</span>
+      : <a class="lang__opt" href={alt.href} hreflang={l} lang={l} aria-label={t.nav.langLabel} data-lang-alt>{l.toUpperCase()}</a>
+  )}
+</div>
+
+<style>
+  .lang {
+    position: relative; display: inline-flex; align-items: center; gap: 2px; padding: 3px;
+    border-radius: var(--r-pill); border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+    font-family: var(--font-brand); font-size: .72rem; letter-spacing: .14em; line-height: 1;
+  }
+  .lang__opt {
+    position: relative; display: grid; place-items: center; min-width: 40px; height: 32px; padding: 0 .6rem 0 .72rem;
+    border-radius: var(--r-pill); color: inherit; opacity: .72;
+    transition: opacity var(--d-fast), background-color var(--d-base) var(--ease-water);
+  }
+  /* 48px hit area without growing the pill */
+  .lang__opt::before { content: ''; position: absolute; inset: -8px -2px; }
+  a.lang__opt:hover { opacity: 1; background: color-mix(in srgb, currentColor 10%, transparent); }
+  .lang__opt.is-current { opacity: 1; background: var(--grad-brand); color: var(--navy); }
+  .lang--md .lang__opt { height: 40px; min-width: 52px; font-size: .8rem; }
+  .lang--md .lang__opt::before { inset: -4px -2px; }
+</style>

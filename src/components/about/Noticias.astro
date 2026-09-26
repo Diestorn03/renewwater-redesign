@@ -1,0 +1,74 @@
+---
+// Sobre Nosotros · Florida water-quality news (light): four cards from o.aboutUs.news1–4, real links from site.news,
+// videos behind a click-to-load facade. Items without an article URL show only their video.
+import Icon from '../ui/Icon.astro';
+import YouTubeFacade from './YouTubeFacade.astro';
+import copy from '../../i18n/areas/about.js';
+import { pick, useI18n } from '../../i18n/index.js';
+import { news } from '../../data/site.js';
+
+const { o, lang } = useI18n(Astro);
+const c = pick(copy, lang).news;
+const a = o.aboutUs;
+const items = news.map((n) => ({ ...n, title: a[`${n.key}Title`], text: a[`${n.key}Text`], linkText: a[`${n.key}Link`] }));
+---
+<section id="noticias" class="section news" data-theme="light" aria-labelledby="news-title">
+  <div class="wrap">
+    <div class="news__head">
+      <p class="kicker">{c.kicker}</p>
+      <h2 id="news-title" class="h2" data-split="lines">{a.newsTitle}</h2>
+    </div>
+    <ul class="news__grid" role="list">
+      {items.map((n, i) => (
+        <li class:list={['news__card', `news__card--${i + 1}`, n.youtube && 'has-video']} data-reveal="up" data-delay={(i % 2) * 0.08}>
+          {n.youtube && <YouTubeFacade id={n.youtube} title={n.title} />}
+          <div class="news__body">
+            <p class="news__chips">
+              {n.source && <span class="news__chip">{n.source}</span>}
+              {n.youtube && <span class="news__chip news__chip--video"><Icon name="play" size={12} />{c.video}</span>}
+            </p>
+            <h3 class="news__title">{n.title}</h3>
+            {n.text && <p class="news__text">{n.text}</p>}
+            {n.url && (
+              <a class="btn btn--text news__link" href={n.url} target="_blank" rel="noopener" title={n.linkText}>
+                {a.readMore} {n.source}<Icon name="arrow-up-right" size={16} />
+              </a>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .news__head { display: grid; gap: 1.25rem; max-width: 46rem; margin-bottom: clamp(2rem, 5vw, 4rem); }
+  .news__grid { list-style: none; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(16px, 2vw, 28px); align-items: start; }
+  .news__card {
+    display: grid; gap: 0; align-content: start; background: var(--white); border: 1px solid var(--line);
+    border-radius: var(--r-lg); box-shadow: var(--sh-card-light); overflow: hidden;
+  }
+  .news__card.has-video { padding: 10px 10px 0; }
+  .news__card--1 { grid-column: span 5; }
+  .news__card--2 { grid-column: span 7; }
+  .news__card--3 { grid-column: span 7; }
+  .news__card--4 { grid-column: span 5; }
+  .news__body { display: grid; gap: .8rem; padding: clamp(1.25rem, 2.5vw, 1.9rem); }
+  .has-video .news__body { padding-inline: clamp(.9rem, 2vw, 1.4rem); }
+  .news__chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .news__chip {
+    display: inline-flex; align-items: center; gap: .35rem; font-family: var(--font-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase;
+    padding: .35rem .7rem; border-radius: var(--r-pill); background: var(--navy); color: #fff;
+  }
+  .news__chip--video { background: var(--mist); color: var(--aqua-ink); }
+  .news__title { font-size: clamp(1.15rem, 1rem + .6vw, 1.5rem); line-height: 1.25; letter-spacing: -.012em; }
+  .news__card--1 .news__title { font-size: clamp(1.5rem, 1rem + 1.4vw, 2.25rem); line-height: 1.12; }
+  .news__text { color: var(--slate); line-height: 1.55; }
+  .news__card--3 .news__text { font-family: var(--font-serif); font-style: italic; font-size: 1.2rem; line-height: 1.4; color: var(--navy); padding-left: 1rem; border-left: 2px solid var(--aqua-ink); }
+  .news__link { justify-self: start; gap: .35rem; font-weight: 600; }
+
+  @media (max-width: 900px) {
+    .news__grid { grid-template-columns: 1fr; }
+    .news__card--1, .news__card--2, .news__card--3, .news__card--4 { grid-column: auto; }
+  }
+</style>

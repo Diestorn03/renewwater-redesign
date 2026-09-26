@@ -1,0 +1,298 @@
+---
+// SIG-3 · Laboratorio en Casa (spec §6.5). Home: <Laboratorio ref="web-lab" />; /analisis: <Laboratorio ref="web-bio" hero />.
+// Logic: src/scripts/lab/{lab,glass,rules}.js · rules: src/data/lab-rules.json · copy: src/i18n/areas/lab.js
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/lab.js';
+import rules from '../../data/lab-rules.json';
+import products from '../../data/products.json';
+import { buildWa } from '../../data/site.js';
+import Icon from '../ui/Icon.astro';
+import HoldButton from './HoldButton.astro';
+import ResultCard from './ResultCard.astro';
+
+interface Props { ref?: string; hero?: boolean }
+const { ref = 'web-lab', hero = false } = Astro.props;
+const { t, o, lang, asset, productUrl } = useI18n(Astro);
+const c = pick(copy, lang);
+
+// only the products the rules can suggest travel to the client
+const slugs = new Set([...rules.rules.flatMap((r) => [r.product, r.alt]), ...rules.drinking.products].filter(Boolean));
+const labProducts = Object.fromEntries(products.filter((p) => slugs.has(p.slug)).map((p) => [p.slug, {
+  name: p.name,
+  short: p.name.replace(/\s*\(.*?\)\s*$/, ''),
+  stages: typeof p.stages === 'number' ? p.stages : null,
+  thumb: asset(p.thumb),
+  ideal: p.idealFor?.[lang] || p.tagline?.[lang] || '',
+  url: productUrl(p.slug),
+}]));
+const cfg = { ref, copy: { live: c.live, hold: c.hold, holdDone: c.holdDone, msg: c.msg, result: c.result } };
+const labData = JSON.stringify({ ...cfg, products: labProducts });
+const genericHref = buildWa({ text: t.wa.analysis, ref });
+const drink = rules.drinking.products.map((s) => ({ name: labProducts[s].short, url: labProducts[s].url }));
+
+const CLASSES = ['sedimento', 'dureza', 'cloro', 'metal', 'quimico'];
+const symptomDots = Object.fromEntries(rules.symptoms.map((s) => [s.id, Object.keys(s.spawn)]));
+// measuring ticks along the right inner wall of the glass
+const ticks = [110, 160, 210, 260, 310].map((y) => { const x = 282 - (26 * (y - 20)) / 336; return { y, x1: x - (y % 100 === 10 ? 20 : 12), x2: x - 5 }; });
+const titleId = hero ? 'lab-h1' : 'lab-title';
+---
+<section id="laboratorio" class:list={['section lab', { 'lab--hero': hero }]} data-theme="dark" data-lab={labData} aria-labelledby={titleId}>
+  <div class="lab__bg" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="lab__head">
+      <div class="lab__intro" data-reveal="up">
+        <p class="kicker">{hero ? c.heroKicker : c.kicker}</p>
+        {hero
+          ? <h1 id={titleId} class="h-display lab__title">{c.heroTitle} <span class="accent">{c.heroAccent}</span>{c.heroEnd}</h1>
+          : <h2 id={titleId} class="h2 lab__title">{c.title} <span class="accent">{c.titleAccent}</span></h2>}
+        <p class="lead">{o.home.doYouKnowText}</p>
+      </div>
+      <figure class="lab__sample" data-reveal="up" data-delay=".1">
+        <div class="lab__sample-img">
+          <img src={asset('/img/home/water-sample.webp')} width="1024" height="618" alt={c.sampleAlt} loading={hero ? 'eager' : 'lazy'} decoding="async" />
+        </div>
+        <figcaption><span>{c.sampleCaption}</span><span class="disclaimer">{c.sampleNote}</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="lab__grid">
+      <div class="lab__stage" data-lab-stage>
+        <div class="lab__glass">
+          <div class="lab__halo" aria-hidden="true"></div>
+          <canvas class="lab__canvas" data-lab-canvas aria-hidden="true"></canvas>
+          <svg class="lab__outline" data-lab-outline viewBox="0 0 320 420" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+            <defs>
+              <radialGradient id="lab-floor" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#00D0D0" stop-opacity=".35" /><stop offset="1" stop-color="#00D0D0" stop-opacity="0" /></radialGradient>
+              <linearGradient id="lab-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EAFBF9" stop-opacity=".16" /><stop offset="1" stop-color="#EAFBF9" stop-opacity=".04" /></linearGradient>
+            </defs>
+            <ellipse class="lab__floor" cx="160" cy="408" rx="130" ry="10" fill="url(#lab-floor)" />
+            <path class="lab__base" d="M64 356 Q66 372 82 372 L238 372 Q254 372 256 356 L258 386 Q260 402 244 402 L76 402 Q60 402 62 386 Z" fill="url(#lab-base)" />
+            <path class="lab__stroke lab__wall" d="M30 20 L58 388 Q61 402 76 402 L244 402 Q259 402 262 388 L290 20" />
+            <path class="lab__stroke lab__inner" d="M38 20 L64 356 Q66 372 82 372 L238 372 Q254 372 256 356 L282 20" />
+            <ellipse class="lab__stroke lab__rim" cx="160" cy="20" rx="126" ry="6" />
+            {ticks.map((k) => <path class="lab__stroke lab__tick" d={`M${k.x1.toFixed(1)} ${k.y} L${k.x2.toFixed(1)} ${k.y}`} />)}
+            <path class="lab__shine" d="M52 46 L75 330" />
+            <path class="lab__shine lab__shine--thin" d="M270 58 L265 122" />
+          </svg>
+          <p class="lab__hint" data-lab-hint aria-hidden="true"><Icon name="arrow" size={16} class="lab__hint-arrow" />{c.glassHint}</p>
+        </div>
+        <div class="lab__side">
+          <p class="disclaimer lab__sim"><span class="lab__rec" aria-hidden="true"></span>{t.simulation}</p>
+          <p class="lab__count"><span class="num" data-lab-count>0</span><span class="mono">{c.particles}</span></p>
+          <ul class="lab__legend" data-lab-legend role="list">
+            {CLASSES.map((k) => (
+              <li data-cls={k}><span class={`lab__dot lab__dot--${k}`} aria-hidden="true"></span><span>{c.classes[k]}</span><b>0</b></li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div class="lab__cards">
+        <form class="lab__form" data-lab-face data-lab-form aria-labelledby={titleId}>
+          <fieldset>
+            <legend><span class="lab__n num">01</span>{c.origin.legend}</legend>
+            <div class="lab__chips lab__chips--3">
+              {Object.entries(c.origin.options).map(([v, label]) => (
+                <label class="chip lab__chip"><input type="radio" name="origin" value={v} />
+                  <Icon name={v === 'ciudad' ? 'tap' : v === 'pozo' ? 'drop' : 'flask'} size={20} />{label}</label>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend><span class="lab__n num">02</span>{c.home.legend}</legend>
+            <div class="lab__chips lab__chips--2">
+              {Object.entries(c.home.options).map(([v, label]) => (
+                <label class="chip lab__chip"><input type="radio" name="home" value={v} />
+                  <Icon name={v === 'casa' ? 'house' : 'building'} size={20} />{label}</label>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend><span class="lab__n num">03</span>{c.symptoms.legend} <span class="lab__help">{c.symptoms.help}</span></legend>
+            <div class="lab__chips lab__chips--list">
+              {Object.entries(c.symptoms.options).map(([v, label]) => (
+                <label class="chip lab__chip lab__chip--symptom"><input type="checkbox" name="symptom" value={v} />
+                  <span class="chip__check" aria-hidden="true"></span>
+                  <span class="lab__chip-text">{label}</span>
+                  <span class="lab__dots" aria-hidden="true">
+                    {symptomDots[v].length
+                      ? symptomDots[v].map((k) => <span class={`chip__dot lab__dot lab__dot--${k}`}></span>)
+                      : <Icon name="bottle" size={18} />}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <div class="lab__purify">
+            <HoldButton label={c.hold} hint={c.holdHint} stepLabel={c.purifyStep} />
+          </div>
+          <div class="lab__nojs">
+            <a class="btn btn--primary btn--wa" href={genericHref} target="_blank" rel="noopener"><span class="btn__glyph"><Icon name="whatsapp" size={22} /></span>{c.nojsCta}</a>
+          </div>
+        </form>
+        <ResultCard copy={c} simulation={t.simulation} trust={t.cta.trust} fallbackHref={genericHref} thumb={labProducts['renew-city'].thumb} drink={drink} />
+      </div>
+      <p class="lab__note"><Icon name="flask" size={20} grad />{c.note}</p>
+    </div>
+    <p class="sr-only" aria-live="polite" data-lab-live></p>
+  </div>
+</section>
+
+<script>
+  import '../../scripts/lab/lab.js';
+</script>
+
+<style>
+  .lab { overflow: clip; }
+  .lab--hero { padding-top: calc(var(--header-h) + clamp(2.5rem, 6vw, 5rem)); }
+  .lab__bg {
+    position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(55% 45% at 78% 62%, rgba(0, 208, 208, .13), transparent 70%),
+      radial-gradient(35% 30% at 8% 4%, rgba(152, 196, 0, .08), transparent 70%),
+      repeating-radial-gradient(circle at 78% 62%, transparent 0 46px, rgba(143, 179, 196, .045) 46px 47px),
+      linear-gradient(180deg, var(--navy) 0%, #00152B 100%);
+  }
+
+  /* ---------- head ---------- */
+  .lab__head { display: grid; gap: clamp(1.75rem, 4vw, 3rem); margin-bottom: clamp(2.5rem, 6vw, 4.5rem); }
+  .lab__intro { display: grid; gap: 1.1rem; align-content: start; }
+  .lab__title { max-width: 14ch; }
+  .lab--hero .lab__title { max-width: 11ch; }
+  .lab__sample { margin: 0; display: grid; gap: .75rem; align-content: start; }
+  .lab__sample-img { border-radius: var(--r-lg); overflow: hidden; aspect-ratio: 16 / 10; box-shadow: var(--sh-card-dark); position: relative; }
+  .lab__sample-img::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgba(234, 251, 249, .1); background: linear-gradient(180deg, transparent 55%, rgba(0, 28, 56, .45)); }
+  .lab__sample img { width: 100%; height: 100%; object-fit: cover; object-position: 40% 50%; }
+  .lab__sample figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem 1rem; font-size: var(--fs-small); color: var(--fg-muted); }
+
+  /* ---------- grid ---------- */
+  .lab__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; position: relative; }
+  .lab__cards { position: relative; z-index: 1; }
+
+  /* ---------- stage (glass + readouts) ---------- */
+  .lab__stage { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: .75rem; align-items: center; }
+  .lab__glass { position: relative; height: 100%; min-height: 0; }
+  .lab__canvas, .lab__outline { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .lab__canvas { touch-action: pan-y; }
+  .lab__halo {
+    position: absolute; inset: 8% 4% 0; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(closest-side, rgba(0, 208, 208, .22), rgba(0, 204, 96, .08) 60%, transparent);
+    opacity: .35; transform: scale(.9); transition: opacity 1.2s var(--ease-out), transform 1.2s var(--ease-out);
+  }
+  .lab__stage:global(.is-clean) .lab__halo { opacity: 1; transform: scale(1.08); }
+  .lab__stroke { fill: none; stroke: rgba(234, 251, 249, .62); stroke-width: 1.6; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; transition: stroke .8s; }
+  .lab__inner { stroke: rgba(234, 251, 249, .22); stroke-width: 1; }
+  .lab__rim { stroke: rgba(234, 251, 249, .75); }
+  .lab__tick { stroke: rgba(234, 251, 249, .35); stroke-width: 1; }
+  .lab__shine { fill: none; stroke: rgba(255, 255, 255, .16); stroke-width: 5; stroke-linecap: round; }
+  .lab__shine--thin { stroke-width: 2.5; stroke: rgba(255, 255, 255, .12); }
+  .lab__stage:global(.is-clean) :is(.lab__wall, .lab__rim) { stroke: url(#rw-grad); }
+  .lab__hint {
+    position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%); width: min(52%, 17em);
+    text-align: center; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; line-height: 1.5;
+    color: var(--fg-muted); transition: opacity .5s; pointer-events: none;
+    display: grid; justify-items: center; gap: .5rem;
+  }
+  .lab__hint:global(.is-hidden) { opacity: 0; }
+  .lab__hint :global(.lab__hint-arrow) { transform: rotate(180deg); color: var(--aqua); animation: lab-nudge 1.8s var(--ease-in-out) infinite; }
+  .lab__side { display: grid; gap: .6rem; align-content: center; }
+  .lab__sim { display: inline-flex; align-items: center; gap: .5rem; }
+  .lab__rec { width: 6px; height: 6px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 3px rgba(248, 192, 0, .2); }
+  .lab__count { display: grid; gap: .35rem; }
+  .lab__count .num { font-size: clamp(2.25rem, 1.4rem + 3vw, 4rem); background: var(--grad-brand); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; }
+  .lab__count .mono { color: var(--fg-muted); }
+  .lab__stage:global(.is-clean) .lab__count .num { font-size: clamp(2rem, 1.2rem + 2vw, 2.9rem); }
+  .lab__legend { list-style: none; display: grid; gap: .1rem; margin-top: .5rem; border-top: 1px solid var(--line); padding-top: .6rem; }
+  .lab__legend li { display: grid; grid-template-columns: 10px 1fr auto; gap: .6rem; align-items: center; font-size: .88rem; color: var(--fg-muted); opacity: .6; transition: opacity var(--d-base), color var(--d-base); min-height: 30px; }
+  .lab__legend li:global(.is-on) { opacity: 1; color: var(--fg); }
+  .lab__legend b { font-family: var(--font-mono); font-weight: 500; font-size: .8rem; font-variant-numeric: tabular-nums; }
+  .lab__dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--dot); }
+  .lab__dot--sedimento { --dot: var(--c-sedimento); }
+  .lab__dot--dureza { --dot: var(--c-dureza); }
+  .lab__dot--cloro { --dot: var(--c-cloro); box-shadow: 0 0 8px var(--c-cloro); }
+  .lab__dot--metal { --dot: var(--c-metal); border-radius: 1px; transform: rotate(45deg) scale(.9); }
+  .lab__dot--quimico { --dot: transparent; border-radius: 0; width: 10px; height: 9px; background: var(--c-quimico); clip-path: polygon(0 0, 100% 0, 50% 100%, 0 0, 18% 12%, 50% 72%, 82% 12%, 18% 12%); }
+
+  /* ---------- form card ---------- */
+  .lab__form {
+    position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+    padding: clamp(1.25rem, 3vw, 2rem); box-shadow: var(--sh-card-dark); display: grid; gap: 1.6rem;
+  }
+  .lab__form[hidden] { display: none; }
+  .lab__form::before { content: ""; position: absolute; top: -1px; left: var(--r-lg); right: var(--r-lg); height: 1px; background: linear-gradient(90deg, transparent, var(--aqua), var(--lime), transparent); opacity: .8; }
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: .85rem; }
+  legend { padding: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: .25rem .65rem; font-weight: 600; font-size: 1.1rem; line-height: 1.3; margin-bottom: .85rem; }
+  .lab__n { font-size: .8rem; color: var(--accent-text); letter-spacing: .1em; }
+  .lab__help { font-weight: 400; font-size: var(--fs-small); color: var(--fg-muted); flex-basis: 100%; padding-left: calc(.8rem * 2.2 + .65rem); }
+  .lab__chips { display: grid; gap: .5rem; }
+  .lab__chips--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lab__chips--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lab__chip { justify-content: flex-start; gap: .55rem; padding-inline: .9rem; background: color-mix(in srgb, var(--bg) 55%, transparent); }
+  .lab__chip :global(svg) { flex: none; color: var(--accent-text); }
+  .lab__chips--3 .lab__chip, .lab__chips--2 .lab__chip { justify-content: center; }
+  .lab__chip--symptom { border-radius: var(--r-md); }
+  .lab__chip-text { flex: 1; }
+  .lab__dots { display: inline-flex; gap: 4px; align-items: center; color: var(--fg-muted); }
+  .lab__dots .chip__dot { transition: transform var(--d-base) var(--ease-spring); }
+  .lab__chip:has(input:checked) .chip__dot { transform: scale(1.5); }
+  .lab__chip:has(input:checked) .lab__dot--metal { transform: rotate(45deg) scale(1.4); }
+  .lab__purify { padding-top: 1.4rem; border-top: 1px solid var(--line); }
+  .lab__nojs { display: none; }
+  :global(html:not(.js)) .lab__nojs { display: block; }
+  :global(html:not(.js)) :is(.lab__purify, .lab__stage) { display: none; }
+
+  .lab__note { display: flex; gap: .65rem; align-items: flex-start; font-size: var(--fs-small); color: var(--fg-muted); line-height: 1.5; max-width: 52ch; }
+  .lab__note :global(svg) { flex: none; margin-top: .1rem; }
+
+  /* flying dot (created by lab.js) */
+  .lab :global(.lab-fly) {
+    position: fixed; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; z-index: 40; pointer-events: none;
+    background: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent), 0 0 18px var(--c); will-change: transform;
+  }
+
+  /* ---------- mobile / tablet: the glass is a sticky strip under the header ---------- */
+  @media (max-width: 899px) {
+    .lab__stage {
+      position: sticky; top: var(--header-h); z-index: 3; height: 40svh; min-height: 250px;
+      padding-block: .5rem .9rem; margin-bottom: .25rem;
+    }
+    .lab__stage::before {
+      content: ""; position: absolute; z-index: -1; inset: calc(-1 * var(--header-h)) calc(-1 * var(--gutter)) -18px;
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg) calc(100% - 26px), transparent);
+    }
+    .lab__stage::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--line); }
+    .lab__head { margin-bottom: calc(var(--header-h) + 12px); }   /* the strip's backdrop reaches up under the header */
+    .lab--hero .lab__sample { display: none; }   /* landing: get to the questions first */
+    .lab__legend { display: none; }
+    .lab__count .num { font-size: 2.4rem; }
+  }
+  @media (min-width: 560px) and (max-width: 899px) {
+    .lab__stage { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .lab__legend { display: grid; }
+    .lab__legend li { min-height: 24px; font-size: .82rem; }
+  }
+  @media (max-width: 400px) {
+    .lab__chips--3 .lab__chip { padding-inline: .5rem; font-size: .9rem; gap: .35rem; }
+    .lab__chips--3 .lab__chip :global(svg) { display: none; }
+  }
+
+  /* ---------- desktop: form card left (5 cols), glass right (7 cols) ---------- */
+  @media (min-width: 900px) {
+    .lab__head { grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: end; }
+    .lab__intro { grid-column: 1 / span 7; }
+    .lab__sample { grid-column: 9 / -1; }
+    .lab__grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--s-5); row-gap: 1.25rem; align-items: start; }
+    .lab__cards { grid-column: 1 / span 5; grid-row: 1; }
+    .lab__note { grid-column: 1 / span 5; grid-row: 2; }
+    .lab__stage {
+      grid-column: 6 / -1; grid-row: 1 / span 2; position: sticky; top: calc(var(--header-h) + 24px);
+      height: min(72vh, 700px); min-height: 480px; grid-template-columns: minmax(0, 1fr) 200px; gap: 2rem;
+    }
+  }
+  @keyframes lab-nudge { 0%, 100% { translate: 0 0 } 50% { translate: -6px 0 } }
+  @media (max-width: 899px) {
+    .lab__hint { font-size: .6rem; letter-spacing: .06em; width: 50%; }
+    .lab__hint :global(.lab__hint-arrow) { transform: rotate(90deg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .lab__hint :global(.lab__hint-arrow) { animation: none; } }
+</style>

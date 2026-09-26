@@ -1,0 +1,91 @@
+---
+/**
+ * Loader "El Trazo": first visit per session only, never under reduced motion, never without JS.
+ * Pure CSS timeline (starts on first paint, independent of the JS bundle): the mark draws itself (0.55 s,
+ * 80 ms stagger, amber last), the wordmark sweeps in left→right, a drop falls toward the hero and the overlay
+ * leaves upward with clip-path. ~1.2 s in total. The inline script below removes #loader when it must not run,
+ * so introGate() resolves at once; otherwise it dispatches 'rw:loader-done' (detail {x, y} = where the drop lands).
+ */
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/chrome.js';
+import LogoMark from './LogoMark.astro';
+const { lang, asset } = useI18n(Astro);
+const c = pick(copy, lang);
+---
+<div id="loader" class="loader" data-theme="dark">
+  <div class="loader__stage" aria-hidden="true">
+    <LogoMark size="clamp(84px, 11vw, 124px)" draw="load" weight={1.1} />
+    <span class="loader__word" style={`--wm:url(${asset('/img/brand/logo.webp')})`}></span>
+    <span class="loader__drop"></span>
+  </div>
+  <button class="loader__skip" type="button">{c.skipIntro}<span aria-hidden="true">→</span></button>
+</div>
+<script is:inline>
+  (function () {
+    var l = document.getElementById('loader');
+    if (!l) return;
+    var root = document.documentElement, show = false;
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    try { show = !reduced && !window.__rwIntro && !sessionStorage.getItem('rw-intro'); sessionStorage.setItem('rw-intro', '1'); }
+    catch (e) { show = !reduced && !window.__rwIntro; }
+    window.__rwIntro = 1;
+    if (!show) { l.remove(); return; }
+    root.classList.add('rw-intro');
+    var finished = false;
+    function done() {
+      if (finished) return; finished = true;
+      l.classList.add('is-done');
+      root.classList.remove('rw-intro');
+      document.removeEventListener('keydown', onKey);
+      document.dispatchEvent(new CustomEvent('rw:loader-done', { detail: { x: innerWidth / 2, y: innerHeight * .72 } }));
+      setTimeout(function () { l.remove(); }, 60);
+    }
+    function skip() { l.classList.add('is-skip'); }
+    function onKey(e) { if (e.key === 'Escape') skip(); }
+    l.addEventListener('animationend', function (e) { if (e.target === l) done(); });
+    l.querySelector('.loader__skip').addEventListener('click', skip);
+    document.addEventListener('keydown', onKey);
+    setTimeout(done, 2600); // safety net
+  })();
+</script>
+
+<style>
+  .loader { display: none; }
+  :global(html.rw-intro) .loader {
+    position: fixed; inset: 0; z-index: var(--z-loader); display: grid; place-items: center;
+    background: radial-gradient(70% 55% at 50% 45%, #03203B 0%, var(--abyss) 70%);
+    color: var(--fg);
+    clip-path: inset(0 0 0 0);
+    animation: loader-exit .36s cubic-bezier(.65, 0, .35, 1) .86s forwards;
+  }
+  :global(html.rw-intro) .loader.is-skip { animation: loader-skip .28s cubic-bezier(.65, 0, .35, 1) forwards; }
+  @keyframes loader-exit { to { clip-path: inset(0 0 100% 0); } }
+  @keyframes loader-skip { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 100% 0); } }
+
+  .loader__stage { display: grid; justify-items: center; gap: clamp(18px, 2.4vw, 26px); animation: stage-out .36s cubic-bezier(.65, 0, .35, 1) .86s forwards; }
+  @keyframes stage-out { to { transform: translateY(-6vh); opacity: 0; } }
+  .loader__word {
+    display: block; height: clamp(16px, 2vw, 22px); aspect-ratio: 715 / 71; background: var(--grad-brand);
+    -webkit-mask: var(--wm) 95.59% 50.56% / 131.75% 225.35% no-repeat;
+    mask: var(--wm) 95.59% 50.56% / 131.75% 225.35% no-repeat;
+    clip-path: inset(0 100% 0 0);
+    animation: word-in .38s cubic-bezier(.33, 1, .68, 1) .42s forwards;
+  }
+  @keyframes word-in { to { clip-path: inset(0 0 0 0); } }
+  /* a drop falls from under the wordmark toward the hero */
+  .loader__drop {
+    width: 10px; height: 13px; margin-top: -4px; opacity: 0;
+    background: var(--grad-brand-v); border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+    clip-path: polygon(50% 0, 100% 58%, 92% 82%, 72% 97%, 50% 100%, 28% 97%, 8% 82%, 0 58%);
+    animation: drop-fall .42s cubic-bezier(.55, 0, 1, .45) .74s forwards;
+  }
+  @keyframes drop-fall { 0% { opacity: 1; transform: translateY(0) scaleY(.8); } 100% { opacity: .9; transform: translateY(32vh) scaleY(1.25); } }
+  .loader__skip {
+    position: absolute; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom));
+    display: inline-flex; align-items: center; gap: .5rem; min-height: 48px; padding: 0 1.1rem; border-radius: var(--r-pill);
+    border: 1px solid var(--line); background: transparent; color: var(--fg-muted);
+    font-family: var(--font-brand); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
+  }
+  .loader__skip:hover { color: var(--fg); border-color: var(--aqua); }
+  @media (prefers-reduced-motion: reduce) { :global(html.rw-intro) .loader { display: none; } }
+</style>

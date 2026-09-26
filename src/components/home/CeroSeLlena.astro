@@ -1,0 +1,210 @@
+---
+/**
+ * #cero · "$0 que se llena" (SIG-5) · dark.
+ * A giant Nasalization "$0" (SVG text as a clipPath, aqua outline on top) fills with two looping brand-gradient
+ * waves: scrubbed on the desktop gate, once on view elsewhere, already full with reduced motion or no JS.
+ * Then the three offer tickets (stamps on 2 and 3), the financing partners marquee and the WhatsApp CTA.
+ *
+ * <CeroSeLlena compact />  (About page): only the $0, its caption and the tickets, as a <div> that takes the
+ * theme of the section you drop it into. Only one instance per page (the SVG uses fixed ids).
+ */
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/offer.js';
+import { buildWa, partners } from '../../data/site.js';
+import TicketStub from '../ui/TicketStub.astro';
+import Icon from '../ui/Icon.astro';
+interface Props { compact?: boolean }
+const { compact = false } = Astro.props;
+const { o, t, lang, asset } = useI18n(Astro);
+const c = pick(copy, lang).cero;
+const clean = (s: string) => s.replace(/[:\s]+$/, '');
+
+// Glyph box of "$0" in Nasalization at 1000 units (fontTools: ink x 40–1185, cap height 689, no kerning pair).
+const X = 28, Y = -701, VW = 1169, VH = 713;
+const CAP = 689;
+const FULL = -Math.round(CAP * 0.92); // water surface ends 8% below the top of the glyphs
+const EMPTY = 44;                    // surface (plus wave amplitude) below the baseline
+// quadratic-chain sine: one period = q + t; the path covers the glyphs at every offset of its loop
+const wave = (P: number, A: number, lift: number) => {
+  let d = `M0 ${-lift}`;
+  for (let x = 0; x < X + VW + P; x += P) d += ` q${P / 4} ${-A} ${P / 2} 0 t${P / 2} 0`;
+  return `${d} V${800} H0 Z`;
+};
+const P1 = VW / 2, P2 = VW / 1.5;
+
+// Logos are 96 px high (tools/prep-logos.py). Display height is optically balanced so wide and compact marks
+// weigh the same: equal area around a 32 px reference, clamped to 24–40 px.
+const LOGO_W: Record<string, number> = { synchrony: 453, time: 276, ygrene: 262, foundation: 584, homerun: 309, pci: 167, rffc: 310 };
+const logos = partners.map((p) => {
+  const slug = p.src.split('/').pop()!.replace('.webp', '');
+  const ar = LOGO_W[slug] / 96;
+  const h = Math.round(Math.min(40, Math.max(24, 32 * Math.sqrt(3.2 / ar))));
+  return { ...p, slug, h, w: Math.round(h * ar), white: p.src.replace('.webp', '-white.webp') };
+});
+
+const tickets = [
+  { title: clean(o.aboutUs.benefit2Title), text: o.aboutUs.benefit2Text, icon: 'wrench', stamp: c.free },
+  { title: c.benefit3Title, text: o.aboutUs.benefit3Text, icon: 'flask', stamp: c.free },
+  { title: clean(o.aboutUs.benefit4Title), text: o.aboutUs.benefit4Text, icon: 'coin' },
+];
+const Tag = compact ? 'div' : 'section';
+const Title = compact ? 'h3' : 'h2'; // compact sits under the host section's own h2
+---
+<Tag
+  id={compact ? undefined : 'cero'}
+  class:list={['cero', compact ? 'cero--compact' : 'section']}
+  data-theme={compact ? undefined : 'dark'}
+  aria-labelledby={compact ? undefined : 'cero-title'}
+  style={`--lvl-full:${FULL}px;--lvl-empty:${EMPTY}px;--p1:${P1};--p2:${P2}`}
+>
+  <div class:list={[!compact && 'wrap']}>
+    <div class="cero__hero">
+      <div class="cero__zero-wrap">
+        <svg class="cero__zero" viewBox={`${X} ${Y} ${VW} ${VH}`} aria-hidden="true" focusable="false">
+          <defs>
+            <clipPath id="cero-clip"><text class="cero__glyphs" x="0" y="0">$0</text></clipPath>
+            <linearGradient id="cero-grad" gradientUnits="userSpaceOnUse" x1={X} y1="0" x2={X + VW} y2="0">
+              <stop offset="0" stop-color="#00D0D0" /><stop offset=".38" stop-color="#00D08C" /><stop offset=".68" stop-color="#00CC60" /><stop offset="1" stop-color="#98C400" />
+            </linearGradient>
+            <mask id="cero-mask" maskUnits="userSpaceOnUse" x={X} y={Y} width={VW} height={VH}>
+              <g class="cero__level">
+                <path class="cero__wave cero__wave--back" d={wave(P2, 26, 16)} fill="#fff" fill-opacity=".55" />
+                <path class="cero__wave cero__wave--front" d={wave(P1, 21, 0)} fill="#fff" />
+              </g>
+            </mask>
+          </defs>
+          <g clip-path="url(#cero-clip)">
+            <rect class="cero__tint" x={X} y={Y} width={VW} height={VH} />
+            <rect x={X} y={Y} width={VW} height={VH} fill="url(#cero-grad)" mask="url(#cero-mask)" />
+          </g>
+          <text class="cero__glyphs cero__outline" x="0" y="0">$0</text>
+        </svg>
+      </div>
+      <div class="cero__caption">
+        <p class="kicker">{c.kicker}</p>
+        <Title id={compact ? undefined : 'cero-title'} class="cero__title">{clean(o.aboutUs.benefit1Title)}</Title>
+        <p class="cero__text">{o.aboutUs.benefit1Text}</p>
+        <p class="cero__credit">{c.credit}</p>
+      </div>
+    </div>
+
+    <ul class="cero__tickets" role="list">
+      {tickets.map((tk) => <li><TicketStub title={tk.title} text={tk.text} icon={tk.icon} stamp={tk.stamp} /></li>)}
+    </ul>
+  </div>
+
+  {!compact && (
+    <div class="cero__partners">
+      <h3 class="cero__ptitle wrap">{o.home.financialsTitle}</h3>
+      <div class="marquee cero__marquee" data-speed=".5">
+        <ul class="marquee__track cero__logos" role="list">
+          {logos.map((l) => (
+            <li class="cero__logo" style={`--h:${l.h}px`}>
+              <img class="cero__logo-w" src={asset(l.white)} width={l.w} height={l.h} alt={l.name} loading="lazy" decoding="async" />
+              <img class="cero__logo-c" src={asset(l.src)} width={l.w} height={l.h} alt="" loading="lazy" decoding="async" />
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="wrap cero__cta">
+        <a class="btn btn--primary btn--wa" href={buildWa({ text: c.wa, ref: 'web-financiamiento' })} target="_blank" rel="noopener" data-magnetic>
+          <span class="btn__glyph"><Icon name="whatsapp" size={22} /></span>{c.cta}
+          <Icon name="arrow" size={18} class="arrow" />
+        </a>
+        <p class="trust-note">{t.cta.trust}</p>
+      </div>
+    </div>
+  )}
+</Tag>
+
+<script>
+  import '../../scripts/cero.js';
+</script>
+
+<style>
+  .cero { position: relative; overflow: clip; }
+  .cero:not(.cero--compact) {
+    background:
+      radial-gradient(60% 55% at 22% 30%, rgba(0, 208, 208, .13), transparent 70%),
+      radial-gradient(50% 45% at 90% 85%, rgba(152, 196, 0, .08), transparent 70%),
+      var(--bg);
+  }
+
+  /* ---------- the $0 ---------- */
+  .cero__hero { display: grid; gap: clamp(1.5rem, 4vw, 3rem); align-items: center; }
+  .cero__zero-wrap { position: relative; }
+  .cero__zero { width: min(100%, 680px); height: auto; overflow: visible; }
+  .cero__glyphs { font-family: var(--font-brand); font-size: 1000px; letter-spacing: 0; }
+  /* tokens only, so compact takes the nearest section theme (aqua on navy, aqua-ink on foam) */
+  .cero__tint { fill: var(--accent-text); fill-opacity: .06; }
+  .cero__outline { fill: none; stroke: var(--accent-text); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+
+  /* --lvl: water surface offset. Default full (no JS / reduced), .is-armed = empty, GSAP scrubs it inline on desktop */
+  .cero__level { transform: translateY(var(--lvl, var(--lvl-full))); }
+  .cero__zero.is-armed { --lvl: var(--lvl-empty); }
+  .cero__zero .cero__level { transition: transform 1.6s var(--ease-water); }
+  .cero__wave--front { animation: cero-front 4s linear infinite; }
+  .cero__wave--back { animation: cero-back 7.5s linear infinite; }
+  .cero__zero.is-idle .cero__wave { animation-play-state: paused; }
+  @keyframes cero-front { to { transform: translateX(calc(var(--p1) * -1px)); } }
+  @keyframes cero-back { from { transform: translateX(calc(var(--p2) * -1px)); } to { transform: translateX(0); } }
+
+  .cero__caption { display: grid; gap: var(--s-4); justify-items: start; }
+  .cero__title { font-size: var(--fs-h2); line-height: 1.02; letter-spacing: -.03em; }
+  .cero__text { font-size: var(--fs-lead); line-height: 1.5; color: var(--fg-muted); max-width: 30ch; }
+  .cero__credit { font-size: var(--fs-small); color: var(--fg-muted); opacity: .85; }
+
+  /* ---------- tickets ---------- */
+  .cero__tickets { list-style: none; display: grid; gap: var(--s-6) var(--s-5); margin-top: clamp(2.5rem, 6vw, 4.5rem); }
+  .cero__tickets > li { display: grid; }
+
+  /* ---------- partners ---------- */
+  .cero__partners { margin-top: clamp(4rem, 9vw, 7rem); display: grid; gap: var(--s-6); }
+  .cero__ptitle { font-size: var(--fs-h3); line-height: 1.2; letter-spacing: -.01em; text-align: center; color: var(--fg); }
+  .cero__marquee {
+    overflow: hidden;
+    -webkit-mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+  .cero__logos { list-style: none; display: flex; width: max-content; will-change: transform; }
+  .cero__logo {
+    position: relative; flex: none; display: grid; place-items: center;
+    height: 76px; padding: 0 clamp(22px, 3.2vw, 46px);
+  }
+  .cero__logo img { height: var(--h); width: auto; grid-area: 1 / 1; transition: opacity var(--d-base) var(--ease-water); }
+  .cero__logo-w { opacity: .78; }
+  .cero__logo-c { opacity: 0; }
+  .cero__logo::before {
+    content: ""; position: absolute; inset: 10px 12px; border-radius: var(--r-pill); background: #fff;
+    opacity: 0; scale: .9; transition: opacity var(--d-base) var(--ease-water), scale var(--d-base) var(--ease-water);
+  }
+  @media (hover: hover) {
+    .cero__logo:hover::before { opacity: 1; scale: 1; }
+    .cero__logo:hover .cero__logo-c { opacity: 1; }
+    .cero__logo:hover .cero__logo-w { opacity: 0; }
+  }
+  .cero__cta { display: flex; flex-direction: column; align-items: center; gap: var(--s-3); text-align: center; }
+
+  /* ---------- layouts ---------- */
+  @media (min-width: 640px) {
+    .cero__tickets { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  }
+  @media (min-width: 960px) {
+    .cero__hero { grid-template-columns: 1.35fr 1fr; }
+    .cero--compact .cero__hero { grid-template-columns: 1.1fr 1fr; }
+  }
+  @media (max-width: 767px) {
+    .cero__logo { height: 64px; padding: 0 22px; }
+    .cero__logo img { height: calc(var(--h) * .85); }
+  }
+  /* desktop gate: GSAP scrubs --lvl, so no CSS easing on top of it */
+  @media (min-width: 768px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .cero__zero .cero__level { transition: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cero__wave { animation: none; }
+    .cero__logos { flex-wrap: wrap; justify-content: center; width: auto; transform: none !important; row-gap: 8px; }
+    .cero__logos > [aria-hidden="true"] { display: none; }
+    .cero__marquee { -webkit-mask: none; mask: none; }
+  }
+</style>

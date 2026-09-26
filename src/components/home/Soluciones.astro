@@ -1,0 +1,142 @@
+---
+/*
+  #soluciones · Explora Nuestras Soluciones (spec §6.4). Light.
+  Four cards joined by a pipe line: on desktop it fills with the scroll and each node pops when the water reaches it;
+  cards tilt ≤6° with a cursor glow on the top edge (fine pointer). 2×2 on tablets, vertical timeline on phones.
+  Reduced motion: line already full, nodes on.
+*/
+import Icon from '../ui/Icon.astro';
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/home-story.js';
+
+const { o, lang } = useI18n(Astro);
+const c = pick(copy, lang).solutions;
+const title = o.home.solutionsTitle;
+const ai = title.indexOf(c.accent);
+const icons = ['shield-drop', 'filter', 'flask', 'chat'];
+const cards = icons.map((icon, i) => ({ icon, title: c.titles[i], text: o.home[`card${i + 1}`] }));
+---
+<section id="soluciones" class="section sol" data-theme="light" aria-labelledby="sol-title">
+  <div class="wrap">
+    <header class="sol__head">
+      <p class="kicker">{c.kicker}</p>
+      <h2 id="sol-title" class="h2">
+        {ai >= 0 ? <>{title.slice(0, ai)}<span class="accent">{c.accent}</span>{title.slice(ai + c.accent.length)}</> : title}
+      </h2>
+    </header>
+
+    <div class="sol__track">
+      <div class="sol__rail" aria-hidden="true"><span class="sol__fill"></span></div>
+      <ol class="sol__list">
+        {cards.map((card, i) => (
+          <li class="sol__item" data-reveal="up" data-delay={(i * .08).toFixed(2)}>
+            <span class="sol__node" aria-hidden="true"></span>
+            <article class="sol__card" data-tilt="6" data-glow>
+              <div class="sol__top">
+                <span class="sol__icon" data-draw data-delay={(.2 + i * .08).toFixed(2)}><Icon name={card.icon} size={30} grad /></span>
+                <span class="sol__num num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              </div>
+              <h3 class="h3">{card.title}</h3>
+              <p>{card.text}</p>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sol__head { display: grid; gap: var(--s-4); justify-items: start; margin-bottom: clamp(2.5rem, 6vw, 4.5rem); }
+  .sol__head .h2 { max-width: 16ch; }
+
+  .sol__track { position: relative; --node: 18px; --node-x: 28px; }
+  .sol__list { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-5); }
+  .sol__item { position: relative; padding-top: calc(var(--node) + 28px); display: grid; }
+
+  /* pipe: grey track + gradient fill (scaleX, transform only) */
+  .sol__rail { position: absolute; top: calc(var(--node) / 2 - 1px); left: var(--node-x); right: 0; height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .sol__fill { position: absolute; inset: 0; background: var(--grad-brand); transform-origin: 0 50%; transform: scaleX(var(--p, 1)); }
+  .sol__node {
+    position: absolute; top: 0; left: calc(var(--node-x) - var(--node) / 2); width: var(--node); height: var(--node); border-radius: 50%;
+    background: var(--white); border: 2px solid var(--line); display: grid; place-items: center;
+    transform: scale(.6); transition: transform .5s var(--ease-spring), border-color .3s, box-shadow .5s var(--ease-out);
+  }
+  .sol__node::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--grad-brand); transform: scale(0); transition: transform .45s var(--ease-spring) .05s; }
+  .sol__item.is-on .sol__node { transform: scale(1); border-color: var(--aqua-ink); box-shadow: 0 0 0 6px color-mix(in srgb, var(--aqua) 18%, transparent); }
+  .sol__item.is-on .sol__node::after { transform: scale(1); }
+
+  .sol__card {
+    position: relative; height: 100%; display: grid; align-content: start; gap: var(--s-3);
+    padding: clamp(1.4rem, 2.2vw, 2rem); border-radius: var(--r-lg);
+    background: var(--surface); border: 1px solid var(--line); box-shadow: var(--card-sh);
+    transform-style: preserve-3d;
+  }
+  .sol__card::after { /* cursor glow riding the top edge */
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none;
+    background: radial-gradient(200px 120px at var(--gx, 50%) 0, var(--aqua), transparent 70%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+    opacity: 0; transition: opacity var(--d-base) var(--ease-water);
+  }
+  .sol__card:hover::after { opacity: 1; }
+  .sol__top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--s-3); }
+  .sol__icon { width: 60px; height: 60px; border-radius: 18px; display: grid; place-items: center; background: var(--navy); box-shadow: 0 14px 28px -16px rgba(0, 28, 56, .7), inset 0 1px 0 rgba(255, 255, 255, .12); }
+  .sol__num { font-size: .8rem; letter-spacing: .14em; color: var(--aqua-ink); }
+  .sol__card p { color: var(--fg-muted); font-size: 1rem; line-height: 1.6; }
+
+  /* tablets: 2×2 cards, no pipe */
+  @media (max-width: 1100px) {
+    .sol__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sol__rail, .sol__node { display: none; }
+    .sol__item { padding-top: 0; }
+  }
+  /* phones: vertical timeline, line on the left */
+  @media (max-width: 640px) {
+    .sol__track { --node-x: 9px; }
+    .sol__list { grid-template-columns: minmax(0, 1fr); gap: var(--s-5); }
+    .sol__item { padding: 0 0 0 36px; }
+    .sol__node { display: grid; top: 30px; left: 0; }
+    .sol__rail { display: block; top: 39px; bottom: 60px; left: 8px; right: auto; width: 2px; height: auto; }
+    .sol__fill { transform-origin: 50% 0; transform: scaleY(var(--p, 1)); }
+  }
+</style>
+
+<script>
+  import { onPage } from '../../scripts/engine.js';
+
+  onPage(({ gsap, ScrollTrigger, env }) => {
+    const root = document.getElementById('soluciones');
+    if (!root) return;
+    const track = root.querySelector('.sol__track');
+    const items = [...root.querySelectorAll('.sol__item')];
+    const rail = root.querySelector('.sol__rail');
+    const setP = (p) => track.style.setProperty('--p', p.toFixed(4));
+    if (env.reduced) { setP(1); items.forEach((it) => it.classList.add('is-on')); return; }
+    setP(0);
+
+    if (matchMedia('(min-width: 1101px)').matches && env.desktop) {
+      // the water front runs along the rail with the scroll; a node lights when the front passes it
+      let marks = [];
+      const measure = () => {
+        const r = rail.getBoundingClientRect();
+        marks = items.map((it) => (it.querySelector('.sol__node').getBoundingClientRect().left + 9 - r.left) / r.width);
+      };
+      measure();
+      ScrollTrigger.create({
+        trigger: track, start: 'top 70%', end: 'bottom 60%', scrub: .5,
+        onRefresh: measure,
+        onUpdate: (st) => {
+          setP(st.progress);
+          items.forEach((it, i) => it.classList.toggle('is-on', st.progress >= marks[i] - .005));
+        },
+      });
+      return;
+    }
+    // tablets and phones: draw once when the list arrives, nodes pop in sequence
+    const p = { v: 0 };
+    gsap.to(p, {
+      v: 1, duration: 1.4, ease: 'power2.inOut', onUpdate: () => setP(p.v),
+      scrollTrigger: { trigger: track, start: 'top 75%', once: true, onEnter: () => items.forEach((it, i) => setTimeout(() => it.classList.add('is-on'), 150 + i * 280)) },
+    });
+  });
+</script>

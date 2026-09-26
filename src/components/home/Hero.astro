@@ -1,0 +1,390 @@
+---
+/*
+  #inicio · "Agua Viva" (spec §6.1, SIG-1). Dark, 100svh.
+  Desktop gate: WebGL shader (scripts/hero/agua-viva.js, loaded on idle) over the poster, lens over the H1,
+  char intro after the loader, pin +100% (depth, H1 up + blur, CTAs out, arch scales, bridge line word by word).
+  Touch / <768px: poster in two drifting layers, one scripted lens sweep, no pin. Reduced motion: static poster.
+*/
+import Icon from '../ui/Icon.astro';
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/home-story.js';
+import { buildWa } from '../../data/site.js';
+
+const { t, o, lang, url, asset } = useI18n(Astro);
+const c = pick(copy, lang).hero;
+
+// "Agua Pura, Vida Sana" → line 1 "Agua Pura," (with "Pura" wrapped for the lens sweep) + line 2 accent "Vida Sana"
+const title = o.home.heroTitle;
+const ai = title.indexOf(c.accent);
+const line1 = (ai >= 0 ? title.slice(0, ai) : title).trim();
+const accent = ai >= 0 ? c.accent : '';
+const tail = ai >= 0 ? title.slice(ai + c.accent.length) : '';
+const pi = line1.indexOf(c.lensWord);
+const l1 = pi >= 0 ? [line1.slice(0, pi), c.lensWord, line1.slice(pi + c.lensWord.length)] : [line1, '', ''];
+
+// bridge line "¿Sabes lo que estás bebiendo?", one span per word, the drink word in the accent
+const bridge = o.home.doYouKnowTitle.split(' ').map((w) => ({ w, accent: w.toLowerCase().includes(c.bridgeAccent) }));
+
+const wa = buildWa({ text: t.wa.analysis, ref: 'web-hero' });
+const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
+---
+<section id="inicio" class="hero is-intro" data-theme="dark" aria-labelledby="hero-title"
+  style={`--poster:url(${asset('/img/hero/poster.webp')});--poster-m:url(${asset('/img/hero/poster-m.webp')})`}>
+  <div class="hero__bg" aria-hidden="true">
+    <div class="hero__poster"><i class="hero__layer hero__layer--a"></i><i class="hero__layer hero__layer--b"></i></div>
+    <canvas class="hero__gl"></canvas>
+    <div class="hero__deep"></div>
+    <div class="hero__scrim"></div>
+  </div>
+  <p class="hero__bleed bleed-word" aria-hidden="true">{c.bleed}</p>
+
+  <div class="wrap hero__grid">
+    <div class="hero__copy">
+      <div class="hero__head">
+        <p class="kicker hero__kicker">{o.home.welcomeLabel}</p>
+        <div class="hero__title-wrap">
+          <h1 id="hero-title" class="h-display hero__title">
+            <span class="hero__line"><span class="hero__li">{l1[0]}<span class="hero__pure">{l1[1]}</span>{l1[2]}</span></span>
+            {accent && <span class="hero__line"><span class="hero__li"><span class="accent">{accent}</span>{tail}</span></span>}
+          </h1>
+          <div class="h-display hero__lens" aria-hidden="true">
+            <span class="hero__line">{l1[0]}{l1[1]}{l1[2]}</span>
+            {accent && <span class="hero__line"><span class="accent">{accent}</span>{tail}</span>}
+          </div>
+          <span class="hero__ring" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="hero__act">
+        <p class="hero__badge glass hero__in">
+          <img src={asset('/img/brand/wqa.webp')} alt={c.wqaAlt} width="300" height="115" decoding="async" />
+          <span>{o.home.heroBadge}</span>
+        </p>
+        <div class="cta-row hero__ctas hero__in">
+          <a class="btn btn--primary btn--wa" href={wa} target="_blank" rel="noopener" data-magnetic>
+            <span class="btn__glyph"><Icon name="whatsapp" size={22} /></span>
+            {o.home.heroFreeAnalysis}<span class="sr-only"> {c.waHint}</span>
+            <Icon name="arrow" size={18} class="arrow" />
+          </a>
+          <a class="btn btn--ghost" href={url('contact')}>{o.home.heroContact}</a>
+        </div>
+        <ul class="hero__micro hero__in" aria-label={c.trustLabel}>
+          {micro.map((m) => <li><Icon name="check" size={14} grad strokeWidth={2.4} />{m}</li>)}
+        </ul>
+      </div>
+
+      <p class="h2 hero__bridge">
+        {bridge.map(({ w, accent: a }, i) => <>{i > 0 && ' '}<span class="hero__bw"><span class:list={[{ accent: a }]}>{w}</span></span></>)}
+      </p>
+    </div>
+
+    <figure class="hero__figure">
+      <div class="hero__arch arch">
+        <img
+          src={asset('/img/hero/hero-arch-800.webp')}
+          srcset={`${asset('/img/hero/hero-arch-480.webp')} 480w, ${asset('/img/hero/hero-arch-800.webp')} 800w`}
+          sizes="(min-width: 768px) 36vw, 72vw"
+          width="800" height="1000" alt={c.archAlt}
+          loading="eager" fetchpriority="high" decoding="async" />
+      </div>
+      <figcaption class="hero__tag glass mono"><span class="hero__tag-dot"></span>{c.archTag}</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative; isolation: isolate; overflow: clip;
+    min-height: 100svh; display: grid;
+    padding: calc(var(--header-h) + clamp(20px, 4vh, 48px)) 0 clamp(32px, 6vh, 72px);
+    background: var(--navy); color: var(--fg);
+  }
+
+  /* ---------- background: poster (2 layers) → canvas → depth → scrim ---------- */
+  .hero__bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+  .hero__poster, .hero__gl, .hero__deep, .hero__scrim { position: absolute; inset: 0; }
+  .hero__poster { background: var(--navy) var(--poster) center / cover no-repeat; }
+  .hero__layer { position: absolute; inset: 0; background: var(--poster) center / cover no-repeat; will-change: transform; }
+  /* drift on transform (compositor only) instead of background-position */
+  .hero__layer--a { inset: -20%; animation: hero-drift-a 24s ease-in-out infinite alternate; }
+  .hero__layer--b { inset: -40%; mix-blend-mode: screen; opacity: .5; animation: hero-drift-b 37s ease-in-out infinite alternate; transform: scaleX(-1); }
+  @keyframes hero-drift-a { from { transform: translate3d(-6%, -4%, 0); } to { transform: translate3d(6%, 5%, 0); } }
+  @keyframes hero-drift-b { from { transform: scaleX(-1) translate3d(8%, 6%, 0); } to { transform: scaleX(-1) translate3d(-7%, -6%, 0); } }
+  .hero.is-off .hero__layer, .hero.is-gl .hero__layer { animation-play-state: paused; }
+  /* desktop: the static poster is the shader's exact first frame, so the canvas fades in seamlessly (drift layers are the phone path) */
+  :global(.is-desktop-fx) .hero__layer { display: none; }
+  .hero__gl { width: 100%; height: 100%; opacity: 0; transition: opacity .6s var(--ease-out); }
+  .hero.is-gl .hero__gl { opacity: 1; }
+  .hero.is-gl .hero__deep { display: none; }
+  .hero__deep { background: radial-gradient(120% 90% at 70% 0%, rgba(0, 11, 24, .55), var(--abyss) 70%); opacity: 0; }
+  .hero__scrim {
+    background:
+      linear-gradient(90deg, rgba(0, 11, 24, .78) 0%, rgba(0, 11, 24, .5) 38%, rgba(0, 11, 24, 0) 66%),
+      linear-gradient(0deg, rgba(0, 11, 24, .55) 0%, rgba(0, 11, 24, 0) 32%);
+  }
+
+  .hero__bleed { position: absolute; left: -.05em; bottom: -.34em; z-index: 0; margin: 0; opacity: 1; -webkit-text-stroke: 1px rgba(234, 251, 249, .13); }
+
+  /* ---------- layout ---------- */
+  .hero__grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--s-5); align-items: center; }
+  .hero__copy { grid-column: 1 / span 7; position: relative; }
+  .hero__figure { grid-column: 8 / span 5; margin: 0; position: relative; align-self: end; justify-self: end;
+    width: min(100%, (100svh - var(--header-h) - 24px) * .8);
+    margin-bottom: calc(-1 * clamp(32px, 6vh, 72px) - 7svh); transform-origin: 50% 100%; }
+
+  /* ---------- copy ---------- */
+  .hero__kicker { margin: 0 0 clamp(16px, 2.4vh, 28px); }
+  .hero__title-wrap { position: relative; }
+  .hero__title, .hero__lens { font-size: clamp(3.5rem, 1.2rem + 6.5vw, 7.5rem); }
+  .hero__line { display: block; padding: .04em .12em .1em 0; margin: -.04em -.12em -.1em 0; }
+  .hero__li { display: inline-block; }
+  .is-intro .hero__title .hero__line { overflow: clip; }
+  /* before the engine boots, the H1 lines wait below their clip (displaced, never opacity 0) so the intro starts clean;
+     if the script never runs, the fallback animation puts everything back after 5 s */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .hero.is-intro .hero__li { transform: translateY(115%); animation: hero-unhide .01s 5s forwards; }
+    :global(.js) .hero.is-intro :is(.hero__kicker, .hero__in) { opacity: 0; animation: hero-unhide .01s 5s forwards; }
+  }
+  @keyframes hero-unhide { to { transform: none; opacity: 1; } }
+  .hero__title .accent { padding-right: .06em; }
+
+  /* lens: an ungridded copy of the H1 filled with the brand gradient, magnified inside a circle that follows the pointer */
+  .hero__title-wrap { --lx: 50%; --ly: 50%; --lr: 0px; --ls: 0; }
+  .hero__lens {
+    position: absolute; inset: 0; margin: 0; pointer-events: none; user-select: none;
+    background: var(--grad-brand); -webkit-background-clip: text; background-clip: text; color: transparent;
+    clip-path: circle(var(--lr) at var(--lx) var(--ly));
+    transform: scale(1.12); transform-origin: var(--lx) var(--ly);
+  }
+  .hero__lens .accent { background: none; -webkit-text-fill-color: transparent; }
+  .hero__ring {
+    position: absolute; left: 0; top: 0; width: 188px; height: 188px; margin: -94px 0 0 -94px; border-radius: 50%; pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, .7);
+    box-shadow: inset 0 0 24px rgba(0, 208, 208, .22), 0 10px 40px -10px rgba(0, 0, 0, .5);
+    transform: translate3d(var(--lx), var(--ly), 0) scale(var(--ls));
+    opacity: min(1, calc(var(--ls) * 3));
+  }
+  .hero__ring::after { content: ""; position: absolute; top: 17%; left: 19%; width: 6px; height: 6px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 10px 2px rgba(248, 192, 0, .65); }
+
+  .hero__act { margin-top: clamp(20px, 3.4vh, 36px); display: grid; gap: clamp(20px, 3vh, 30px); justify-items: start; }
+  .hero__badge {
+    display: inline-flex; align-items: center; gap: .85rem; margin: 0;
+    padding: .5rem 1.1rem .5rem .6rem; border-radius: var(--r-pill);
+    border: 1px solid var(--line); font-size: var(--fs-small); color: var(--fg); line-height: 1.3;
+  }
+  .hero__badge img { height: 32px; width: auto; padding-right: .85rem; border-right: 1px solid var(--line); }
+  .hero__micro { list-style: none; display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; font-family: var(--font-mono); font-size: var(--fs-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-muted); }
+  .hero__micro li { display: inline-flex; align-items: center; gap: .45rem; }
+
+  .hero__bridge { position: absolute; left: 0; right: 0; bottom: 0; display: none; margin: 0; pointer-events: none; }
+  :global(.is-desktop-fx) .hero__bridge { display: block; }
+  .hero__bw { display: inline-block; opacity: 0; }
+
+  /* ---------- arch ---------- */
+  .hero__arch { aspect-ratio: 4 / 5; background: var(--current); box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .7), 0 0 0 1px rgba(143, 179, 196, .16), 0 -30px 140px -40px rgba(0, 208, 208, .45); }
+  .hero__arch img { width: 100%; height: 100%; object-fit: cover; }
+  .hero__arch::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(165deg, rgba(0, 208, 208, .16) 0%, rgba(0, 208, 208, 0) 38%), linear-gradient(0deg, rgba(0, 28, 56, .55) 0%, rgba(0, 28, 56, 0) 28%); }
+  .hero__figure::before { /* gradient outline echoing the tank silhouette */
+    content: ""; position: absolute; inset: -14px -14px 0; border-radius: var(--r-arch); padding: 1.5px; pointer-events: none;
+    background: linear-gradient(180deg, var(--aqua), var(--mint) 35%, var(--lime) 70%, transparent 92%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: .55;
+  }
+  .hero__tag { position: absolute; left: -22px; top: 46%; display: inline-flex; align-items: center; gap: .55rem; padding: .6rem .95rem; border-radius: var(--r-pill); border: 1px solid var(--line); color: var(--fg); box-shadow: var(--sh-float); }
+  .hero__tag-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 0 rgba(152, 196, 0, .6); animation: hero-ping 2.4s var(--ease-out) infinite; }
+  @keyframes hero-ping { 0% { box-shadow: 0 0 0 0 rgba(152, 196, 0, .55); } 80%, 100% { box-shadow: 0 0 0 10px rgba(152, 196, 0, 0); } }
+
+  /* ---------- tablets in portrait: copy on top, a bigger arch rising from the bottom edge ---------- */
+  @media (min-width: 768px) and (max-width: 1100px) and (orientation: portrait) {
+    .hero__copy { grid-column: 1 / -1; align-self: end; }
+    .hero__figure { grid-column: 6 / -1; width: 100%; }
+    .hero__title, .hero__lens { font-size: clamp(4.5rem, 1rem + 9vw, 6.5rem); }
+  }
+
+  /* ---------- phones / touch ---------- */
+  @media (max-width: 767px) {
+    .hero { padding-bottom: 0; }
+    .hero__grid { align-items: start; }
+    .hero__poster, .hero__layer { background-image: var(--poster-m); }
+    .hero__scrim { background: linear-gradient(180deg, rgba(0, 11, 24, .5) 0%, rgba(0, 11, 24, .25) 55%, rgba(0, 11, 24, 0) 80%); }
+    .hero__grid { grid-template-columns: minmax(0, 1fr); row-gap: clamp(32px, 6vh, 48px); }
+    .hero__copy, .hero__figure { grid-column: 1; }
+    .hero__figure { width: 72vw; justify-self: end; margin-right: 4vw; margin-bottom: -16vw; }
+    .hero__figure::before { inset: -10px -10px 0; }
+    .hero__tag { left: -14vw; top: 30%; }
+    .hero__badge { font-size: .8125rem; }
+    .hero__badge img { height: 22px; }
+    .hero__ring { width: 124px; height: 124px; margin: -62px 0 0 -62px; }
+    .hero__bleed { bottom: 60vw; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__lens, .hero__ring { display: none; }
+  }
+</style>
+
+<script>
+  import { onPage } from '../../scripts/engine.js';
+
+  onPage(({ gsap, SplitText, env, introGate }) => {
+    const root = document.getElementById('inicio');
+    if (!root) return;
+    const q = (s) => root.querySelector(s);
+    const qa = (s) => [...root.querySelectorAll(s)];
+    const ctx = gsap.context(() => {}, root);          // async tweens live here and die with the page
+    const off = [];                                     // listener / observer cleanups
+    let dead = false, split = null, gl = null, pinST = null;
+    const listen = (t, ev, fn, o) => { t.addEventListener(ev, fn, o); off.push(() => t.removeEventListener(ev, fn, o)); };
+    // build async timelines inside a ticker tick: the engine runs lagSmoothing(0), so a timeline created after a long
+    // main-thread block (page boot) would start from a stale clock and finish instantly
+    const onTick = (fn) => gsap.ticker.add(() => { if (!dead) fn(); }, true);
+    let introDone;
+    const intro = new Promise((r) => { introDone = r; });
+
+    // poster drift (and the shader) only while the hero is on screen
+    const io = new IntersectionObserver(([e]) => {
+      root.classList.toggle('is-off', !e.isIntersecting);
+      if (gl) e.isIntersecting && !document.hidden ? gl.start() : gl.stop();
+    });
+    io.observe(root);
+    off.push(() => io.disconnect());
+
+    const title = q('.hero__title');
+    const wrap = q('.hero__title-wrap');
+    const lines = qa('.hero__title .hero__li');        // line contents; .hero__line is their clip
+    const ins = [q('.hero__kicker'), ...qa('.hero__in')];
+
+    /* ---------------- lens ---------------- */
+    const lens = { x: 0, y: 0, r: 0 };
+    const R = env.desktop ? 84 : 56;
+    const paint = () => {
+      wrap.style.setProperty('--lx', `${lens.x}px`);
+      wrap.style.setProperty('--ly', `${lens.y}px`);
+      wrap.style.setProperty('--lr', `${lens.r}px`);
+      wrap.style.setProperty('--ls', (lens.r / 84).toFixed(3));
+    };
+    const lensOn = () => {
+      if (env.reduced || dead) return;
+      if (env.desktop) {
+        const mx = gsap.quickTo(lens, 'x', { duration: .35, ease: 'power3.out', onUpdate: paint });
+        const my = gsap.quickTo(lens, 'y', { duration: .35, ease: 'power3.out', onUpdate: paint });
+        let inside = false;
+        const setR = (v) => gsap.to(lens, { r: v, duration: .25, ease: 'power2.out', overwrite: 'auto', onUpdate: paint });
+        listen(window, 'pointermove', (e) => {
+          if (root.classList.contains('is-off')) return;
+          const b = wrap.getBoundingClientRect();
+          const x = e.clientX - b.left, y = e.clientY - b.top;
+          const now = x > -24 && y > -24 && x < b.width + 24 && y < b.height + 24 && (!pinST || pinST.progress < .2);
+          if (now && !inside) { lens.x = x; lens.y = y; }
+          if (now) { mx(x); my(y); }
+          if (now !== inside) { inside = now; setR(now ? R : 0); }
+        }, { passive: true });
+      } else {
+        // phones: one scripted sweep along the first line, a pause over "Pura", then it closes
+        const pure = q('.hero__pure');
+        if (!pure || !pure.textContent) return;
+        const b = wrap.getBoundingClientRect(), p = pure.getBoundingClientRect();
+        lens.x = -R; lens.y = p.top - b.top + p.height * .52;
+        ctx.add(() => gsap.timeline({ delay: .4, onUpdate: paint })
+          .to(lens, { r: R, duration: .35, ease: 'power2.out' }, 0)
+          .to(lens, { x: p.left - b.left + p.width / 2, duration: 1.6, ease: 'power2.inOut' }, 0)
+          .to(lens, { r: 0, duration: .45, ease: 'power2.in' }, 2.8));
+      }
+    };
+
+    /* ---------------- intro ---------------- */
+    if (env.reduced) {
+      root.classList.remove('is-intro');
+      introDone();
+    } else {
+      gsap.set(lines, { y: 0, yPercent: 115 });        // y: 0 — gsap would otherwise read the CSS pre-hide matrix into y
+      gsap.set(ins, { autoAlpha: 0, y: 24 });
+      const fonts = Promise.race([
+        Promise.all([document.fonts?.ready, document.fonts?.load('italic 400 1em "Instrument Serif"')]).catch(() => {}),
+        new Promise((r) => setTimeout(r, 900)),
+      ]);
+      Promise.all([fonts, introGate()]).then(() => onTick(() => {
+        ctx.add(() => {
+          const byChar = env.desktop;
+          gsap.set(lines, { y: 0, yPercent: 0 });       // before splitting: revert() restores the HTML captured here
+          split = new SplitText(title, { type: byChar ? 'chars,words' : 'words', charsClass: 'hero-ch', wordsClass: 'hero-w' });
+          const pieces = byChar ? split.chars : split.words;
+          // the accent's gradient is painted per piece, offset so it still reads as one continuous gradient; the span's own
+          // text-clipped background must go meanwhile (Chrome stacks the moved pieces' glyphs at its origin). revert() restores it.
+          const acc = title.querySelector('.accent');
+          if (acc) {
+            const a = acc.getBoundingClientRect();
+            acc.style.backgroundImage = 'none';
+            pieces.filter((el) => acc.contains(el)).forEach((el) => {
+              const r = el.getBoundingClientRect();
+              Object.assign(el.style, { backgroundImage: 'var(--grad-brand)', backgroundSize: `${a.width}px 100%`, backgroundPosition: `${a.left - r.left}px 0`, webkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' });
+            });
+          }
+          const figure = q('.hero__arch');
+          gsap.timeline({ defaults: { ease: 'expo.out' }, onComplete: () => { split?.revert(); split = null; root.classList.remove('is-intro'); lensOn(); introDone(); } })
+            .fromTo(pieces, { yPercent: 115, filter: byChar ? 'blur(8px)' : 'blur(0px)' }, { yPercent: 0, filter: 'blur(0px)', duration: .9, stagger: byChar ? .02 : .06, clearProps: 'filter' }, 0)
+            .to(ins, { autoAlpha: 1, y: 0, duration: .9, stagger: .08 }, .35)
+            .fromTo(figure, { clipPath: 'circle(40% at 50% 55%)' }, { clipPath: 'circle(75% at 50% 55%)', duration: 1.4, clearProps: 'clipPath' }, .1)
+            .fromTo(figure.querySelector('img'), { scale: 1.08 }, { scale: 1, duration: 1.8, ease: 'power3.out', clearProps: 'transform' }, .1);
+        });
+      }));
+    }
+
+    /* ---------------- desktop: pin + shader ---------------- */
+    // the loader's drop lands in the hero: it stirs the water where it falls (or on the tank if the loader did not run)
+    let drop = null;
+    const splash = () => {
+      if (!gl) return;
+      const c = q('.hero__gl').getBoundingClientRect();
+      const a = q('.hero__arch').getBoundingClientRect();
+      const p = drop || { x: a.left + a.width / 2, y: a.top + a.height * .3 };
+      gl.pulse(p.x - c.left, p.y - c.top);
+    };
+    listen(document, 'rw:loader-done', (e) => { drop = e.detail?.x != null ? e.detail : null; splash(); });
+
+    if (env.desktop) {
+      const depth = { v: 0 };
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: { trigger: root, start: 'top top', end: '+=100%', pin: true, scrub: .6, anticipatePin: 1 },
+      });
+      pinST = tl.scrollTrigger;
+      tl.to(depth, { v: 1, duration: 1, onUpdate: () => gl?.setDepth(depth.v) }, 0)
+        .to(q('.hero__deep'), { opacity: 1, duration: 1 }, 0)
+        .fromTo(q('.hero__head'), { y: 0, filter: 'blur(0px)' }, { y: () => -innerHeight * .1, filter: 'blur(6px)', duration: .65, ease: 'power1.in' }, .35)
+        .to(q('.hero__act'), { autoAlpha: 0, y: -28, duration: .3, ease: 'power1.in' }, .5)
+        .to(q('.hero__figure'), { scale: .86, y: () => -innerHeight * .06, duration: 1 }, 0)
+        .to(q('.hero__bleed'), { yPercent: -18, duration: 1 }, 0)
+        .fromTo(qa('.hero__bw'), { opacity: 0, yPercent: 50 }, { opacity: 1, yPercent: 0, duration: .14, stagger: .04, ease: 'power2.out' }, .65)
+        .set({}, {}, 1);
+
+      const canvas = q('.hero__gl');
+      const idle = window.requestIdleCallback || ((f) => setTimeout(f, 300));
+      const cancelIdle = window.cancelIdleCallback || clearTimeout;
+      let idleId = 0;
+      // shader compile waits for the intro so it never stutters the title; the poster is its first frame meanwhile
+      intro.then(() => { if (!dead) idleId = idle(async () => {
+        const { createAguaViva } = await import('../../scripts/hero/agua-viva.js');
+        if (dead) return;
+        gl = createAguaViva(canvas, { onDegrade: () => { gl = null; root.classList.remove('is-gl'); } });
+        if (!gl) return;
+        gl.setDepth(depth.v);
+        const sync = () => { if (!gl) return; !document.hidden && !root.classList.contains('is-off') ? gl.start() : gl.stop(); };
+        listen(document, 'visibilitychange', sync);
+        listen(window, 'pointermove', (e) => { if (gl && !root.classList.contains('is-off')) gl.pointer(e.clientX, e.clientY); }, { passive: true });
+        sync();
+        // the canvas starts on the poster's exact frame, then the water is stirred once
+        requestAnimationFrame(() => { root.classList.add('is-gl'); splash(); });
+      }, { timeout: 1200 }); });
+      off.push(() => cancelIdle(idleId));
+    }
+
+    return () => {
+      dead = true;
+      off.forEach((f) => f());
+      split?.revert();
+      ctx.revert();
+      gl?.destroy(); gl = null;
+      root.classList.remove('is-gl');
+    };
+  });
+</script>

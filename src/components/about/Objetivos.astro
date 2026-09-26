@@ -1,0 +1,62 @@
+---
+// Sobre Nosotros · objetivos (light): three cards with gradient numerals, threaded by a water line drawn on scroll.
+import copy from '../../i18n/areas/about.js';
+import { pick, useI18n } from '../../i18n/index.js';
+
+const { o, lang } = useI18n(Astro);
+const c = pick(copy, lang).objectives;
+const goals = [o.aboutUs.objective1, o.aboutUs.objective2, o.aboutUs.objective3];
+---
+<section id="objetivos" class="section obj" data-theme="light" aria-labelledby="obj-title">
+  <div class="wrap">
+    <div class="obj__head">
+      <p class="kicker">{c.kicker}</p>
+      <h2 id="obj-title" class="h2" data-split="lines">{o.aboutUs.objectivesTitle}</h2>
+    </div>
+    <div class="obj__track">
+      <!-- water line: horizontal on wide screens, vertical on phones; both scrub-drawn by the engine -->
+      <svg class="obj__line obj__line--h" viewBox="0 0 1200 64" preserveAspectRatio="none" aria-hidden="true" data-draw="scrub">
+        <path d="M0 32 C150 22 300 42 450 32 S750 22 900 32 S1100 42 1200 32" fill="none" stroke="url(#rw-grad-ink)" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linecap="round" />
+      </svg>
+      <svg class="obj__line obj__line--v" viewBox="0 0 40 600" preserveAspectRatio="none" aria-hidden="true" data-draw="scrub">
+        <path d="M20 0 C4 50 36 100 20 150 S4 250 20 300 S36 400 20 450 S4 550 20 600" fill="none" stroke="url(#rw-grad-ink)" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linecap="round" />
+      </svg>
+      <ol class="obj__list" role="list" data-stagger=".1">
+        {goals.map((g, i) => (
+          <li class="obj__card">
+            <span class="obj__node" aria-hidden="true"></span>
+            <span class="num obj__num" aria-hidden="true">0{i + 1}</span>
+            <p class="obj__text">{g}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .obj__head { display: grid; gap: 1.25rem; max-width: 40rem; margin-bottom: clamp(2.5rem, 6vw, 5rem); }
+  .obj__track { position: relative; padding-top: 64px; }
+  .obj__line { position: absolute; pointer-events: none; overflow: visible; }
+  .obj__line--h { left: 0; right: 0; top: 0; width: 100%; height: 64px; }
+  .obj__line--v { display: none; }
+  .obj__list { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 2.5vw, 32px); position: relative; }
+  .obj__card {
+    position: relative; display: grid; gap: 1.1rem; align-content: start; padding: clamp(1.4rem, 3vw, 2.25rem);
+    background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--sh-card-light);
+  }
+  .obj__num { font-size: clamp(4rem, 3rem + 3vw, 6rem); background: var(--grad-ink); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: .9; }
+  /* a tap on the water line above each card */
+  .obj__node { position: absolute; top: -40px; left: calc(clamp(1.4rem, 3vw, 2.25rem) + 1.1rem); width: 16px; height: 16px; border-radius: 50%; background: var(--white); border: 3px solid var(--aqua-ink); box-shadow: 0 0 0 6px rgba(0, 208, 208, .15); z-index: 1; }
+  .obj__node::after { content: ""; position: absolute; left: 50%; top: 100%; width: 2px; height: 24px; margin: 3px 0 0 -1px; background: linear-gradient(var(--aqua-ink), rgba(0, 118, 122, 0)); }
+  .obj__text { font-size: clamp(1.15rem, 1rem + .5vw, 1.4rem); line-height: 1.4; font-weight: 500; letter-spacing: -.01em; color: var(--navy); }
+
+  @media (max-width: 767px) {
+    .obj__line--h { display: none; }
+    .obj__line--v { display: block; left: -4px; top: 0; bottom: 0; width: 40px; height: 100%; }
+    .obj__track { padding-top: 0; }
+    .obj__list { grid-template-columns: 1fr; padding-left: 40px; }
+    .obj__node { top: 2.4rem; left: -35px; }
+    .obj__node::after { display: none; }
+  }
+</style>

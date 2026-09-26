@@ -1,0 +1,61 @@
+---
+/**
+ * Google review re-typed as HTML: stars, "Reseña de Google" in text (no G logo, no date), author initials.
+ * <ReviewCard review={r} lang={lang} class="stack-card" />   (r = entry of src/data/reviews.json)
+ * Never pair it with a client photo. On /en/ the text is our translation, so it says so.
+ */
+import Stars from './Stars.astro';
+import copy from '../../i18n/areas/offer.js';
+import { pick } from '../../i18n/index.js';
+interface Props { review: { author: string; stars: number; text: { es: string; en: string } }; lang: 'es' | 'en'; class?: string }
+const { review, lang, class: cls } = Astro.props;
+const c = pick(copy, lang).review;
+const short = review.text[lang].length < 200; // short reviews read as a pull quote
+const initials = review.author.split(/\s+/).map((w) => w[0]).slice(0, 2).join('');
+---
+<figure class:list={['review', short && 'review--short', cls]}>
+  <div class="review__top">
+    <Stars n={review.stars} label={c.stars(review.stars)} class="review__stars" />
+    <span class="review__src">{c.source}</span>
+  </div>
+  <blockquote class="review__quote"><p>{review.text[lang]}</p></blockquote>
+  <figcaption class="review__who">
+    <span class="review__avatar" aria-hidden="true">{initials}</span>
+    <span class="review__meta">
+      <span class="review__name">{review.author}</span>
+      {c.translated && <span class="review__tr">{c.translated}</span>}
+    </span>
+  </figcaption>
+</figure>
+
+<style>
+  .review {
+    position: relative; margin: 0;
+    display: flex; flex-direction: column; gap: 1.25rem;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    background: var(--surface); color: var(--fg);
+    border: 1px solid var(--line); border-radius: var(--r-lg);
+    box-shadow: var(--card-sh), 0 30px 60px -40px rgba(0, 28, 56, .35);
+    overflow: hidden;
+  }
+  /* oversized serif quote mark, decorative */
+  .review::before {
+    content: "\201C"; position: absolute; top: -.02em; right: .14em;
+    font-family: var(--font-serif); font-style: italic; font-size: 9rem; line-height: 1;
+    color: var(--accent-text); opacity: .14; pointer-events: none;
+  }
+  .review__top { display: flex; align-items: center; gap: .4rem .9rem; flex-wrap: wrap; padding-right: 3.5rem; }
+  .review__src { font-family: var(--font-mono); font-weight: 500; font-size: var(--fs-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-muted); }
+  .review__quote { margin: 0; }
+  .review__quote p { font-size: clamp(1.05rem, .98rem + .35vw, 1.25rem); line-height: 1.55; letter-spacing: -.005em; overflow-wrap: anywhere; }
+  .review--short .review__quote p { font-size: clamp(1.3rem, 1.05rem + 1vw, 1.85rem); line-height: 1.32; letter-spacing: -.015em; }
+  .review__who { margin-top: auto; display: flex; align-items: center; gap: .85rem; padding-top: 1.1rem; border-top: 1px solid var(--line); }
+  .review__avatar {
+    flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+    font-family: var(--font-brand); font-size: .78rem; letter-spacing: .08em; color: var(--navy);
+    background: var(--grad-brand);
+  }
+  .review__meta { display: grid; line-height: 1.3; }
+  .review__name { font-weight: 600; }
+  .review__tr { font-size: .8rem; color: var(--fg-muted); }
+</style>

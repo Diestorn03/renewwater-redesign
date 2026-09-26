@@ -1,0 +1,111 @@
+---
+/*
+  #beneficios (spec §6.10). Light.
+  Four benefits around a sticky arch photo (stock: labelled illustrative). Outline numerals 01–04 drift at depth 0.4;
+  each drop icon fills with the brand gradient when its block reaches the middle of the screen.
+  Copy: titles are o.home.benefitNTitle without the "N. " prefix; texts 1, 2 and 4 carry the softening proposed in
+  spec §6.10 (the list of changes for the client is in src/i18n/areas/home-story.js → benefits).
+*/
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/home-story.js';
+
+const { o, lang, asset } = useI18n(Astro);
+const c = pick(copy, lang).benefits;
+const title = o.home.benefitsTitle;
+const ai = title.indexOf(c.accent);
+const benefits = [1, 2, 3, 4].map((n, i) => ({
+  n: String(n).padStart(2, '0'),
+  title: o.home[`benefit${n}Title`].replace(/^\s*\d+\.\s*/, ''),
+  text: c.texts[i] ?? o.home[`benefit${n}Text`],
+}));
+const drop = 'M12 2.6 5.3 12.3a7.5 7.5 0 1 0 13.4 0Z';
+---
+<section id="beneficios" class="section ben" data-theme="light" aria-labelledby="ben-title">
+  <div class="wrap">
+    <header class="ben__head">
+      <p class="kicker">{c.kicker}</p>
+      <h2 id="ben-title" class="h2">
+        {ai >= 0 ? <>{title.slice(0, ai)}<span class="accent">{c.accent}</span>{title.slice(ai + c.accent.length)}</> : title}
+      </h2>
+    </header>
+
+    <div class="ben__grid">
+      <figure class="ben__media">
+        <div class="ben__photo">
+          <img src={asset('/img/home/family.webp')} srcset={`${asset('/img/home/family-sm.webp')} 800w, ${asset('/img/home/family.webp')} 1060w`}
+            sizes="(min-width: 961px) 30vw, 92vw" width="1060" height="594" alt={c.photoAlt} loading="lazy" decoding="async" />
+        </div>
+        <figcaption class="ben__note mono">{c.photoNote}</figcaption>
+      </figure>
+
+      <ol class="ben__list">
+        {benefits.map((b) => (
+          <li class="ben__item" data-reveal="up">
+            <span class="ben__num num" data-parallax="0.4" aria-hidden="true">{b.n}</span>
+            <span class="ben__drop" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="44" height="44"><path d={drop} fill="none" stroke="url(#rw-grad-ink)" stroke-width="1.4" stroke-linejoin="round" /></svg>
+              <span class="ben__drop-fill"><svg viewBox="0 0 24 24" width="44" height="44"><path d={drop} fill="url(#rw-grad)" /><path d="M8.6 14.4a3.6 3.6 0 0 0 3.4 3.4" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".85" /></svg></span>
+            </span>
+            <h3 class="h3">{b.title}</h3>
+            <p>{b.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ben__head { display: grid; gap: var(--s-4); justify-items: center; text-align: center; margin: 0 auto clamp(3rem, 7vw, 6rem); }
+  .ben__head .h2 { max-width: 20ch; }
+
+  .ben__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, .82fr) minmax(0, 1fr); column-gap: clamp(2rem, 4.5vw, 4.5rem); }
+  .ben__media { grid-column: 2; grid-row: 1; align-self: start; position: sticky; top: calc(var(--header-h) + 6vh); margin: 0; }
+  .ben__photo { aspect-ratio: 3 / 4; border-radius: var(--r-arch); overflow: hidden; background: var(--mist); box-shadow: 0 40px 80px -40px rgba(0, 28, 56, .4); }
+  .ben__photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+  .ben__note { display: block; margin-top: var(--s-3); text-align: center; color: var(--fg-muted); font-size: .62rem; }
+
+  .ben__list { grid-column: 1 / -1; grid-row: 1; display: grid; grid-template-columns: subgrid; row-gap: clamp(3rem, 8vw, 7rem); list-style: none; padding-block: 2rem 4rem; }
+  .ben__item { position: relative; display: grid; gap: var(--s-3); align-content: start; padding-top: clamp(2.5rem, 4vw, 3.5rem); isolation: isolate; }
+  .ben__item:nth-child(odd) { grid-column: 1; }
+  .ben__item:nth-child(even) { grid-column: 3; margin-top: clamp(4rem, 10vw, 9rem); }
+  .ben__item:nth-child(3) { grid-row: 2; }
+  .ben__item:nth-child(4) { grid-row: 2; }
+  .ben__num {
+    position: absolute; z-index: -1; top: -.12em; right: 0; font-size: clamp(5.5rem, 3rem + 7vw, 11rem);
+    color: transparent; -webkit-text-stroke: 1.2px color-mix(in srgb, var(--aqua-ink) 30%, transparent); pointer-events: none; user-select: none;
+  }
+  .ben__item p { color: var(--fg-muted); max-width: 44ch; }
+
+  .ben__drop { position: relative; width: 44px; height: 44px; margin-bottom: var(--s-2); }
+  .ben__drop svg { position: absolute; inset: 0; overflow: visible; }
+  .ben__drop-fill { position: absolute; inset: 0; clip-path: inset(100% 0 0 0); transition: clip-path 1.2s var(--ease-out); }
+  .ben__item.is-full .ben__drop-fill { clip-path: inset(0 0 0 0); }
+
+  @media (max-width: 960px) {
+    .ben__grid { grid-template-columns: minmax(0, 1fr); }
+    .ben__media { grid-column: 1; position: static; }
+    .ben__photo { aspect-ratio: 4 / 3; border-radius: var(--r-lg); }
+    .ben__note { text-align: left; }
+    .ben__list { grid-column: 1; grid-row: 2; grid-template-columns: minmax(0, 1fr); row-gap: clamp(2.5rem, 8vw, 4rem); padding-block: 3rem 0; }
+    .ben__item:nth-child(n) { grid-column: 1; grid-row: auto; margin-top: 0; }
+  }
+  @media (min-width: 600px) and (max-width: 960px) {
+    .ben__list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2.5rem; }
+    .ben__item:nth-child(n) { grid-column: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { .ben__drop-fill { clip-path: none; } }
+</style>
+
+<script>
+  import { onPage } from '../../scripts/engine.js';
+
+  onPage(({ ScrollTrigger, env }) => {
+    const root = document.getElementById('beneficios');
+    if (!root) return;
+    root.querySelectorAll('.ben__item').forEach((item) => {
+      if (env.reduced) { item.classList.add('is-full'); return; }
+      ScrollTrigger.create({ trigger: item, start: 'top 58%', once: true, onEnter: () => item.classList.add('is-full') });
+    });
+  });
+</script>

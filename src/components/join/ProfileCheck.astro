@@ -1,0 +1,200 @@
+---
+/**
+ * Profile self-check (dark): 7 native checkboxes styled as rows, an "n/7" counter in Nasalization and a drop
+ * that fills n/7 with the brand gradient; 5+ → "Tienes perfil Renew". Role radios compose the WhatsApp message
+ * (ref web-empleo). The CTA is always active; without JS it opens WhatsApp with a generic application message.
+ */
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/join.js';
+import { buildWa } from '../../data/site.js';
+import Icon from '../ui/Icon.astro';
+const { o, lang } = useI18n(Astro);
+const c = pick(copy, lang);
+const p = c.profile;
+const items = [1, 2, 3, 4, 5, 6, 7].map((i) => o.joinUs[`profile${i}` as keyof typeof o.joinUs] as string);
+const drop = 'M60 6C60 6 16 62 16 98a44 44 0 0 0 88 0C104 62 60 6 60 6Z';
+const wave = 'M0 0Q15 -7 30 0T60 0T90 0T120 0T150 0T180 0T210 0T240 0V160H0Z';
+---
+<section id="perfil" class="pc section" data-theme="dark">
+  <div class="wrap pc__grid">
+    <header class="pc__head">
+      <p class="kicker">{o.joinUs.profileTitle}</p>
+      <h2 class="h2">{o.joinUs.profileSubtitle}</h2>
+    </header>
+
+    <form class="pc__form" data-msg-base={p.msgBase} data-msg-role={p.msgRole} data-msg-count={p.msgCount}
+      data-status0={p.status0} data-status-some={p.statusSome} data-status-match={p.statusMatch}>
+      <fieldset class="pc__list">
+        <legend class="sr-only">{o.joinUs.profileSubtitle}</legend>
+        <div class="pc__mini" aria-hidden="true">
+          <svg viewBox="0 0 120 150" class="pc__mini-drop"><path d={drop} /></svg>
+          <span class="pc__mini-n num"><span data-n>0</span>/7</span>
+          <span class="pc__mini-bar"><i></i></span>
+        </div>
+        {items.map((text, i) => (
+          <label class="pc__item">
+            <input type="checkbox" name="perfil" value={i + 1} />
+            <span class="pc__box" aria-hidden="true"><Icon name="check" size={16} strokeWidth={2.5} /></span>
+            <span class="pc__num" aria-hidden="true">0{i + 1}</span>
+            <span class="pc__text">{text}</span>
+          </label>
+        ))}
+      </fieldset>
+
+      <aside class="pc__aside card">
+        <div class="pc__meter">
+          <svg class="pc__drop" viewBox="0 0 120 150" aria-hidden="true" focusable="false">
+            <defs>
+              <clipPath id="pc-drop-clip"><path d={drop} /></clipPath>
+              <linearGradient id="pc-liquid" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="150">
+                <stop offset="0" stop-color="#00D0D0" /><stop offset=".4" stop-color="#00D08C" /><stop offset=".7" stop-color="#00CC60" /><stop offset="1" stop-color="#98C400" />
+              </linearGradient>
+            </defs>
+            <path class="pc__drop-bg" d={drop} />
+            <g clip-path="url(#pc-drop-clip)">
+              <g class="pc__level">
+                <path class="pc__wave pc__wave--back" d={wave} />
+                <path class="pc__wave pc__wave--front" d={wave} fill="url(#pc-liquid)" />
+              </g>
+            </g>
+            <path class="pc__drop-line" d={drop} />
+            <path class="pc__shine" d="M40 70C34 80 31 90 32 100" />
+          </svg>
+          <p class="pc__count">
+            <span class="pc__n num"><span data-n>0</span><span class="pc__of">/7</span></span>
+            <span class="pc__label mono">{p.counter}</span>
+          </p>
+        </div>
+        <p class="pc__status" aria-live="polite" data-status>{p.status0}</p>
+
+        <fieldset class="pc__roles">
+          <legend class="pc__legend">{p.roleLegend}</legend>
+          <div class="cta-row">
+            {p.roles.map((r) => (
+              <label class="chip"><input type="radio" name="rol" value={r.id} data-label={r.label} /><span class="chip__check" aria-hidden="true"></span>{r.label}</label>
+            ))}
+          </div>
+        </fieldset>
+
+        <a class="btn btn--primary btn--wa pc__cta" href={buildWa({ text: c.applyMsg, ref: 'web-empleo' })} target="_blank" rel="noopener" data-cta>
+          <span class="btn__glyph"><Icon name="whatsapp" size={22} /></span>{c.apply}
+        </a>
+        <p class="pc__privacy small"><Icon name="shield" size={16} />{p.privacy}</p>
+      </aside>
+    </form>
+  </div>
+</section>
+
+<script>
+  import { onPage } from '../../scripts/engine.js';
+  import { buildWa } from '../../data/site.js';
+  onPage(() => {
+    const form = document.querySelector('#perfil .pc__form');
+    if (!form) return;
+    const root = form.closest('.pc');
+    const d = form.dataset;
+    const cta = form.querySelector('[data-cta]');
+    const status = form.querySelector('[data-status]');
+    const nums = form.querySelectorAll('[data-n]');
+    let last = -1;
+    const update = () => {
+      const n = form.querySelectorAll('input[name="perfil"]:checked').length;
+      const role = form.querySelector('input[name="rol"]:checked');
+      root.style.setProperty('--lvl', String(n / 7));
+      root.classList.toggle('is-match', n >= 5);
+      if (n !== last) {
+        nums.forEach((el) => { el.textContent = String(n); el.classList.remove('is-tick'); void el.offsetWidth; el.classList.add('is-tick'); });
+        status.textContent = n >= 5 ? d.statusMatch : n ? d.statusSome.replace('{n}', n) : d.status0;
+        last = n;
+      }
+      const text = `${d.msgBase}${role ? d.msgRole.replace('{rol}', role.dataset.label) : ''}.${n ? d.msgCount.replace('{n}', n) : ''}`;
+      cta.href = buildWa({ text, ref: 'web-empleo' });
+    };
+    form.addEventListener('change', update);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    update();
+    // the waves only move while the section is on screen
+    const io = new IntersectionObserver(([e]) => root.classList.toggle('is-visible', e.isIntersecting));
+    io.observe(root);
+    return () => { form.removeEventListener('change', update); io.disconnect(); };
+  });
+</script>
+
+<style>
+  .pc { --lvl: 0; }
+  .pc__grid { display: grid; gap: clamp(2rem, 4vw, 3rem); }
+  .pc__head { display: grid; gap: 1rem; justify-items: start; }
+  .pc__form { display: grid; gap: clamp(1.5rem, 3vw, 2.5rem); align-items: start; }
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+
+  .pc__list { display: grid; gap: .75rem; }
+  .pc__item {
+    position: relative; display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: .9rem 1rem;
+    min-height: 64px; padding: 1rem 1.25rem; border-radius: var(--r-md); cursor: pointer;
+    background: color-mix(in srgb, var(--surface) 55%, transparent); border: 1px solid var(--line);
+    transition: background-color var(--d-base) var(--ease-water), border-color var(--d-base), transform var(--d-fast) var(--ease-water);
+  }
+  .pc__item:hover { border-color: color-mix(in srgb, var(--aqua) 55%, transparent); }
+  .pc__item:active { transform: scale(.99); }
+  .pc__item input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .pc__item:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; }
+  .pc__box {
+    display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; border: 1.5px solid color-mix(in srgb, var(--fg) 40%, transparent);
+    color: transparent; transition: background-color var(--d-base), border-color var(--d-base), color var(--d-base), transform .35s var(--ease-spring);
+  }
+  .pc__num { font-family: var(--font-brand); font-size: .72rem; letter-spacing: .14em; color: var(--fg-muted); }
+  .pc__text { line-height: 1.45; }
+  .pc__item:has(input:checked) { background: color-mix(in srgb, var(--aqua) 11%, var(--surface)); border-color: var(--aqua); }
+  .pc__item:has(input:checked) .pc__box { background: var(--grad-brand); border-color: transparent; color: var(--navy); transform: scale(1.06); }
+  .pc__item:has(input:checked) .pc__num { color: var(--aqua); }
+
+  /* compact sticky meter (phones / tablets) */
+  .pc__mini {
+    position: sticky; top: calc(var(--header-h) + 8px); z-index: 2; display: flex; align-items: center; gap: .75rem;
+    padding: .55rem .9rem; border-radius: var(--r-pill); border: 1px solid var(--line);
+    background: var(--current); box-shadow: 0 12px 28px -12px rgba(0, 0, 0, .7); margin-bottom: .25rem;
+  }
+  .pc__mini-drop { width: 18px; height: auto; flex: none; }
+  .pc__mini-drop path { fill: color-mix(in srgb, var(--aqua) calc(var(--lvl) * 100%), transparent); stroke: var(--aqua); stroke-width: 8; }
+  .pc__mini-n { font-size: 1.1rem; letter-spacing: .06em; }
+  .pc__mini-bar { flex: 1; height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+  .pc__mini-bar i { display: block; height: 100%; background: var(--grad-brand); transform-origin: left; transform: scaleX(var(--lvl)); transition: transform .6s var(--ease-out); }
+
+  .pc__aside { display: grid; gap: 1.25rem; }
+  .pc__aside.card::before { left: var(--r-lg); right: var(--r-lg); }
+  .pc__meter { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2rem); }
+  .pc__drop { width: clamp(96px, 12vw, 150px); height: auto; flex: none; overflow: visible; transition: filter .6s var(--ease-water); }
+  .pc__drop-bg { fill: color-mix(in srgb, var(--abyss) 70%, transparent); }
+  .pc__drop-line { fill: none; stroke: var(--aqua); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  .pc__shine { fill: none; stroke: rgba(255, 255, 255, .45); stroke-width: 3; stroke-linecap: round; }
+  .pc__level { transform: translateY(calc(152px - var(--lvl) * 148px)); transition: transform .9s var(--ease-out); }
+  .pc__wave--front { animation: pc-wave 5s linear infinite; }
+  .pc:not(.is-visible) .pc__wave { animation-play-state: paused; }
+  .pc__wave--back { fill: rgba(0, 208, 208, .35); animation: pc-wave-back 7s linear infinite; }
+  @keyframes pc-wave { from { transform: translateX(0); } to { transform: translateX(-60px); } }
+  @keyframes pc-wave-back { from { transform: translate(-60px, -4px); } to { transform: translate(0, -4px); } }
+  .pc.is-match .pc__drop { filter: drop-shadow(0 0 18px rgba(0, 208, 208, .45)); }
+
+  .pc__count { display: grid; gap: .35rem; }
+  .pc__n { font-size: var(--fs-num-l); line-height: .9; display: inline-flex; align-items: baseline; }
+  .pc__of { color: var(--fg-muted); font-size: .5em; margin-left: .08em; }
+  .pc__label { color: var(--fg-muted); }
+  .pc :global([data-n].is-tick) { display: inline-block; animation: pc-tick .5s var(--ease-out); }
+  @keyframes pc-tick { from { transform: translateY(35%); opacity: 0; } to { transform: none; opacity: 1; } }
+  .pc__status { font-size: var(--fs-lead); font-weight: 600; letter-spacing: -.01em; min-height: 1.5em; padding-bottom: 1.25rem; border-bottom: 1px solid var(--line); }
+  .pc.is-match .pc__status { background: var(--grad-brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .pc__roles { display: grid; gap: .75rem; }
+  .pc__legend { font-weight: 600; margin-bottom: .75rem; padding: 0; }
+  .pc__cta { width: 100%; }
+  .pc__privacy { display: flex; gap: .5rem; align-items: flex-start; color: var(--fg-muted); }
+  .pc__privacy :global(svg) { flex: none; margin-top: .15rem; color: var(--aqua); }
+
+  @media (min-width: 1024px) {
+    .pc__grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: clamp(2rem, 5vw, 5rem); }
+    .pc__head { grid-column: 1 / -1; }
+    .pc__form { grid-column: 1 / -1; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: clamp(2rem, 5vw, 5rem); }
+    .pc__aside { position: sticky; top: calc(var(--header-h) + 24px); }
+    .pc__mini { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .pc__wave--front, .pc__wave--back { animation: none; } }
+</style>

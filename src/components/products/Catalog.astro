@@ -1,0 +1,89 @@
+---
+// Filterable catalogue: native radios styled as chips, synced to ?tipo=, reordered with GSAP Flip (scripts/products/catalog.js).
+import ProductCard from './ProductCard.astro';
+import Icon from '../ui/Icon.astro';
+import copy from '../../i18n/areas/products.js';
+import { pick, useI18n } from '../../i18n/index.js';
+import { sorted } from '../../scripts/products/meta.js';
+
+const { lang, url } = useI18n(Astro);
+const c = pick(copy, lang);
+const keys = ['all', 'ciudad', 'pozo', 'apartamento', 'bajo-fregadero', 'dispensador', 'linea'];
+const countOf = (k) => (k === 'all' ? sorted.length : sorted.filter((p) => p.categories.includes(k)).length);
+---
+<section id="catalogo" class="section catalog" data-theme="light" aria-labelledby="catalogo-title" data-count-one={c.count.one} data-count-other={c.count.other}>
+  <div class="wrap">
+    <h2 id="catalogo-title" class="sr-only">{c.filters.legend}</h2>
+    <div class="catalog__bar">
+      <fieldset class="catalog__filters">
+        <legend class="catalog__legend mono">{c.filters.legend}</legend>
+        <div class="catalog__chips">
+          {keys.map((k) => (
+            <label class="chip catalog__chip">
+              <input type="radio" name="tipo" value={k} checked={k === 'all'} />
+              <span class="chip__check" aria-hidden="true"></span>
+              {c.filters[k]}
+              <span class="catalog__n" aria-hidden="true">{countOf(k)}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <p class="catalog__count" aria-live="polite" aria-atomic="true">
+        <span class="num catalog__count-n">{sorted.length}</span> <span class="catalog__count-w">{c.count.other}</span>
+      </p>
+    </div>
+    <div class="catalog__grid">
+      {sorted.map((p, i) => <ProductCard product={p} eager={i < 3} />)}
+      <a class="catalog__tile" href={url('analysis')} data-cats="*" data-flip-id="tile" data-theme="dark">
+        <span class="catalog__tile-icon" aria-hidden="true"><Icon name="flask" size={30} grad /></span>
+        <span class="kicker">{c.tile.kicker}</span>
+        <span class="catalog__tile-title">{c.tile.title}</span>
+        <span class="catalog__tile-text">{c.tile.text}</span>
+        <span class="btn btn--primary btn--sm catalog__tile-cta">{c.tile.cta}<Icon name="arrow" size={18} class="arrow" /></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '../../scripts/products/catalog.js';
+</script>
+
+<style>
+  .catalog { padding-top: clamp(24px, 4vw, 48px); }
+  .catalog__bar { position: relative; margin-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+  .catalog__filters { border: 0; margin: 0; padding: 0; min-width: 0; }
+  .catalog__legend { padding: 0; margin-bottom: .75rem; color: var(--slate); }
+  .catalog__chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .catalog__chip { background: var(--white); }
+  .catalog__n { font-family: var(--font-mono); font-size: .72rem; color: var(--slate); min-width: 1.4em; text-align: center; padding: .1rem .35rem; border-radius: var(--r-pill); background: var(--foam); }
+  .catalog__chip:has(input:checked) .catalog__n { background: var(--white); color: var(--aqua-ink); }
+  .catalog__count { position: absolute; right: 0; top: -.55rem; color: var(--slate); font-size: .95rem; white-space: nowrap; }
+  .catalog__count-n { font-size: 1.6rem; color: var(--navy); margin-right: .15em; vertical-align: -.12em; }
+  .catalog__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: clamp(16px, 2vw, 28px); align-items: stretch; }
+  .catalog__grid :global(.is-out) { display: none; }
+  .catalog__tile {
+    position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: .9rem;
+    padding: clamp(1.5rem, 3vw, 2.25rem); border-radius: var(--r-lg); color: var(--fg);
+    background: radial-gradient(80% 60% at 85% 0%, rgba(0, 208, 208, .28), rgba(0, 208, 208, 0) 70%), radial-gradient(70% 60% at 0% 100%, rgba(152, 196, 0, .18), rgba(152, 196, 0, 0) 70%), var(--navy);
+    box-shadow: var(--sh-float); min-height: 320px;
+  }
+  .catalog__tile-icon { width: 60px; height: 60px; border-radius: 18px; display: grid; place-items: center; background: rgba(234, 251, 249, .06); border: 1px solid var(--line); }
+  .catalog__tile-title { font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem); font-weight: 600; line-height: 1.08; letter-spacing: -.025em; }
+  .catalog__tile-text { color: var(--fg-muted); }
+  .catalog__tile-cta { margin-top: auto; }
+  .catalog__tile:hover .catalog__tile-cta { background-position: 100% 0; }
+  .catalog__tile:hover .arrow { transform: translateX(4px); }
+
+  @media (max-width: 767px) {
+    /* one swipeable row of chips; the page itself never scrolls sideways */
+    .catalog__chips {
+      flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none;
+      margin-inline: calc(-1 * var(--gutter)); padding: 4px var(--gutter) 8px;
+      -webkit-mask: linear-gradient(90deg, transparent, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent);
+              mask: linear-gradient(90deg, transparent, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent);
+    }
+    .catalog__chips::-webkit-scrollbar { display: none; }
+    .catalog__chip { flex: none; scroll-snap-align: start; }
+  }
+</style>

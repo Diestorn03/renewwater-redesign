@@ -1,0 +1,30 @@
+---
+/**
+ * El Hilo: one thread down the left margin of <main> (≥1024px, fine pointer), drawn by scroll, aqua → lime.
+ * Rendered once by Base as the first child of <main>. chrome.js builds the path from main's height on every
+ * page load and ScrollTrigger refresh; reduced motion shows it fully drawn. Decorative only.
+ */
+---
+<div class="hilo" aria-hidden="true">
+  <svg class="hilo__svg" width="48" height="1" viewBox="0 0 48 1" preserveAspectRatio="none" focusable="false">
+    <defs>
+      <linearGradient id="hilo-grad" class="hilo__grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#00D0D0" /><stop offset=".38" stop-color="#00D08C" /><stop offset=".68" stop-color="#00CC60" /><stop offset="1" stop-color="#98C400" />
+      </linearGradient>
+    </defs>
+    <path class="hilo__ghost" d="" />
+    <path class="hilo__line" d="" pathLength="1" stroke="url(#hilo-grad)" />
+    <circle class="hilo__tip" r="3" cx="24" cy="0" />
+  </svg>
+</div>
+
+<style>
+  .hilo { display: none; position: absolute; top: 0; left: 0; width: 48px; height: 100%; z-index: 3; pointer-events: none; }
+  .hilo.is-on { display: block; }
+  .hilo__svg { display: block; overflow: visible; }
+  .hilo path { fill: none; stroke-linecap: round; }
+  .hilo__ghost { stroke: rgba(143, 179, 196, .12); stroke-width: 1; }
+  .hilo__line { stroke-width: 1.5; stroke-dasharray: 1 1; stroke-dashoffset: 1; opacity: .75; }
+  .hilo__tip { fill: #EAFBF9; filter: drop-shadow(0 0 4px #00D0D0) drop-shadow(0 0 10px rgba(0, 208, 208, .6)); opacity: 0; transition: opacity .3s; }
+  .hilo.is-drawing .hilo__tip { opacity: 1; }
+</style>

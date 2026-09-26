@@ -1,0 +1,120 @@
+---
+// /productos and /en/products (wrapper). Light hero with a floating product trio, filterable catalogue, dark help CTA.
+import Base from '../../layouts/Base.astro';
+import Catalog from '../../components/products/Catalog.astro';
+import Icon from '../../components/ui/Icon.astro';
+import copy from '../../i18n/areas/products.js';
+import { pick, useI18n } from '../../i18n/index.js';
+import { buildWa } from '../../data/site.js';
+import { sorted } from '../../scripts/products/meta.js';
+
+const { t, lang, url, asset } = useI18n(Astro);
+const c = pick(copy, lang);
+const bySlug = Object.fromEntries(sorted.map((p) => [p.slug, p]));
+const trio = [
+  { p: bySlug['renew-city'], cls: 'art__main', depth: 2 },
+  { p: bySlug['astrid'], cls: 'art__left', depth: 1 },
+  { p: bySlug['osmosis-inversa'], cls: 'art__right', depth: 0 },
+];
+const trust = [
+  { icon: 'coin', text: t.trust.down },
+  { icon: 'wrench', text: t.trust.install },
+  { icon: 'flask', text: t.trust.analysis },
+  { icon: 'shield', text: t.trust.wqa },
+];
+---
+<Base title={t.meta.products} description={c.meta.description}>
+  <section class="section cat-hero" data-theme="light" aria-labelledby="cat-hero-title">
+    <p class="bleed-word cat-hero__bleed" aria-hidden="true">{c.hero.h1Accent}</p>
+    <div class="wrap cat-hero__grid">
+      <div class="cat-hero__copy stack">
+        <p class="kicker">{c.hero.kicker}</p>
+        <h1 id="cat-hero-title" class="cat-hero__title" data-split="lines">{c.hero.h1} <span class="accent">{c.hero.h1Accent}</span></h1>
+        <p class="lead" data-reveal="up" data-delay=".15">{c.hero.lead}</p>
+        <a class="btn btn--text cat-hero__helper" href={url('analysis')} data-reveal="up" data-delay=".25">
+          <Icon name="flask" size={20} />{c.hero.helper}<Icon name="arrow" size={18} class="arrow" />
+        </a>
+        <ul class="cat-hero__trust" role="list" data-stagger=".06">
+          {trust.map((x) => <li><Icon name={x.icon} size={18} grad />{x.text}</li>)}
+        </ul>
+      </div>
+      <div class="cat-hero__art" role="img" aria-label={c.hero.artAlt}>
+        <div class="art__arch" aria-hidden="true"></div>
+        {trio.map(({ p, cls, depth }, i) => (
+          <img class:list={['art__img', cls]} src={asset(p.cutout)} width={p.cutoutSize[0]} height={p.cutoutSize[1]} alt=""
+            loading="eager" fetchpriority={i === 0 ? 'high' : undefined} decoding="async" data-depth={depth} />
+        ))}
+        <span class="art__tag art__tag--a" aria-hidden="true"><span class="num">{sorted.length}</span> {c.count.other}</span>
+        <span class="art__tag art__tag--b" aria-hidden="true"><Icon name="drop" size={16} grad />{t.trust.install}</span>
+      </div>
+    </div>
+  </section>
+
+  <Catalog />
+
+  <section class="section cat-help" data-theme="dark" aria-labelledby="cat-help-title">
+    <div class="wrap cat-help__inner">
+      <h2 id="cat-help-title" class="h2" data-split="lines">{c.help.title} <span class="accent">{c.help.titleAccent}</span></h2>
+      <div class="stack cat-help__side">
+        <p class="lead" data-reveal="up">{c.help.text}</p>
+        <div class="cta-row" data-reveal="up" data-delay=".1">
+          <a class="btn btn--primary btn--wa" href={buildWa({ text: t.wa.analysis, ref: 'web-producto' })} target="_blank" rel="noopener" data-magnetic>
+            <span class="btn__glyph"><Icon name="whatsapp" size={22} /></span>{t.cta.freeAnalysisLong}
+          </a>
+          <a class="btn btn--ghost" href={url('analysis')}>{c.help.lab}<Icon name="arrow" size={18} class="arrow" /></a>
+        </div>
+        <p class="trust-note">{t.cta.trust}</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .cat-hero { padding-top: calc(var(--header-h) + clamp(32px, 6vw, 80px)); padding-bottom: clamp(32px, 5vw, 64px); overflow: clip; }
+  .cat-hero__bleed { position: absolute; right: -2vw; top: calc(var(--header-h) + 1vw); color: var(--aqua-ink); z-index: -1; opacity: .07; }
+  .cat-hero__grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+  .cat-hero__title { font-size: clamp(2.75rem, 1rem + 5.4vw, 6.25rem); line-height: .95; letter-spacing: -.035em; }
+  .cat-hero__title .accent { background: var(--grad-ink); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; padding-right: .08em; }
+  .cat-hero__helper { gap: .5rem; font-weight: 600; white-space: normal; text-align: left; }
+  .cat-hero__trust { list-style: none; display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin-top: .5rem; color: var(--slate); font-size: .92rem; font-weight: 500; }
+  .cat-hero__trust li { display: inline-flex; align-items: center; gap: .45rem; }
+
+  /* product trio in a tank-shaped arch */
+  .cat-hero__art { position: relative; height: clamp(440px, 62vh, 640px); max-width: 520px; width: 100%; justify-self: center; }
+  .art__arch {
+    position: absolute; inset: 0 8% 6% 8%; border-radius: var(--r-arch);
+    background:
+      radial-gradient(60% 40% at 50% 48%, rgba(0, 208, 208, .34), rgba(0, 208, 208, 0) 70%),
+      radial-gradient(80% 45% at 50% 100%, rgba(152, 196, 0, .22), rgba(152, 196, 0, 0) 70%),
+      linear-gradient(180deg, #EEF9F6, var(--mist));
+    box-shadow: inset 0 1px 0 #fff, 0 40px 80px -40px rgba(0, 118, 122, .45);
+  }
+  .art__arch::before { /* thin brand rim */
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; opacity: .7;
+    background: linear-gradient(180deg, #00D0D0 0%, #00CC60 45%, rgba(152, 196, 0, 0) 88%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  }
+  .art__img { position: absolute; width: auto; max-width: none; mix-blend-mode: multiply; }
+  .art__main { height: 84%; left: 50%; bottom: 8%; translate: -50% 0; }
+  .art__left { height: 40%; left: 0; bottom: 0; }
+  .art__right { height: 34%; right: -2%; bottom: 2%; }
+  .art__tag {
+    position: absolute; display: inline-flex; align-items: center; gap: .4rem; padding: .55rem .9rem; border-radius: var(--r-pill);
+    font-size: .82rem; font-weight: 600; color: var(--navy); background: rgba(255, 255, 255, .86); border: 1px solid #fff; box-shadow: var(--sh-float);
+    animation: floaty 9s ease-in-out infinite;
+  }
+  .art__tag .num { font-size: 1rem; color: var(--aqua-ink); }
+  .art__tag--a { top: 14%; left: -2%; }
+  .art__tag--b { top: 36%; right: -4%; animation-delay: -4s; }
+
+  .cat-help__inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 5rem); align-items: end; }
+
+  @media (max-width: 900px) {
+    .cat-hero__grid, .cat-help__inner { grid-template-columns: 1fr; }
+    .cat-hero__art { height: clamp(340px, 92vw, 480px); max-width: 420px; }
+  }
+  @media (max-width: 480px) {
+    .art__tag--a { left: 0; }
+    .art__tag--b { right: 0; }
+  }
+</style>

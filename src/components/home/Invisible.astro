@@ -1,0 +1,124 @@
+---
+/*
+  #invisible · "Lo que no ves" (spec §6.2). Light.
+  Photo is stock (illustrative, never presented as clients). Five contaminant chips float over it on desktop:
+  CSS sine drift, pointer repel ≤12px (fine pointer), and they sink toward the tank (y +30vh) as the section leaves.
+  Phones: photo, a row of chips, text. Reduced motion: static chips.
+*/
+import Icon from '../ui/Icon.astro';
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/home-story.js';
+
+const { o, lang, url, asset } = useI18n(Astro);
+const c = pick(copy, lang).invisible;
+// chip → simulation colour (spec §3 --c-*) and its spot over the photo on desktop (% of the photo box)
+const chips = [
+  { dot: 'var(--c-cloro)', x: 8, y: 9 },
+  { dot: 'var(--c-metal)', x: 78, y: 11 },
+  { dot: 'var(--c-bacteria)', x: -3, y: 58 },
+  { dot: 'var(--c-sedimento)', x: 30, y: 93 },
+  { dot: 'var(--c-quimico)', x: 74, y: 78, hollow: true },
+].map((ch, i) => ({ ...ch, label: c.chips[i] }));
+---
+<section id="invisible" class="section inv" data-theme="light" aria-labelledby="inv-title">
+  <div class="wrap inv__grid">
+    <div class="inv__media">
+      <div class="inv__photo frame" data-reveal="clip">
+        <img src={asset('/img/home/contaminants.webp')} width="1024" height="680" alt={c.photoAlt} loading="lazy" decoding="async" />
+        <span class="inv__note mono">{c.photoNote}</span>
+      </div>
+      <p class="sr-only" id="inv-list">{o.home.contaminantsTitle}</p>
+      <ul class="inv__chips" aria-labelledby="inv-list">
+        {chips.map((ch, i) => (
+          <li class="inv__pos" style={`--x:${ch.x}%;--y:${ch.y}%;--i:${i}`}>
+            <span class="inv__float">
+              <span class:list={['inv__chip', { 'is-hollow': ch.hollow }]} style={`--dot:${ch.dot}`}><span class="inv__dot" aria-hidden="true"></span>{ch.label}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="inv__text">
+      <p class="kicker">{c.kicker}</p>
+      <h2 id="inv-title" class="h2">{c.title[0]}<span class="accent">{c.title[1]}</span>{c.title[2]}</h2>
+      <p class="inv__body" data-lit>{o.home.contaminantsText}</p>
+      <a class="btn btn--text inv__link" href={url('home', '#laboratorio')}>{c.link}<Icon name="arrow" size={18} class="arrow" /></a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .inv { overflow-x: clip; }
+  .inv__grid { display: grid; grid-template-columns: minmax(0, 1.38fr) minmax(0, 1fr); gap: clamp(2.5rem, 6vw, 6rem); align-items: start; }
+  .inv__media { position: relative; }
+  .inv__photo { aspect-ratio: 1024 / 680; box-shadow: 0 40px 80px -40px rgba(0, 28, 56, .35); }
+  .inv__note { position: absolute; right: 14px; bottom: 12px; padding: .3rem .6rem; border-radius: var(--r-pill); background: rgba(0, 28, 56, .55); color: #fff; font-size: .62rem; }
+
+  .inv__chips { list-style: none; }
+  .inv__pos { position: absolute; left: var(--x); top: var(--y); z-index: 2; translate: -10% -50%; }
+  .inv__float { display: block; animation: inv-bob 8s ease-in-out infinite; animation-delay: calc(var(--i) * -1.65s); }
+  @keyframes inv-bob {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    25% { transform: translate3d(4px, -7px, 0); }
+    50% { transform: translate3d(0, -11px, 0); }
+    75% { transform: translate3d(-4px, -5px, 0); }
+  }
+  .inv__chip {
+    display: inline-flex; align-items: center; gap: .6rem; white-space: nowrap;
+    min-height: 44px; padding: .55rem 1.1rem .55rem .8rem; border-radius: var(--r-pill);
+    background: rgba(255, 255, 255, .9); border: 1px solid rgba(255, 255, 255, .9); color: var(--navy);
+    font-weight: 500; font-size: .95rem; line-height: 1.2; box-shadow: var(--sh-float);
+  }
+  @media (pointer: fine) { .inv__chip { background: rgba(255, 255, 255, .78); -webkit-backdrop-filter: blur(10px) saturate(140%); backdrop-filter: blur(10px) saturate(140%); } }
+  .inv__dot { width: 10px; height: 10px; border-radius: 50%; flex: none; background: var(--dot); box-shadow: 0 0 0 4px color-mix(in srgb, var(--dot) 28%, transparent); }
+  .is-hollow .inv__dot { background: transparent; border: 2px solid var(--dot); box-shadow: 0 0 0 4px color-mix(in srgb, var(--dot) 16%, transparent); width: 12px; height: 12px; }
+
+  .inv__text { display: grid; gap: var(--s-5); justify-items: start; padding-top: clamp(0px, 2vw, 24px); }
+  .inv__text .h2 { max-width: 12ch; }
+  .inv__body { font-size: var(--fs-lead); line-height: 1.55; color: var(--fg); max-width: 40ch; }
+  .inv__link { font-size: 1rem; gap: .5rem; }
+
+  @media (max-width: 960px) {
+    .inv__grid { grid-template-columns: minmax(0, 1fr); }
+    .inv__text .h2 { max-width: 14ch; }
+  }
+  @media (max-width: 960px), (pointer: coarse) {
+    .inv__grid { grid-template-columns: minmax(0, 1fr); }
+    .inv__chips { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: var(--s-5); }
+    .inv__pos { position: static; translate: none; }
+    .inv__float { animation: none; }
+    .inv__chip { box-shadow: 0 6px 18px -10px rgba(0, 28, 56, .35); border-color: var(--line); background: var(--white); min-height: 40px; font-size: .9rem; }
+  }
+</style>
+
+<script>
+  import { onPage } from '../../scripts/engine.js';
+
+  onPage(({ gsap, env }) => {
+    const root = document.getElementById('invisible');
+    if (!root || !env.desktop || !matchMedia('(min-width: 961px)').matches) return;
+    const media = root.querySelector('.inv__media');
+    const chips = [...root.querySelectorAll('.inv__chip')].map((el) => ({
+      el,
+      x: gsap.quickTo(el, 'x', { duration: .6, ease: 'power3.out' }),
+      y: gsap.quickTo(el, 'y', { duration: .6, ease: 'power3.out' }),
+    }));
+    // repel: chips lean away from the cursor, up to 12px, transform only
+    const move = (e) => chips.forEach((c) => {
+      const r = c.el.parentElement.getBoundingClientRect();
+      const dx = r.left + r.width / 2 - e.clientX, dy = r.top + r.height / 2 - e.clientY;
+      const d = Math.hypot(dx, dy) || 1, f = Math.max(0, 1 - d / 200) * 12;
+      c.x((dx / d) * f); c.y((dy / d) * f);
+    });
+    const leave = () => chips.forEach((c) => { c.x(0); c.y(0); });
+    media.addEventListener('pointermove', move);
+    media.addEventListener('pointerleave', leave);
+    // on the way out the chips sink toward the tank of the next chapter
+    gsap.to(root.querySelectorAll('.inv__pos'), {
+      y: (i) => innerHeight * (.24 + i * .02), opacity: .4, ease: 'none',
+      scrollTrigger: { trigger: root, start: 'center 40%', end: 'bottom top', scrub: .6, invalidateOnRefresh: true },
+    });
+    return () => { media.removeEventListener('pointermove', move); media.removeEventListener('pointerleave', leave); };
+  });
+</script>

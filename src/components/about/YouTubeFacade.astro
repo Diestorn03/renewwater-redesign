@@ -1,0 +1,60 @@
+---
+// YouTube facade: thumbnail + play link. No iframe (and no request to YouTube's player) until the visitor clicks;
+// without JS the link opens the video on youtube.com.
+import copy from '../../i18n/areas/about.js';
+import { pick, useI18n } from '../../i18n/index.js';
+
+interface Props { id: string; title: string }
+const { id, title } = Astro.props;
+const { lang } = useI18n(Astro);
+const c = pick(copy, lang).news;
+---
+<div class="yt" data-yt={id} data-title={title}>
+  <img src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`} width="480" height="360" alt="" loading="lazy" decoding="async" />
+  <a class="yt__play" href={`https://www.youtube.com/watch?v=${id}`} target="_blank" rel="noopener" aria-label={c.play(title)}>
+    <span class="yt__btn" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="26" height="26"><path d="M8 5.5v13l11-6.5z" fill="currentColor" /></svg>
+    </span>
+    <span class="yt__label mono">{c.watch}</span>
+  </a>
+</div>
+
+<script>
+  import { onPage } from '../../scripts/engine.js';
+  onPage(() => {
+    const facades = document.querySelectorAll('.yt[data-yt]');
+    if (!facades.length) return;
+    const play = (e) => {
+      const box = e.target.closest('.yt[data-yt]');
+      if (!box || e.button > 0 || e.metaKey || e.ctrlKey) return;
+      e.preventDefault();
+      const f = document.createElement('iframe');
+      f.src = `https://www.youtube-nocookie.com/embed/${box.dataset.yt}?autoplay=1&rel=0`;
+      f.title = box.dataset.title;
+      f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      f.allowFullscreen = true;
+      box.classList.add('is-playing');
+      box.replaceChildren(f);
+      f.focus();
+    };
+    facades.forEach((b) => b.addEventListener('click', play));
+    return () => facades.forEach((b) => b.removeEventListener('click', play));
+  });
+</script>
+
+<style>
+  .yt { position: relative; aspect-ratio: 16 / 9; border-radius: var(--r-md); overflow: hidden; background: var(--abyss); isolation: isolate; }
+  .yt img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease-out), filter .5s; filter: saturate(.85); }
+  .yt::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 28, 56, 0) 40%, rgba(0, 28, 56, .65)); pointer-events: none; }
+  .yt.is-playing::after { display: none; }
+  .yt__play { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; color: #fff; }
+  .yt__btn {
+    width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center; padding-left: 3px;
+    background: var(--grad-brand); color: var(--navy); box-shadow: 0 10px 30px -8px rgba(0, 208, 208, .7);
+    transition: transform var(--d-base) var(--ease-water);
+  }
+  .yt__label { position: absolute; right: 1rem; bottom: 1rem; }
+  .yt:hover img { transform: scale(1.04); filter: saturate(1); }
+  .yt:hover .yt__btn { transform: scale(1.08); }
+  .yt :global(iframe) { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+</style>

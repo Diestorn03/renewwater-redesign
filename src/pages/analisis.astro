@@ -1,0 +1,81 @@
+---
+// /analisis · /en/analysis (spec §7): landing for the Instagram/TikTok bio link and ads. Every WhatsApp link carries ref web-bio.
+import Base from '../layouts/Base.astro';
+import Laboratorio from '../components/lab/Laboratorio.astro';
+import TicketStub from '../components/ui/TicketStub.astro';
+import ReviewCard from '../components/ui/ReviewCard.astro';
+import Icon from '../components/ui/Icon.astro';
+import { useI18n, pick } from '../i18n/index.js';
+import copy from '../i18n/areas/lab.js';
+import reviews from '../data/reviews.json';
+import { buildWa, phoneFor } from '../data/site.js';
+
+const { t, o, lang } = useI18n(Astro);
+const l = pick(copy, lang).landing;
+const REF = 'web-bio';
+const a = o.aboutUs;
+const title = (s) => s.replace(/:\s*$/, '').replace('Análisis de agua libre', 'Análisis de agua gratis');   // spec §6.7 copy fix
+const offers = [
+  { title: title(a.benefit1Title), text: a.benefit1Text, stamp: l.stamps[0], icon: 'coin' },
+  { title: title(a.benefit2Title), text: a.benefit2Text, stamp: l.stamps[1], icon: 'wrench' },
+  { title: title(a.benefit3Title), text: a.benefit3Text, stamp: l.stamps[2], icon: 'flask' },
+];
+// two water reviews (Gloria Perez's is about solar panels and never appears here)
+const picks = ['Victoria Morales', 'Jose Cova'].map((n) => reviews.find((r) => r.author === n && !r.solar)).filter(Boolean);
+const phone = phoneFor(lang);
+---
+<Base title={t.meta.analysis} minimalChrome>
+  <Laboratorio ref={REF} hero />
+
+  <section class="section landing" data-theme="light" aria-labelledby="offer-title">
+    <div class="wrap landing__wrap">
+      <header class="landing__head" data-reveal="up">
+        <p class="kicker">{l.offerKicker}</p>
+        <h2 id="offer-title" class="h2">{l.offerTitle} <span class="accent">{l.offerAccent}</span></h2>
+      </header>
+      <div class="landing__tickets" data-theme="dark" data-stagger=".1">
+        {offers.map((x) => <TicketStub title={x.title} text={x.text} stamp={x.stamp} icon={x.icon} />)}
+      </div>
+
+      <header class="landing__head landing__head--reviews" data-reveal="up">
+        <p class="kicker">{l.reviewsKicker}</p>
+        <h2 class="h2">{l.reviewsTitle} <span class="accent">{l.reviewsAccent}</span></h2>
+      </header>
+      <div class="landing__reviews" data-stagger=".1">
+        {picks.map((r) => <ReviewCard review={r} lang={lang} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section landing-final" data-theme="dark" aria-labelledby="final-title">
+    <div class="landing-final__bg" aria-hidden="true"></div>
+    <div class="wrap landing-final__wrap" data-reveal="up">
+      <h2 id="final-title" class="h2">{l.finalTitle} <span class="accent">{l.finalAccent}</span></h2>
+      <p class="lead">{l.finalText}</p>
+      <div class="cta-row landing-final__cta">
+        <a class="btn btn--primary btn--wa" data-magnetic href={buildWa({ text: t.wa.analysis, ref: REF })} target="_blank" rel="noopener">
+          <span class="btn__glyph"><Icon name="whatsapp" size={22} /></span>{t.cta.freeAnalysisLong}
+        </a>
+        <a class="btn btn--ghost" href={`tel:${phone.tel}`}><Icon name="phone" size={20} />{t.cta.call} {phone.display}</a>
+      </div>
+      <p class="trust-note">{t.cta.trust}</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .landing__wrap { display: grid; gap: clamp(1.5rem, 3vw, 2.25rem); }
+  .landing__head { display: grid; gap: .9rem; justify-items: start; }
+  .landing__head--reviews { margin-top: clamp(3rem, 8vw, 6rem); }
+  .landing__tickets, .landing__reviews { display: grid; gap: 1.25rem; }
+  @media (min-width: 900px) {
+    .landing__tickets { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .landing__reviews { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  }
+  .landing-final { overflow: clip; text-align: center; }
+  .landing-final__bg { position: absolute; inset: 0; z-index: -1; background: radial-gradient(60% 70% at 50% 100%, rgba(0, 208, 208, .16), transparent 70%), var(--navy); }
+  .landing-final__wrap { display: grid; gap: 1.1rem; justify-items: center; }
+  .landing-final__wrap .h2 { max-width: 16ch; }
+  .landing-final__cta { justify-content: center; margin-top: .5rem; }
+  .landing-final .trust-note { justify-content: center; }
+</style>

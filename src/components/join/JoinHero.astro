@@ -1,0 +1,164 @@
+---
+/**
+ * Únete hero (dark). H1 split into characters at build time so the accent words keep a continuous brand
+ * gradient per character (SplitText would break background-clip:text). 2×2 mosaic of team photos with
+ * column parallax on desktop. CTA → WhatsApp ref web-empleo.
+ */
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/join.js';
+import { buildWa } from '../../data/site.js';
+import { team } from '../../data/photos.js';
+import Icon from '../ui/Icon.astro';
+const { t, o, lang, asset } = useI18n(Astro);
+const c = pick(copy, lang);
+
+const title: string = o.joinUs.wantToBeTitle;
+const at = title.indexOf(c.heroAccent);
+const accEnd = at < 0 ? -1 : at + c.heroAccent.length;
+// words → chars; characters inside the accent phrase carry their index for the gradient slice
+type Ch = { ch: string; acc: number | null };
+const words: Ch[][] = [];
+let pos = 0;
+for (const w of title.split(' ')) {
+  words.push([...w].map((ch, k) => ({ ch, acc: pos + k >= at && pos + k < accEnd ? pos + k - at : null })));
+  pos += w.length + 1;
+}
+// team-2…5 (team-1 is the About hero photo): column A arch + square, column B square + portrait
+const [t2, t3, t4, t5] = team.slice(1);
+const tiles = [
+  { col: 'a', p: t4, alt: c.mosaicAlt[0], shape: 'arch', ratio: '4 / 5' },
+  { col: 'a', p: t2, alt: c.mosaicAlt[1], shape: 'frame', ratio: '1 / 1' },
+  { col: 'b', p: t3, alt: c.mosaicAlt[3], shape: 'frame', ratio: '1 / 1' },
+  { col: 'b', p: t5, alt: c.mosaicAlt[2], shape: 'frame', ratio: '4 / 5' },
+];
+---
+<section id="unete" class="jh section" data-theme="dark">
+  <div class="jh__glow" aria-hidden="true"></div>
+  <p class="jh__bleed bleed-word" aria-hidden="true">{c.bleed}</p>
+  <div class="wrap jh__grid">
+    <div class="jh__copy">
+      <p class="kicker">{o.landingPage.jobOpportunity}</p>
+      <h1 class="jh__title">
+        <span class="sr-only">{title}</span>
+        <span class="jh__vis" aria-hidden="true">
+          {words.map((w, wi) => (
+            <>
+              <span class="jh__w">
+                {w.map(({ ch, acc }) => acc === null
+                  ? <span class="jh__ch">{ch}</span>
+                  : <span class="jh__ch jh__ch--acc accent" style={`--i:${acc};--n:${c.heroAccent.length}`}>{ch}</span>)}
+              </span>{wi < words.length - 1 && ' '}
+            </>
+          ))}
+        </span>
+      </h1>
+      <p class="lead jh__lead">{c.heroLead}</p>
+      <div class="cta-row">
+        <a class="btn btn--primary btn--wa" href={buildWa({ text: c.applyMsg, ref: 'web-empleo' })} target="_blank" rel="noopener" data-magnetic>
+          <span class="btn__glyph"><Icon name="whatsapp" size={22} /></span>{c.apply}<Icon name="arrow" size={18} class="arrow" />
+        </a>
+        <a class="btn btn--ghost" href="#perfil">{c.seeProfile}</a>
+      </div>
+      <p class="trust-note"><Icon name="check-circle" size={16} />{c.trust}</p>
+    </div>
+
+    <div class="jh__mosaic">
+      {['a', 'b'].map((col) => (
+        <div class={`jh__col jh__col--${col}`}>
+          {tiles.filter((tl) => tl.col === col).map((tl, i) => (
+            <figure class={`jh__tile ${tl.shape}`} style={`aspect-ratio:${tl.ratio}`}>
+              <img src={asset(tl.p.src)} width={tl.p.w} height={tl.p.h} alt={tl.alt} sizes="(min-width: 1024px) 22vw, 45vw"
+                loading={col === 'a' && i === 0 ? 'eager' : 'lazy'} fetchpriority={col === 'a' && i === 0 ? 'high' : undefined} decoding="async" />
+            </figure>
+          ))}
+        </div>
+      ))}
+      <div class="jh__badge glass">
+        <span class="jh__badge-ico"><Icon name="graduation" size={22} grad /></span>
+        <span>{o.joinUs.advantage1}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { onPage } from '../../scripts/engine.js';
+  onPage(({ gsap, env, introGate }) => {
+    const root = document.getElementById('unete');
+    if (!root) return;
+    const chars = root.querySelectorAll('.jh__ch');
+    const tiles = root.querySelectorAll('.jh__tile');
+    if (env.reduced) { root.classList.add('is-in'); return; }
+    let cancelled = false;
+    introGate().then(() => {
+      if (cancelled) return;
+      root.classList.add('is-in');
+      gsap.fromTo(chars, { yPercent: 110, opacity: 0, filter: 'blur(8px)' }, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.9, ease: 'expo.out', stagger: 0.02, clearProps: 'filter' });
+      gsap.fromTo(tiles, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.2, ease: 'expo.out', stagger: 0.1, delay: 0.15 });
+      gsap.fromTo(root.querySelectorAll('.jh__tile img'), { scale: 1.18 }, { scale: 1, duration: 1.6, ease: 'expo.out', stagger: 0.1, delay: 0.15 });
+      gsap.fromTo(root.querySelector('.jh__badge'), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, ease: 'expo.out', delay: 0.7 });
+    });
+    if (env.desktop) {
+      const st = { trigger: root, start: 'top top', end: 'bottom top', scrub: 0.6 };
+      gsap.fromTo(root.querySelector('.jh__col--a'), { y: 0 }, { y: -70, ease: 'none', scrollTrigger: st });
+      gsap.fromTo(root.querySelector('.jh__col--b'), { y: 0 }, { y: -170, ease: 'none', scrollTrigger: { ...st } });
+      gsap.to(root.querySelector('.jh__bleed'), { xPercent: -8, ease: 'none', scrollTrigger: { ...st } });
+    }
+    return () => { cancelled = true; };
+  });
+</script>
+
+<style>
+  .jh { min-height: 100svh; padding-top: calc(var(--header-h) + clamp(40px, 8vh, 96px)); padding-bottom: clamp(72px, 10vw, 140px); overflow: clip; }
+  .jh__glow {
+    position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(55% 45% at 85% 20%, rgba(0, 208, 208, .16), transparent 70%),
+      radial-gradient(45% 40% at 10% 90%, rgba(152, 196, 0, .10), transparent 70%),
+      linear-gradient(180deg, var(--navy), var(--abyss));
+  }
+  .jh__bleed { position: absolute; left: -2vw; bottom: -4vw; margin: 0; color: var(--aqua); z-index: -1; }
+  .jh__grid { display: grid; gap: clamp(3rem, 6vw, 5rem); align-items: center; }
+  .jh__copy { display: grid; gap: 1.6rem; justify-items: start; }
+  .jh__title { font-size: clamp(2.6rem, 1rem + 5.4vw, 6.4rem); line-height: .98; letter-spacing: -.035em; font-weight: 600; max-width: 12ch; }
+  .jh__w { display: inline-block; white-space: nowrap; }
+  .jh__ch { display: inline-block; }
+  /* one slice of the brand gradient per character (padding keeps the italic overhang inside the painted box) */
+  .jh__ch--acc {
+    padding: .06em .09em .12em; margin: -.06em -.09em -.12em;
+    background: var(--grad-brand); background-size: calc(var(--n) * 100%) 100%;
+    background-position: calc(var(--i) / (var(--n) - 1) * 100%) 0;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  :global(.js) .jh:not(.is-in) .jh__ch { opacity: 0; }
+  :global(.js) .jh:not(.is-in) .jh__tile { clip-path: inset(100% 0 0 0); }
+  .jh__lead { color: var(--fg-muted); max-width: 44ch; }
+  .jh__copy .trust-note { flex-wrap: nowrap; align-items: flex-start; }
+  .jh__copy .trust-note :global(svg) { color: var(--aqua); flex: none; margin-top: .2em; }
+
+  .jh__mosaic { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 1.4vw, 20px); align-items: start; }
+  .jh__col { display: grid; gap: clamp(10px, 1.4vw, 20px); will-change: transform; }
+  .jh__col--b { margin-top: clamp(40px, 7vw, 110px); }
+  .jh__tile { margin: 0; position: relative; overflow: hidden; background: var(--current); box-shadow: var(--sh-card-dark); }
+  .jh__tile.frame { border-radius: var(--r-lg); }
+  .jh__tile img { width: 100%; height: 100%; object-fit: cover; }
+  .jh__tile::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgba(234, 251, 249, .08); pointer-events: none; }
+  .jh__badge {
+    position: absolute; left: clamp(-24px, -2vw, 0px); bottom: 18%; display: flex; align-items: center; gap: .7rem;
+    padding: .7rem 1.1rem .7rem .7rem; border-radius: var(--r-pill); border: 1px solid var(--line);
+    font-weight: 600; font-size: .95rem; box-shadow: var(--sh-card-dark);
+  }
+  .jh__badge-ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); }
+
+  @media (min-width: 1024px) {
+    .jh__grid { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
+    .jh__mosaic { margin-top: 4vh; }
+  }
+  @media (max-width: 1023px) {
+    .jh { min-height: 0; }
+    .jh__mosaic { max-width: 560px; }
+    .jh__badge { left: 12px; bottom: -22px; white-space: nowrap; }
+    .jh__mosaic { margin-bottom: 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) { :global(.js) .jh:not(.is-in) .jh__ch, :global(.js) .jh:not(.is-in) .jh__tile { opacity: 1; clip-path: none; } }
+</style>

@@ -1,0 +1,55 @@
+---
+// Sobre Nosotros · hero: team photo under the navy scrim with a CSS Ken Burns, mission title, then the mission text lighting up.
+import copy from '../../i18n/areas/about.js';
+import { pick, useI18n } from '../../i18n/index.js';
+
+const { o, lang, asset } = useI18n(Astro);
+const c = pick(copy, lang).hero;
+const title = o.aboutUs.missionTitle;
+const i = title.indexOf(c.accent);
+const [pre, post] = i < 0 ? [title, ''] : [title.slice(0, i), title.slice(i + c.accent.length)];
+---
+<section class="ab-hero" data-theme="dark" aria-labelledby="ab-hero-title">
+  <div class="ab-hero__stage">
+    <div class="ab-hero__photo">
+      <img src={asset('/img/about/team.webp')} width="1080" height="810" alt={c.photoAlt} loading="eager" fetchpriority="high" decoding="async" />
+    </div>
+    <div class="wrap ab-hero__content">
+      <p class="kicker">{c.kicker}</p>
+      <h1 id="ab-hero-title" class="ab-hero__title" data-split="lines">{pre}{i >= 0 && <span class="accent">{c.accent}</span>}{post}</h1>
+    </div>
+  </div>
+  <div class="wrap ab-hero__mission">
+    <p class="mono ab-hero__label" aria-hidden="true">{c.scroll}</p>
+    <p class="ab-hero__text" data-lit>{o.aboutUs.missionText}</p>
+  </div>
+</section>
+
+<style>
+  .ab-hero { position: relative; background: var(--navy); color: var(--fg); isolation: isolate; overflow: clip; }
+  .ab-hero__stage { position: relative; min-height: min(92svh, 860px); display: flex; align-items: flex-end; padding: calc(var(--header-h) + 3rem) 0 clamp(2.5rem, 6vw, 5rem); }
+  .ab-hero__photo { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+  .ab-hero__photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; transform-origin: 55% 45%; animation: ab-kenburns 12s var(--ease-out) both; }
+  .ab-hero__photo::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      var(--grad-scrim),
+      linear-gradient(90deg, rgba(0, 28, 56, .78) 0%, rgba(0, 28, 56, .25) 60%, rgba(0, 28, 56, 0) 100%),
+      linear-gradient(180deg, rgba(0, 11, 24, .55) 0%, rgba(0, 11, 24, 0) 30%);
+  }
+  .ab-hero__content { display: grid; gap: 1.25rem; }
+  .ab-hero__title { font-size: clamp(2.75rem, 1.2rem + 5.6vw, 7rem); line-height: .95; letter-spacing: -.035em; max-width: 13ch; text-shadow: 0 2px 30px rgba(0, 11, 24, .35); }
+  .ab-hero__title .accent { text-shadow: none; }
+
+  .ab-hero__mission { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 2rem; padding-block: clamp(3.5rem, 8vw, 8rem) var(--section-y); }
+  .ab-hero__label { color: var(--accent-text); padding-top: .9rem; }
+  .ab-hero__text { font-size: clamp(1.35rem, .95rem + 1.55vw, 2.35rem); line-height: 1.35; letter-spacing: -.012em; font-weight: 500; max-width: 34ch; }
+
+  @keyframes ab-kenburns { from { transform: scale(1.08); } to { transform: scale(1); } }
+  @media (max-width: 767px) {
+    .ab-hero__stage { min-height: 78svh; }
+    .ab-hero__photo img { object-position: 42% 40%; }
+    .ab-hero__photo::after { background: var(--grad-scrim), linear-gradient(180deg, rgba(0, 11, 24, .5) 0%, rgba(0, 11, 24, 0) 25%); }
+    .ab-hero__mission { grid-template-columns: 1fr; gap: 1rem; }
+  }
+</style>

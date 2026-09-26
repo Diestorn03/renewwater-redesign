@@ -1,0 +1,57 @@
+[
+  {
+    "author": "Gloria Perez",
+    "meta": "Local Guide · 63 reseñas · 48 fotos",
+    "stars": 5,
+    "text": {
+      "es": "Estoy muy contenta con la instalación de mis paneles solares, muy buen servicio los Recomiendo ampliamente",
+      "en": "I'm very happy with the installation of my solar panels. Very good service, I highly recommend them."
+    },
+    "solar": true,
+    "source": "Google"
+  },
+  {
+    "author": "Alexis Moncada",
+    "meta": "3 reseñas · 1 foto",
+    "stars": 5,
+    "text": {
+      "es": "Empresa muy seria y responsable, te cumplen lo que prometen, estoy satisfecho con el sistema de agua alcalina que han instalado !!",
+      "en": "A very serious and responsible company, they deliver what they promise. I'm satisfied with the alkaline water system they installed!!"
+    },
+    "solar": false,
+    "source": "Google"
+  },
+  {
+    "author": "Jose Cova",
+    "meta": "4 reseñas · 1 foto",
+    "stars": 5,
+    "text": {
+      "es": "Excelente servicio y productos de alta calidad. Los sistemas de purificación de agua alcalina de Renew han sido una bendición para mi salud y mi economía. El agua sabe increíble, me siento con más energía y ya no gasto en botellas plásticas. Además, recomiendo 100% a Elines Borregales, una analista muy profesional, clara y atenta durante todo el proceso. ¡Gracias Renew por mejorar mi calidad de vida!",
+      "en": "Excellent service and high-quality products. Renew's alkaline water purification systems have been a blessing for my health and my budget. The water tastes incredible, I feel more energetic, and I no longer spend money on plastic bottles. I also 100% recommend Elines Borregales, a very professional, clear and attentive analyst throughout the whole process. Thank you, Renew, for improving my quality of life!"
+    },
+    "solar": false,
+    "source": "Google"
+  },
+  {
+    "author": "Mariale Romero",
+    "meta": "1 reseña · 1 foto",
+    "stars": 5,
+    "text": {
+      "es": "Excelente servicio, la mejor asesoría, adquirí mi servicio RENEW WATER, ahora tengo el mejor sistema de Purificación de agua para toda mi familia e incluso adquirí un contrato de Paneles Solares. Gracias por ayudarme en todo proceso y una gran compañía. 👏👏…",
+      "en": "Excellent service, the best advice. I got my RENEW WATER service and now I have the best water purification system for my whole family, and I even signed a Solar Panel contract. Thank you for helping me through the whole process, and a great company."
+    },
+    "solar": false,
+    "source": "Google"
+  },
+  {
+    "author": "Victoria Morales",
+    "meta": "1 reseña · 1 foto",
+    "stars": 5,
+    "text": {
+      "es": "La atención y el servicio fue fabuloso, el equipo funciona de maravilla, noté el cambio del agua desde el primer día, tanto en mi piel como en la comida, la instalación fue rápida, limpia y ordenada, los recomiendo al 1000 %",
+      "en": "The customer care and service were fabulous, and the equipment works wonderfully. I noticed the change in the water from day one, both on my skin and in my food. The installation was fast, clean and tidy. I recommend them 1000%."
+    },
+    "solar": false,
+    "source": "Google"
+  }
+]

@@ -1,0 +1,174 @@
+---
+// WhatsApp composer (spec §7 Contacto): a native form that writes a WhatsApp message, no backend.
+// Without JS it GETs wa.me with the textarea as ?text=. With JS the message is composed, sanitised and opened via location.href.
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/contact.js';
+import products from '../../data/products.json';
+import { whatsappNumber } from '../../data/site.js';
+import Icon from '../ui/Icon.astro';
+
+const { t, lang } = useI18n(Astro);
+const c = pick(copy, lang).composer;
+const productNames = [...products].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((p) => p.name);
+const cfg = JSON.stringify({ msg: c.msg, reasons: c.reasons, ref: 'web-contacto' });
+---
+<form class="wac" data-theme="light" data-wac={cfg} action={`https://wa.me/${whatsappNumber}`} method="get" aria-labelledby="wac-title">
+  <header class="wac__head">
+    <p class="kicker">{c.kicker}</p>
+    <h2 id="wac-title" class="h3 wac__title">{c.title} <span class="accent">{c.accent}</span></h2>
+    <p class="wac__lead">{c.lead}</p>
+  </header>
+
+  <div class="wac__row">
+    <label class="wac__field">
+      <span class="wac__label">{c.name} <em>({c.optional})</em></span>
+      <input type="text" data-f="name" autocomplete="given-name" maxlength="60" />
+    </label>
+    <label class="wac__field">
+      <span class="wac__label">{c.city} <em>({c.optional})</em></span>
+      <input type="text" data-f="city" autocomplete="address-level2" maxlength="40" />
+    </label>
+  </div>
+
+  <fieldset class="wac__set">
+    <legend class="wac__label">{c.reason} <span class="wac__req" aria-hidden="true">*</span></legend>
+    <div class="wac__chips">
+      {Object.entries(c.reasons).map(([v, label], i) => (
+        <label class="chip"><input type="radio" name="motivo" value={v} required={i === 0} /><span class="chip__check" aria-hidden="true"></span>{label}</label>
+      ))}
+    </div>
+  </fieldset>
+
+  <label class="wac__field wac__product">
+    <span class="wac__label">{c.product}</span>
+    <span class="wac__select">
+      <select data-f="product">
+        <option value="">{c.productAny}</option>
+        {productNames.map((n) => <option value={n}>{n}</option>)}
+      </select>
+      <Icon name="chevron-down" size={18} />
+    </span>
+  </label>
+
+  <fieldset class="wac__set">
+    <legend class="wac__label">{c.time} <em>({c.optional})</em></legend>
+    <div class="wac__chips">
+      {Object.entries(c.times).map(([v, label]) => (
+        <label class="chip"><input type="radio" name="horario" value={v} /><span class="chip__check" aria-hidden="true"></span>{label}</label>
+      ))}
+    </div>
+  </fieldset>
+
+  <label class="wac__field">
+    <span class="wac__label">{c.message} <em>({c.optional})</em> <span class="wac__count" data-wac-count aria-hidden="true">0/500</span></span>
+    <textarea name="text" data-f="message" rows="4" maxlength="500" placeholder={c.messagePh}></textarea>
+  </label>
+
+  <div class="wac__preview" data-wac-preview-wrap>
+    <span class="mono">{c.preview}</span>
+    <p class="wac__bubble" data-wac-preview aria-live="polite"></p>
+  </div>
+
+  <button type="submit" class="btn btn--primary btn--wa wac__submit">
+    <span class="btn__glyph"><Icon name="whatsapp" size={22} /></span>{c.submit}
+    <Icon name="arrow-up-right" size={20} class="arrow" />
+  </button>
+  <p class="wac__privacy"><Icon name="shield" size={18} />{c.privacy}</p>
+</form>
+
+<script>
+  import { onPage } from '../../scripts/engine.js';
+  import { buildWa } from '../../data/site.js';
+
+  // trim, drop control characters (keep line breaks in the free-text message), cap the length
+  const clean = (v: string, max: number, multiline = false) =>
+    (multiline ? v.replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, ' ').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n') : v.replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' '))
+      .trim().slice(0, max);
+
+  onPage(() => {
+    const form = document.querySelector<HTMLFormElement>('[data-wac]');
+    if (!form) return;
+    const cfg = JSON.parse(form.dataset.wac!);
+    const m = cfg.msg;
+    const f = (k: string) => form.querySelector<HTMLInputElement>(`[data-f="${k}"]`)!;
+    const preview = form.querySelector('[data-wac-preview]')!, count = form.querySelector('[data-wac-count]')!;
+
+    const compose = () => {
+      const name = clean(f('name').value, 60), city = clean(f('city').value, 40), msg = clean(f('message').value, 500, true);
+      const reason = (form.elements.namedItem('motivo') as RadioNodeList).value;
+      const time = (form.elements.namedItem('horario') as RadioNodeList).value;
+      const product = reason === 'cotizacion' ? clean(f('product').value, 80) : '';
+      let hello = m.hello;
+      if (name) hello += m.iam.replace('{v}', name);
+      if (city) hello += (name ? m.from : m.fromOnly).replace('{v}', city);
+      const parts = [`${hello}.`];
+      if (reason) parts.push(`${m.reason.replace('{v}', cfg.reasons[reason] + (product ? m.productSep + product : ''))}.`);
+      if (time) parts.push(m.time.replace('{v}', m.times[time]));
+      if (msg) parts.push(msg);
+      return parts.join(' ');
+    };
+    const update = () => {
+      preview.textContent = `${compose()} (ref: ${cfg.ref})`;
+      count.textContent = `${f('message').value.length}/500`;
+    };
+    const submit = (e: Event) => {
+      e.preventDefault();
+      location.href = buildWa({ text: compose(), ref: cfg.ref });
+    };
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+    form.addEventListener('submit', submit);
+    form.classList.add('is-live');
+    update();
+    return () => {
+      form.removeEventListener('input', update);
+      form.removeEventListener('change', update);
+      form.removeEventListener('submit', submit);
+    };
+  });
+</script>
+
+<style>
+  .wac {
+    position: relative; background: var(--surface); color: var(--fg); border-radius: var(--r-lg); padding: clamp(1.25rem, 3.5vw, 2.5rem);
+    box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .75); display: grid; gap: 1.4rem;
+  }
+  .wac__head { display: grid; gap: .6rem; justify-items: start; }
+  .wac__title { font-size: clamp(1.6rem, 1.1rem + 1.6vw, 2.25rem); line-height: 1.1; letter-spacing: -.02em; }
+  .wac__lead { color: var(--fg-muted); max-width: 48ch; }
+  .wac__row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .wac__field { display: grid; gap: .45rem; }
+  .wac__label { font-weight: 600; font-size: .95rem; display: flex; align-items: baseline; gap: .35rem; flex-wrap: wrap; padding: 0; }
+  .wac__label em { font-style: normal; font-weight: 400; color: var(--fg-muted); font-size: .85rem; }
+  .wac__req { color: var(--aqua-ink); }
+  .wac__count { margin-left: auto; font-family: var(--font-mono); font-size: .72rem; font-weight: 500; color: var(--fg-muted); }
+  :global(html:not(.js)) .wac__count { display: none; }
+  .wac input[type="text"], .wac textarea, .wac select {
+    width: 100%; min-height: 52px; padding: .8rem 1rem; border-radius: var(--r-sm); border: 1px solid #C8E4E2; background: var(--foam);
+    font-size: 1rem; color: var(--navy); transition: border-color var(--d-base), box-shadow var(--d-base), background var(--d-base);
+  }
+  .wac textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+  .wac :is(input[type="text"], textarea, select):hover { border-color: var(--aqua-ink); }
+  .wac :is(input[type="text"], textarea, select):focus { outline: none; border-color: var(--aqua-ink); background: #fff; box-shadow: 0 0 0 3px rgba(0, 118, 122, .25); }
+  .wac__set { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: .6rem; }
+  .wac__chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .wac__chips .chip { background: var(--foam); }
+  .wac__product { display: none; }
+  .wac:has(input[value="cotizacion"]:checked) .wac__product { display: grid; animation: wac-in .45s var(--ease-out); }
+  .wac__select { position: relative; display: block; }
+  .wac__select select { appearance: none; padding-right: 2.75rem; cursor: pointer; }
+  .wac__select :global(svg) { position: absolute; right: 1rem; top: 50%; translate: 0 -50%; pointer-events: none; color: var(--aqua-ink); }
+  .wac__preview { display: none; gap: .5rem; padding: 1rem; border-radius: var(--r-md); background: #E7F3EF; background-image: radial-gradient(rgba(0, 118, 122, .07) 1px, transparent 1px); background-size: 14px 14px; }
+  .wac.is-live .wac__preview { display: grid; }
+  .wac__preview .mono { color: var(--fg-muted); }
+  .wac__bubble {
+    justify-self: end; max-width: 92%; padding: .7rem .9rem; border-radius: 14px 14px 4px 14px; background: #D9FDD3; color: #0B2A1F;
+    font-size: .92rem; line-height: 1.45; box-shadow: 0 1px 1px rgba(0, 0, 0, .1); white-space: pre-line; overflow-wrap: anywhere;
+  }
+  .wac__submit { width: 100%; --btn-h: 60px; font-size: 1.05rem; }
+  .wac__submit :global(.arrow) { margin-left: auto; }
+  .wac__privacy { display: flex; gap: .6rem; align-items: flex-start; font-size: var(--fs-small); color: var(--fg-muted); line-height: 1.5; }
+  .wac__privacy :global(svg) { flex: none; color: var(--aqua-ink); margin-top: .1rem; }
+  @keyframes wac-in { from { opacity: 0; transform: translateY(-6px) } }
+  @media (max-width: 520px) { .wac__row { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,106 @@
+---
+/**
+ * Full-screen menu for < 1100px: native modal <dialog> (focus trap + Esc for free). Opened by .hdr__burger;
+ * chrome.js animates it (circular reveal from the burger), stops Lenis and locks the page while open.
+ */
+import { useI18n } from '../../i18n/index.js';
+import copy from '../../i18n/areas/chrome.js';
+import { pick } from '../../i18n/index.js';
+import { buildWa, phoneFor, socials } from '../../data/site.js';
+import Icon from '../ui/Icon.astro';
+import LogoMark from './LogoMark.astro';
+import LangSwitch from './LangSwitch.astro';
+const { t, lang, url } = useI18n(Astro);
+const c = pick(copy, lang);
+const links = [['home', t.nav.home], ['about', t.nav.about], ['products', t.nav.products], ['join', t.nav.join], ['contact', t.nav.contact]] as const;
+const phone = phoneFor(lang);
+const social = [['instagram', socials.instagram], ['tiktok', socials.tiktok], ['facebook', socials.facebook]] as const;
+---
+<dialog id="rw-menu" class="menu" aria-label={c.menuLabel} data-theme="dark">
+  <div class="menu__glow" aria-hidden="true"></div>
+  <LogoMark size="min(118vw, 620px)" class="menu__ghost" />
+  <div class="menu__top wrap">
+    <a class="menu__home" href={url('home')} aria-label={c.homeLabel}><LogoMark size={40} weight={1.35} /></a>
+    <button class="menu__close" type="button" autofocus data-menu-close aria-label={t.nav.closeMenu}><Icon name="close" size={24} /></button>
+  </div>
+  <nav class="menu__nav wrap" aria-label={t.nav.primary}>
+    <ul>
+      {links.map(([k, label], i) => (
+        <li style={`--i:${i}`}><a href={url(k)} data-nav={k}><span class="menu__num">0{i + 1}</span><span class="menu__label">{label}</span><Icon name="arrow-up-right" size={22} class="menu__arrow" /></a></li>
+      ))}
+    </ul>
+  </nav>
+  <div class="menu__foot wrap" style="--i:5">
+    <div class="menu__ctas">
+      <a class="btn btn--primary btn--wa" href={buildWa({ text: t.wa.analysis, ref: 'web-header' })} target="_blank" rel="noopener">
+        <span class="btn__glyph"><Icon name="whatsapp" size={22} /></span>{t.cta.freeAnalysisLong}
+      </a>
+      <a class="btn btn--ghost" href={`tel:${phone.tel}`}><Icon name="phone" size={20} />{t.cta.call} {phone.display}</a>
+    </div>
+    <div class="menu__meta">
+      <LangSwitch size="md" />
+      <ul class="menu__social">
+        {social.map(([k, s]) => <li><a href={s.url} target="_blank" rel="noopener" aria-label={`${k === 'tiktok' ? 'TikTok' : k[0].toUpperCase() + k.slice(1)} ${s.handle}`}><Icon name={k} size={22} /></a></li>)}
+      </ul>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .menu {
+    position: fixed; inset: 0; width: 100%; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0;
+    display: none; flex-direction: column; overflow: hidden auto; overscroll-behavior: contain;
+    background: var(--abyss); color: var(--fg);
+    padding-bottom: env(safe-area-inset-bottom);
+    clip-path: circle(0 at var(--mx, calc(100% - 40px)) var(--my, 32px));
+    transition: clip-path .55s var(--ease-in-out);
+  }
+  .menu[open] { display: flex; }
+  .menu.is-open { clip-path: circle(150vmax at var(--mx, calc(100% - 40px)) var(--my, 32px)); }
+  .menu::backdrop { background: transparent; }
+  :global(html.menu-open) { overflow: hidden; }
+  .menu__glow {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(60% 40% at 12% 8%, rgba(0, 208, 208, .16), transparent 70%),
+      radial-gradient(50% 40% at 95% 100%, rgba(152, 196, 0, .12), transparent 70%);
+  }
+  :global(.menu__ghost) { position: absolute; right: -22%; bottom: -14%; opacity: .06; pointer-events: none; }
+  .menu__top { position: relative; display: flex; align-items: center; justify-content: space-between; height: var(--header-h); flex: none; }
+  .menu__home { display: grid; place-items: center; min-width: 48px; min-height: 48px; }
+  .menu__close {
+    display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+    background: color-mix(in srgb, var(--fg) 8%, transparent); border: 1px solid var(--line); color: var(--fg);
+  }
+  .menu__nav { position: relative; flex: 1 0 auto; display: flex; align-items: center; padding-block: 2vh; }
+  .menu__nav ul { list-style: none; width: 100%; }
+  .menu__nav li { border-bottom: 1px solid var(--line); }
+  .menu__nav a {
+    display: flex; align-items: center; gap: 1rem; min-height: 64px; padding-block: .5rem;
+    font-size: clamp(1.9rem, 1.2rem + 3vw, 2.6rem); font-weight: 600; letter-spacing: -.03em; line-height: 1.05;
+  }
+  .menu__num { font-family: var(--font-brand); font-size: .72rem; letter-spacing: .16em; color: var(--accent-text); width: 2.2em; flex: none; }
+  .menu__label { flex: 1; }
+  :global(.menu__arrow) { opacity: .35; transition: transform var(--d-base) var(--ease-water), opacity var(--d-base); }
+  .menu__nav a:hover :global(.menu__arrow), .menu__nav a[aria-current] :global(.menu__arrow) { opacity: 1; transform: translate(2px, -2px); color: var(--aqua); }
+  .menu__nav a[aria-current] .menu__label { background: var(--grad-brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .menu__foot { position: relative; display: grid; gap: 1.25rem; padding-block: 1rem 2rem; flex: none; }
+  .menu__ctas { display: grid; gap: .75rem; }
+  .menu__ctas .btn { width: 100%; }
+  .menu__meta { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .menu__social { list-style: none; display: flex; gap: .25rem; }
+  .menu__social a { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: var(--fg-muted); transition: color var(--d-fast), background-color var(--d-fast); }
+  .menu__social a:hover { color: var(--fg); background: color-mix(in srgb, var(--fg) 8%, transparent); }
+
+  /* staggered entrance: 40 ms per row, y 24 → 0 */
+  .menu__nav li, .menu__foot { opacity: 0; transform: translateY(24px); transition: opacity .5s var(--ease-out), transform .7s var(--ease-out); }
+  .menu.is-open .menu__nav li, .menu.is-open .menu__foot { opacity: 1; transform: none; transition-delay: calc(180ms + var(--i) * 40ms); }
+  @media (min-width: 768px) {
+    .menu__ctas { grid-template-columns: auto auto; justify-content: start; }
+    .menu__ctas .btn { width: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .menu, .menu.is-open { clip-path: none; transition: opacity .15s; }
+    .menu__nav li, .menu__foot { opacity: 1; transform: none; }
+  }
+</style>

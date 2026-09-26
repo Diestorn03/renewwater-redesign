@@ -1,0 +1,162 @@
+---
+/**
+ * #sostenible · "Del plástico al grifo" (spec §6.9). Photo chapter, light text on scrim.
+ * Desktop gate: the photo stage is sticky (100svh) while the copy scrolls over it; the "after" photo rises with a
+ * scrubbed tide (clip-path inset) and a brand-gradient wave crest rides its edge.
+ * Touch / <768px: stacked photos, static wave, one clip reveal. Reduced motion: the "after" photo only.
+ * The bottle calculator always works (it is a form control, not motion). Logic: src/scripts/sostenible.js.
+ */
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/etapas.js';
+import { buildWa } from '../../data/site.js';
+import Icon from '../ui/Icon.astro';
+
+const { o, t, lang, asset } = useI18n(Astro);
+const c = pick(copy, lang);
+const n0 = 2;
+// accent on the last word of "Adopta La Sostenibilidad" / "Embrace Sustainability"
+const title = o.home.sustainabilityBannerTitle;
+const cut = title.lastIndexOf(' ');
+// 10 periods over 1600 units (the SVG is 200% wide and drifts -50%, so both halves must match); troughs stay above the clip edge
+const wave = `M0 22 Q40 2 80 22 ${Array.from({ length: 19 }, (_, i) => `T${160 + i * 80} 22`).join(' ')}`;
+---
+<section id="sostenible" class="so" data-theme="dark" aria-labelledby="sostenible-title">
+  <div class="so__media" aria-hidden="true">
+    <figure class="so__ph so__before">
+      <img src={asset('/img/home/plastic-ocean.webp')} width="600" height="399" alt="" loading="lazy" decoding="async" />
+      <figcaption class="so__tag mono">{c.before}</figcaption>
+    </figure>
+    <div class="so__tideline">
+      <svg class="so__crest" viewBox="0 0 1600 36" preserveAspectRatio="none" focusable="false">
+        <defs>
+          <linearGradient id="so-crest" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="800" y2="0" spreadMethod="repeat">
+            <stop offset="0" stop-color="#00D0D0" /><stop offset=".5" stop-color="#98C400" /><stop offset="1" stop-color="#00D0D0" />
+          </linearGradient>
+          <linearGradient id="so-foam" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#00D0D0" stop-opacity=".55" /><stop offset="1" stop-color="#00D08C" stop-opacity=".22" />
+          </linearGradient>
+        </defs>
+        <path d={`${wave} V36 H0 Z`} fill="url(#so-foam)" />
+        <path d={wave} fill="none" stroke="url(#so-crest)" stroke-width="3" vector-effect="non-scaling-stroke" />
+      </svg>
+    </div>
+    <figure class="so__ph so__after">
+      <img
+        src={asset('/img/home/glass-water.webp')}
+        srcset={`${asset('/img/home/glass-water-sm.webp')} 800w, ${asset('/img/home/glass-water.webp')} 1408w`}
+        sizes="100vw" width="1408" height="792" alt="" loading="lazy" decoding="async"
+      />
+      <figcaption class="so__tag mono">{c.after}</figcaption>
+    </figure>
+    <div class="so__scrim"></div>
+  </div>
+
+  <div class="so__content wrap">
+    <header class="so__intro">
+      <p class="kicker">{o.home.sustainabilityBannerLabel}</p>
+      <h2 class="h2 so__title" id="sostenible-title" data-split="lines">{title.slice(0, cut + 1)}<span class="accent">{title.slice(cut + 1)}</span></h2>
+      <p class="so__quote"><Icon name="leaf" size={22} grad /> <span>{o.home.sustainabilityText}</span></p>
+    </header>
+
+    <div class="so__panel" data-reveal="up">
+      <p class="so__text" data-lit>{o.home.sustainabilityBannerText}</p>
+
+      <div class="so__calc">
+        <label class="so__q" for="so-n">{c.calcLabel}</label>
+        <div class="so__bottles" aria-hidden="true" style={`--n:${n0}`}>
+          {Array.from({ length: 10 }, (_, i) => <span style={`--i:${i}`}><Icon name="bottle" size={26} grad /></span>)}
+        </div>
+        <input class="so__range" id="so-n" type="range" min="0" max="10" step="1" value={n0} style={`--v:${n0}`} />
+        <div class="so__scale mono" aria-hidden="true"><span>0</span><span>10</span></div>
+        <output class="so__out" for="so-n" aria-live="polite" aria-atomic="true">
+          <span class="so__formula mono">{`${n0} × 52 = `}</span>
+          <span class="so__big num">{n0 * 52}</span>
+          <span class="so__tail">{` ${c.calcTail}`}</span>
+        </output>
+      </div>
+
+      <a class="btn btn--primary btn--wa so__cta" href={buildWa({ text: c.waText(n0), ref: 'web-sostenible' })} target="_blank" rel="noopener" data-magnetic>
+        <span class="btn__glyph"><Icon name="whatsapp" size={22} /></span>{o.home.sustainabilityBannerCta}
+      </a>
+      <p class="trust-note">{t.cta.trust}</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '../../scripts/sostenible.js';
+</script>
+
+<style>
+  /* ============ base = stacked (touch, <768px, no JS) ============ */
+  .so { position: relative; background: var(--navy); color: var(--fg); padding-block: var(--section-y); display: flex; flex-direction: column; isolation: isolate; overflow: clip; }
+  .so__content { display: contents; }
+  .so__intro { order: 1; width: min(var(--maxw), 100% - 2 * var(--gutter)); margin-inline: auto; display: grid; gap: var(--s-4); }
+  .so__media { order: 2; position: relative; width: min(var(--maxw), 100% - 2 * var(--gutter)); margin: var(--s-7) auto 0; display: grid; border-radius: var(--r-lg); overflow: hidden; background: var(--current); }
+  .so__panel { order: 3; width: min(var(--maxw), 100% - 2 * var(--gutter)); margin: var(--s-6) auto 0; display: grid; gap: var(--s-6); }
+
+  .so__title { max-width: 14ch; }
+  .so__quote { display: flex; gap: .7rem; align-items: flex-start; font-size: var(--fs-lead); line-height: 1.45; max-width: 36ch; }
+  .so__quote :global(svg) { flex: none; margin-top: .2em; }
+  .so__text { color: var(--fg); max-width: 60ch; }
+
+  .so__ph { position: relative; margin: 0; aspect-ratio: 16 / 10; overflow: hidden; }
+  .so__ph img { width: 100%; height: 100%; object-fit: cover; }
+  .so__before img { filter: blur(2px) saturate(.8); transform: scale(1.06); }
+  .so__before::after { content: ""; position: absolute; inset: 0; background: var(--navy); mix-blend-mode: multiply; opacity: .35; }
+  .so__tag { position: absolute; left: 14px; top: 12px; z-index: 2; padding: .35rem .7rem; border-radius: var(--r-pill); background: rgba(0, 11, 24, .62); color: var(--foam-text); font-size: .68rem; }
+  .so__tideline { position: relative; height: 0; z-index: 3; }
+  .so__crest { position: absolute; left: 0; bottom: 0; width: 200%; height: 40px; max-width: none; filter: drop-shadow(0 0 8px rgba(0,208,208,.6)); }
+  .so__scrim { display: none; }
+
+  /* ---------- calculator ---------- */
+  .so__calc { display: grid; gap: var(--s-3); padding-top: var(--s-6); border-top: 1px solid var(--line); }
+  .so__q { font-weight: 600; font-size: 1.08rem; line-height: 1.35; }
+  .so__bottles { display: flex; gap: clamp(2px, 1vw, 8px); margin-top: var(--s-2); }
+  .so__bottles span { opacity: clamp(.22, calc((var(--n) - var(--i)) * 100), 1); transform: translateY(calc(clamp(0, (var(--n) - var(--i)) * 100, 1) * -3px)); transition: opacity var(--d-base) var(--ease-water), transform var(--d-base) var(--ease-water); }
+  .so__range { -webkit-appearance: none; appearance: none; width: 100%; height: 48px; margin: 0; background: transparent; cursor: pointer; --fill: calc(14px + (100% - 28px) * var(--v) / 10); }
+  .so__range::-webkit-slider-runnable-track { height: 6px; border-radius: 6px; background: var(--grad-brand) 0 0 / var(--fill) 100% no-repeat, rgba(143,179,196,.25); }
+  .so__range::-moz-range-track { height: 6px; border-radius: 6px; background: rgba(143,179,196,.25); }
+  .so__range::-moz-range-progress { height: 6px; border-radius: 6px; background: var(--grad-brand); }
+  .so__range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: -11px; border-radius: 50%; background: #fff; border: 0; box-shadow: 0 0 0 6px rgba(0,208,208,.28), 0 6px 16px rgba(0,0,0,.45); transition: box-shadow var(--d-fast); }
+  .so__range::-moz-range-thumb { width: 28px; height: 28px; border-radius: 50%; background: #fff; border: 0; box-shadow: 0 0 0 6px rgba(0,208,208,.28), 0 6px 16px rgba(0,0,0,.45); }
+  .so__range:hover::-webkit-slider-thumb { box-shadow: 0 0 0 9px rgba(0,208,208,.32), 0 6px 16px rgba(0,0,0,.45); }
+  .so__range:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; border-radius: 10px; }
+  .so__scale { display: flex; justify-content: space-between; color: var(--fg-muted); margin-top: -10px; padding-inline: 8px; }
+  .so__out { display: grid; grid-template-columns: auto 1fr; align-items: baseline; column-gap: .9rem; row-gap: .15rem; margin-top: var(--s-2); }
+  .so__formula { grid-column: 1 / -1; color: var(--fg-muted); font-size: .8rem; }
+  .so__big { font-size: var(--fs-num-l); background: var(--grad-brand); -webkit-background-clip: text; background-clip: text; color: transparent; font-variant-numeric: tabular-nums; }
+  .so__tail { font-size: 1.05rem; line-height: 1.3; color: var(--fg); max-width: 16ch; }
+  .so__cta { justify-self: start; }
+  @media (max-width: 767px) {
+    .so__media { border-radius: var(--r-md); }
+    .so__cta { justify-self: stretch; white-space: normal; }
+  }
+
+  /* ============ desktop gate: sticky photo stage, copy scrolls over it ============ */
+  @media (min-width: 768px) and (pointer: fine) {
+    .so { display: block; padding: 0; }
+    .so__media { position: sticky; top: 0; width: 100%; height: 100vh; margin: 0; border-radius: 0; display: block; z-index: 0; }
+    .so__ph { position: absolute; inset: 0; aspect-ratio: auto; }
+    .so__after img { transform-origin: 70% 60%; }
+    .so__tag { left: auto; right: var(--gutter); top: calc(var(--header-h) + 20px); }
+    .so__tideline { position: absolute; inset: 0; height: auto; z-index: 3; pointer-events: none; }
+    .so__crest { bottom: auto; top: -40px; height: 44px; animation: so-drift 18s linear infinite; animation-play-state: paused; will-change: transform; }
+    .so.is-live .so__crest { animation-play-state: running; }
+    .so__scrim { display: block; position: absolute; inset: 0; z-index: 4; background:
+      linear-gradient(90deg, rgba(0,28,56,.9) 0%, rgba(0,28,56,.72) 34%, rgba(0,28,56,.12) 62%, rgba(0,28,56,0) 80%),
+      linear-gradient(0deg, rgba(0,28,56,.75), rgba(0,28,56,0) 42%),
+      linear-gradient(180deg, rgba(0,28,56,.55), rgba(0,28,56,0) 22%); }
+    .so__content { display: block; position: relative; z-index: 1; margin-top: -100vh; padding-bottom: 18vh; }
+    .so__intro { width: auto; min-height: 100vh; margin: 0; align-content: end; padding-bottom: 16vh; }
+    .so__title { font-size: clamp(2.75rem, 1.2rem + 4.6vw, 6rem); line-height: .98; max-width: 11ch; }
+    .so__panel { width: min(560px, 100%); margin: 0; padding: clamp(1.5rem, 3vw, 2.5rem); border-radius: var(--r-lg); border: 1px solid rgba(143,179,196,.2); background: color-mix(in srgb, var(--abyss) 62%, transparent); box-shadow: var(--sh-card-dark); }
+  }
+  @keyframes so-drift { to { transform: translate3d(-50%, 0, 0); } }
+
+  /* reduced motion: the "after" photo only */
+  @media (prefers-reduced-motion: reduce) {
+    .so__before, .so__tideline { display: none; }
+    .so__crest { animation: none; }
+  }
+</style>

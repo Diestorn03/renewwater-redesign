@@ -1,0 +1,201 @@
+---
+/**
+ * Footer (--abyss). El Hilo ends here: a thread (≥1024px) runs from the left margin into the logo mark, which then
+ * draws itself (on mobile the mark just draws in view). A giant outlined RENEW WATER fills with the brand gradient
+ * left → right while the footer scrolls in (scrub on desktop, once on touch, static when reduced).
+ * minimal = compact single row (/analisis landing). demo = adds the "redesign proposal" line.
+ */
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/chrome.js';
+import { phones, emails, address, mapLink, socials } from '../../data/site.js';
+import Icon from '../ui/Icon.astro';
+import LogoMark from './LogoMark.astro';
+import LangSwitch from './LangSwitch.astro';
+interface Props { minimal?: boolean; demo?: boolean }
+const { minimal = false, demo = false } = Astro.props;
+const { t, o, lang, url, asset } = useI18n(Astro);
+const c = pick(copy, lang);
+const year = new Date().getFullYear();
+const nav = [['home', t.nav.home], ['about', t.nav.about], ['products', t.nav.products], ['join', t.nav.join], ['contact', t.nav.contact], ['analysis', t.meta.analysis]] as const;
+const phoneList = lang === 'en' ? phones : [...phones].reverse(); // the visitor's language line first
+const social = [
+  { k: 'instagram', name: 'Instagram', ...socials.instagram },
+  { k: 'tiktok', name: 'TikTok', ...socials.tiktok },
+  { k: 'facebook', name: 'Facebook', ...socials.facebook },
+];
+---
+{minimal ? (
+  <footer class="ftr ftr--min" data-theme="dark">
+    <div class="wrap ftr__row">
+      <a class="ftr__minlogo" href={url('home')} aria-label={c.homeLabel}><LogoMark size={36} weight={1.35} /></a>
+      <p class="small muted">© {year} {t.siteName}. {o.footer.rights}{demo && <> · {t.demo}</>}</p>
+      <div class="ftr__minright">
+        {phoneList.map((p) => <a class="ftr__link" href={`tel:${p.tel}`}><span class="mono">{c.phoneLabels[p.label as 'ES' | 'US']}</span> {p.display}</a>)}
+        <LangSwitch />
+      </div>
+    </div>
+  </footer>
+) : (
+  <footer class="ftr" data-theme="dark">
+    <svg class="ftr__thread" aria-hidden="true" focusable="false" width="1" height="1">
+      <defs>
+        <linearGradient id="ftr-thread-grad" gradientUnits="userSpaceOnUse" x1="24" y1="0" x2="24" y2="100">
+          <stop offset="0" stop-color="#98C400" /><stop offset=".55" stop-color="#00CC60" /><stop offset="1" stop-color="#00D0D0" />
+        </linearGradient>
+      </defs>
+      <path d="" pathLength="1" stroke="url(#ftr-thread-grad)" />
+    </svg>
+
+    <div class="wrap ftr__grid">
+      <div class="ftr__brand">
+        <a class="ftr__home" href={url('home')} aria-label={c.homeLabel}><LogoMark size={76} draw="view" class="ftr__mark" /></a>
+        <p class="ftr__desc">{o.footer.description}</p>
+        <img class="ftr__wqa" src={asset('/img/brand/wqa.webp')} width="300" height="115" alt={c.wqaAlt} loading="lazy" decoding="async" />
+      </div>
+
+      <nav class="ftr__col" aria-labelledby="ftr-nav">
+        <h2 class="ftr__title" id="ftr-nav">{c.navTitle}</h2>
+        <ul>{nav.map(([k, label]) => <li><a class="ftr__link" href={url(k)}>{label}</a></li>)}</ul>
+      </nav>
+
+      <div class="ftr__col">
+        <h2 class="ftr__title">{o.footer.contactInfo}</h2>
+        <ul>
+          {phoneList.map((p) => (
+            <li><a class="ftr__link ftr__phone" href={`tel:${p.tel}`}><span class="ftr__tag">{c.phoneLabels[p.label as 'ES' | 'US']}</span>{p.display}</a></li>
+          ))}
+          {emails.map((e) => <li><a class="ftr__link ftr__mail" href={`mailto:${e}`}>{e}</a></li>)}
+          <li>
+            <a class="ftr__link ftr__addr" href={mapLink} target="_blank" rel="noopener">
+              <Icon name="pin" size={18} class="ftr__pin" />
+              <span><span class="sr-only">{o.footer.address}: </span>{address.line}<br />{address.city}<span class="sr-only"> {c.newTab}</span></span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="ftr__col">
+        <h2 class="ftr__title">{o.footer.socialMedia}</h2>
+        <ul>
+          {social.map((s) => (
+            <li>
+              <a class="ftr__link ftr__social" href={s.url} target="_blank" rel="noopener">
+                <span class="ftr__sicon"><Icon name={s.k} size={20} /></span>
+                <span><span class="ftr__sname">{s.name}</span><span class="ftr__handle">{s.handle}</span></span>
+                <span class="sr-only">{c.newTab}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <div class="wrap ftr__bottom">
+      <p>© {year} {t.siteName}. {o.footer.rights}</p>
+      {demo && <p class="ftr__demo mono">{t.demo}</p>}
+      <div class="ftr__bottom-right">
+        <LangSwitch />
+        <a class="ftr__top" href="#main"><span>{c.backToTop}</span><Icon name="arrow" size={18} class="ftr__top-ico" /></a>
+      </div>
+    </div>
+
+    <div class="ftr__giant" aria-hidden="true">
+      <svg viewBox="0 0 1000 108" preserveAspectRatio="xMidYMax meet" focusable="false">
+        <defs>
+          <linearGradient id="ftr-word-grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1000" y2="0">
+            <stop offset="0" stop-color="#00D0D0" /><stop offset=".38" stop-color="#00D08C" /><stop offset=".68" stop-color="#00CC60" /><stop offset="1" stop-color="#98C400" />
+          </linearGradient>
+          <linearGradient id="ftr-word-edge" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#fff" /><stop offset=".86" stop-color="#fff" /><stop offset="1" stop-color="#fff" stop-opacity="0" />
+          </linearGradient>
+          <mask id="ftr-word-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="108">
+            <g class="ftr__fill"><rect x="-1160" y="0" width="1160" height="108" fill="url(#ftr-word-edge)" /></g>
+          </mask>
+        </defs>
+        <text class="ftr__word ftr__word--line" x="500" y="100" text-anchor="middle" textLength="992" lengthAdjust="spacing">RENEW WATER</text>
+        <text class="ftr__word ftr__word--fill" x="500" y="100" text-anchor="middle" textLength="992" lengthAdjust="spacing" fill="url(#ftr-word-grad)" mask="url(#ftr-word-mask)">RENEW WATER</text>
+      </svg>
+    </div>
+  </footer>
+)}
+
+<style>
+  .ftr { position: relative; background: var(--abyss); color: var(--fg); overflow: clip; isolation: isolate; }
+  .ftr:not(.ftr--min) { padding-top: clamp(72px, 9vw, 128px); }
+  .ftr::before {
+    content: ''; position: absolute; inset: 0 0 auto; height: 1px; z-index: -1;
+    background: linear-gradient(90deg, transparent, rgba(0, 208, 208, .35) 30%, rgba(152, 196, 0, .35) 70%, transparent);
+  }
+
+  .ftr__thread { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; display: none; }
+  .ftr__thread path { fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 1 1; stroke-dashoffset: 1; opacity: .8; }
+  .ftr__thread.is-on { display: block; }
+
+  .ftr__grid { display: grid; gap: 2.75rem 2rem; grid-template-columns: 1fr; }
+  .ftr__brand { display: grid; gap: 1.25rem; justify-items: start; align-content: start; }
+  .ftr__home { display: inline-grid; min-height: 48px; }
+  .ftr__desc { font-size: var(--fs-lead); line-height: 1.4; letter-spacing: -.01em; max-width: 26ch; color: var(--fg); }
+  .ftr__wqa { width: 132px; height: auto; opacity: .82; }
+  .ftr__title {
+    font-family: var(--font-brand); font-weight: 400; font-size: var(--fs-kicker); letter-spacing: .22em; text-transform: uppercase;
+    color: var(--accent-text); margin-bottom: 1rem;
+  }
+  .ftr__col ul { list-style: none; display: grid; gap: .1rem; }
+  .ftr__link {
+    display: inline-flex; align-items: center; gap: .6rem; min-height: 44px; padding-block: .2rem;
+    color: var(--fg-muted); transition: color var(--d-fast);
+    background: linear-gradient(var(--aqua), var(--aqua)) no-repeat 0 calc(100% - 6px) / 0 1px;
+    transition: color var(--d-fast), background-size var(--d-base) var(--ease-out);
+  }
+  .ftr__link:hover { color: var(--fg); background-size: 100% 1px; }
+  .ftr__tag {
+    display: inline-grid; place-items: center; min-width: 4.9rem; height: 24px; padding: 0 .55rem; border-radius: var(--r-pill);
+    border: 1px solid var(--line); font-family: var(--font-mono); font-weight: 500; font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-muted);
+  }
+  .ftr__phone { font-variant-numeric: tabular-nums; color: var(--fg); background: none; }
+  .ftr__phone:hover .ftr__tag { border-color: var(--aqua); color: var(--aqua); }
+  .ftr__mail { word-break: break-all; }
+  .ftr__addr { align-items: flex-start; line-height: 1.45; padding-block: .5rem; background: none; }
+  .ftr__addr :global(.ftr__pin) { flex: none; margin-top: .15rem; color: var(--aqua); }
+  .ftr__social { background: none; gap: .8rem; }
+  .ftr__sicon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); color: var(--fg); transition: border-color var(--d-fast), background-color var(--d-fast); }
+  .ftr__social:hover .ftr__sicon { border-color: var(--aqua); background: color-mix(in srgb, var(--aqua) 12%, transparent); }
+  .ftr__sname { display: block; font-size: .8rem; color: var(--fg-muted); line-height: 1.2; }
+  .ftr__handle { display: block; color: var(--fg); line-height: 1.3; }
+
+  .ftr__bottom {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 1.5rem;
+    margin-top: clamp(3rem, 6vw, 5rem); padding-block: 1.5rem; border-top: 1px solid var(--line);
+    font-size: var(--fs-small); color: var(--fg-muted);
+  }
+  .ftr__demo { color: var(--sun); }
+  .ftr__bottom-right { display: flex; align-items: center; gap: 1rem; }
+  .ftr__top { display: inline-flex; align-items: center; gap: .5rem; min-height: 48px; color: var(--fg-muted); transition: color var(--d-fast); }
+  .ftr__top:hover { color: var(--fg); }
+  .ftr__top :global(.ftr__top-ico) { transform: rotate(-90deg); transition: transform var(--d-base) var(--ease-water); }
+  .ftr__top:hover :global(.ftr__top-ico) { transform: rotate(-90deg) translateX(3px); }
+
+  .ftr__giant { width: calc(100% - 2 * clamp(8px, 1.5vw, 24px)); margin: clamp(.5rem, 2vw, 1.5rem) auto 0; line-height: 0; }
+  .ftr__giant svg { width: 100%; height: auto; overflow: visible; }
+  .ftr__word { font-family: var(--font-brand); font-size: 124px; letter-spacing: 0; }
+  .ftr__word--line { fill: none; stroke: rgba(143, 179, 196, .28); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  /* mobile bar clearance */
+  .ftr { padding-bottom: calc(var(--bar-h) + env(safe-area-inset-bottom)); }
+
+  /* minimal */
+  .ftr__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; padding-block: 1.5rem; }
+  .ftr__minlogo { display: grid; place-items: center; min-width: 48px; min-height: 48px; }
+  .ftr__minright { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem 1.25rem; }
+  .ftr__minright .mono { color: var(--accent-text); margin-right: .35rem; }
+
+  @media (min-width: 640px) {
+    .ftr__grid { grid-template-columns: 1fr 1fr; }
+    .ftr__brand { grid-column: 1 / -1; }
+  }
+  @media (min-width: 768px) { .ftr { padding-bottom: 0; } .ftr__row { padding-right: 88px; } }
+  @media (min-width: 1024px) {
+    .ftr__grid { grid-template-columns: 1.35fr .8fr 1.15fr 1fr; }
+    .ftr__brand { grid-column: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { .ftr__fill { transform: translateX(1160px); } }
+</style>

@@ -1,0 +1,93 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '@fontsource-variable/geist/wght.css';
+import '@fontsource/instrument-serif/400-italic.css';
+import '@fontsource/geist-mono/500.css';
+import 'lenis/dist/lenis.css';
+import '../styles/base.css';
+import '../styles/transitions.css';
+import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
+import nasalization from '../fonts/nasalization.woff2?url';
+import { useI18n } from '../i18n/index.js';
+import Header from '../components/chrome/Header.astro';
+import Footer from '../components/chrome/Footer.astro';
+import FloatingWhatsApp from '../components/chrome/FloatingWhatsApp.astro';
+import MobileActionBar from '../components/chrome/MobileActionBar.astro';
+import Loader from '../components/chrome/Loader.astro';
+import Hilo from '../components/chrome/Hilo.astro';
+import Lightbox from '../components/ui/Lightbox.astro';
+
+interface Props {
+  title: string;              // page title (without the site name)
+  description?: string;
+  image?: string;             // base-less path of the share image, defaults to /og.jpg
+  minimalChrome?: boolean;    // /analisis landing: header without links, no footer columns
+}
+const { t, lang, asset, hreflang, base } = useI18n(Astro);
+const { title, description = t.meta.description, image = '/og.jpg', minimalChrome = false } = Astro.props;
+const origin = Astro.site?.origin ?? '';
+const canonical = origin + Astro.url.pathname;
+const demo = !!import.meta.env.PUBLIC_DEMO;
+const fullTitle = `${title} · ${t.siteName}`;
+---
+<!doctype html>
+<html lang={lang} data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {demo && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content="#001C38" />
+    <link rel="icon" href={asset('/favicon-32.png')} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={asset('/apple-touch-icon.png')} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="es" href={origin + hreflang.es} />
+    <link rel="alternate" hreflang="en" href={origin + hreflang.en} />
+    <link rel="alternate" hreflang="x-default" href={origin + hreflang.es} />
+    <link rel="preload" href={nasalization} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={geistLatin} as="font" type="font/woff2" crossorigin />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={origin + base + image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={t.locale} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline>
+      // `js` lets CSS pre-hide elements the engine reveals (content stays visible without JS)
+      document.documentElement.classList.add('js');
+    </script>
+    <ClientRouter />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t.nav.skip}</a>
+    <!-- shared brand gradient for <Icon grad /> and inline SVG strokes -->
+    <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+      <defs>
+        <linearGradient id="rw-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#00D0D0" /><stop offset=".38" stop-color="#00D08C" /><stop offset=".68" stop-color="#00CC60" /><stop offset="1" stop-color="#98C400" />
+        </linearGradient>
+        <linearGradient id="rw-grad-ink" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#00767A" /><stop offset=".55" stop-color="#00745A" /><stop offset="1" stop-color="#4F6A00" />
+        </linearGradient>
+      </defs>
+    </svg>
+    <Loader />
+    <Header minimal={minimalChrome} />
+    <main id="main" tabindex="-1">
+      <Hilo />
+      <slot />
+    </main>
+    <Footer minimal={minimalChrome} demo={demo} />
+    <FloatingWhatsApp waRef={minimalChrome ? 'web-bio' : 'web-fab'} />
+    <MobileActionBar waRef={minimalChrome ? 'web-bio' : 'web-fab'} />
+    <Lightbox />
+    <script>
+      import '../scripts/engine.js';
+    </script>
+  </body>
+</html>

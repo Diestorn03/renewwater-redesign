@@ -1,0 +1,213 @@
+---
+/**
+ * #instalaciones · Calle Renew (SIG-4) · light.
+ * Desktop gate: the stage pins and the street (intro + 11 real installations + "your home is next") scrolls
+ * sideways; a brand-gradient pipe fills along the baseline ahead of the reader, branches feed each card, the
+ * counter runs to +500 and "+12 Ciudades" appears half-way (scripts/calle.js).
+ * Touch / narrow: native scroll-snap row (78vw cards), static pipe, engine count-up once.
+ * Reduced motion on a desktop: wrapping grid, final numbers.
+ */
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/offer.js';
+import { installations } from '../../data/photos.js';
+import { buildWa, stats } from '../../data/site.js';
+import Icon from '../ui/Icon.astro';
+const { o, lang, asset } = useI18n(Astro);
+const c = pick(copy, lang).calle;
+const [first, ...rest] = o.home.installationsTitle.split(' ');
+const pad = (n: number) => String(n).padStart(2, '0');
+// installation-3/4/7 show a trade-show booth, a showroom and a warehouse, not homes: kept out of "Instalación real"
+const homes = installations.filter((_, i) => ![2, 3, 6].includes(i));
+const cards = homes.map((p, i) => ({ ...p, n: pad(i + 1), smH: Math.round((520 * p.h) / p.w) }));
+---
+<section id="instalaciones" class="section calle" data-theme="light" aria-labelledby="calle-title">
+  <a class="calle__skip btn btn--solid btn--sm" href="#cero">{c.skip}</a>
+  <div class="calle__stage">
+    <span class="bleed-word calle__bleed" aria-hidden="true">{c.kicker}</span>
+
+    <header class="calle__intro">
+      <p class="kicker">{c.kicker}</p>
+      <h2 id="calle-title" class="h2">{first} <span class="accent">{rest.join(' ')}</span></h2>
+      <p class="calle__lead">{c.lead}</p>
+    </header>
+
+    <div class="calle__counter">
+      <p class="sr-only">{c.counterSr(o.home.projects, o.home.cities)}</p>
+      <p class="calle__stat" aria-hidden="true">
+        <span class="num grad-text calle__num" data-count={stats.projects} data-prefix="+" data-to={stats.projects}>+{stats.projects}</span>
+        <span class="calle__lbl">{o.home.projects}</span>
+      </p>
+      <p class="calle__stat calle__stat--cities" aria-hidden="true">
+        <span class="num grad-text calle__num" data-count={stats.cities} data-prefix="+">+{stats.cities}</span>
+        <span class="calle__lbl">{o.home.cities}</span>
+      </p>
+    </div>
+
+    <div class="calle__rail">
+      <div class="calle__track">
+        <ol class="calle__list">
+          {cards.map((p, i) => (
+            <li class="calle__card" style={`--i:${i}`}>
+              <a class="calle__arch" href={asset(p.src)} data-lightbox="instalaciones" data-caption={c.caption(p.n)} data-lb-morph data-tilt="5" aria-label={`${c.open}: ${c.caption(p.n)}`}>
+                <img src={asset(p.sm)} width="520" height={p.smH} alt={c.alt(p.n)} loading={i < 3 ? 'eager' : 'lazy'} decoding="async" draggable="false" />
+                <span class="calle__chip mono" aria-hidden="true">{c.chip(p.n)}</span>
+              </a>
+              <span class="calle__branch" aria-hidden="true"></span>
+            </li>
+          ))}
+          <li class="calle__card calle__card--next" style={`--i:${cards.length}`}>
+            <div class="calle__arch calle__next" data-theme="dark">
+              <Icon name="house" size={44} grad strokeWidth={1.5} />
+              <p class="calle__next-title">{c.nextTitle[0]} <span class="accent">{c.nextTitle[1]}</span></p>
+              <p class="calle__next-text">{c.nextText}</p>
+              <a class="btn btn--primary btn--wa btn--sm calle__next-cta" href={buildWa({ text: c.wa, ref: 'web-instalaciones' })} target="_blank" rel="noopener">
+                <span class="btn__glyph"><Icon name="whatsapp" size={20} /></span>{c.nextCta}
+              </a>
+            </div>
+            <span class="calle__branch" aria-hidden="true"></span>
+          </li>
+        </ol>
+        <span class="calle__pipe" aria-hidden="true"></span>
+        <span class="calle__tip" aria-hidden="true"></span>
+      </div>
+    </div>
+    <p class="calle__swipe mono" aria-hidden="true">{c.swipe} <Icon name="arrow" size={16} /></p>
+  </div>
+</section>
+
+<script>
+  import '../../scripts/calle.js';
+</script>
+
+<style>
+  .calle { --edge: max(var(--gutter), (100% - var(--maxw)) / 2); --pipe-y: 26px; --branch: 30px; overflow: clip; }
+
+  /* ---------- shared pieces ---------- */
+  .calle__skip { position: absolute; left: var(--gutter); top: 12px; z-index: 5; transform: translateY(-160%); }
+  .calle__skip:focus-visible { transform: none; }
+  .calle__bleed { position: absolute; left: 0; top: 50%; translate: 0 -50%; text-transform: uppercase; -webkit-text-stroke: 1.5px var(--navy); opacity: .07; z-index: 0; display: none; }
+  .calle__intro { position: relative; z-index: 2; display: grid; gap: var(--s-4); }
+  .calle__intro .h2 { max-width: 12ch; }
+  .calle__lead { color: var(--fg-muted); font-size: var(--fs-lead); line-height: 1.5; max-width: 34ch; }
+
+  .calle__counter { position: relative; z-index: 2; display: flex; gap: clamp(1.5rem, 4vw, 3rem); }
+  .calle__stat { display: grid; gap: .25rem; }
+  .calle__num { font-size: clamp(2.5rem, 1.6rem + 3vw, 4rem); letter-spacing: 0; }
+  .calle__lbl { font-weight: 600; font-size: var(--fs-small); letter-spacing: .02em; color: var(--fg-muted); }
+
+  .calle__track { position: relative; width: max-content; padding: 0 var(--edge) calc(var(--pipe-y) + 14px); }
+  .calle__list { list-style: none; display: flex; align-items: flex-end; gap: 14px; }
+  .calle__card { position: relative; flex: none; width: min(78vw, 340px); padding-bottom: var(--branch); }
+
+  .calle__arch {
+    position: relative; display: block; width: 100%; aspect-ratio: 3 / 4;
+    border-radius: var(--r-arch); overflow: hidden; isolation: isolate;
+    background: var(--mist);
+    box-shadow: 0 30px 50px -34px rgba(0, 28, 56, .45);
+  }
+  .calle__arch img { width: 100%; height: 100%; object-fit: cover; }
+  a.calle__arch:focus-visible { outline-offset: 4px; }
+  .calle__chip {
+    position: absolute; left: 50%; bottom: 14px; translate: -50% 0; z-index: 1;
+    padding: .5rem .85rem; border-radius: var(--r-pill); white-space: nowrap; font-size: .66rem;
+    background: rgba(255, 255, 255, .9); color: var(--navy);
+    box-shadow: 0 6px 18px -8px rgba(0, 28, 56, .45);
+  }
+  /* image lifts a touch on hover */
+  @media (hover: hover) {
+    a.calle__arch img { transition: scale var(--d-slow) var(--ease-out); }
+    a.calle__arch:hover img { scale: 1.04; }
+  }
+
+  /* "your home is next": navy arch */
+  .calle__next {
+    display: grid; align-content: end; justify-items: start; gap: var(--s-3);
+    padding: 22% 1.6rem 1.8rem; color: var(--fg);
+    background:
+      radial-gradient(120% 70% at 50% 0%, rgba(0, 208, 208, .28), transparent 60%),
+      radial-gradient(90% 60% at 100% 100%, rgba(152, 196, 0, .18), transparent 65%),
+      var(--navy);
+    box-shadow: inset 0 0 0 1px rgba(0, 208, 208, .25), 0 30px 50px -30px rgba(0, 28, 56, .6);
+  }
+  /* nested dark arch inside a light section: base.css's light .accent rule would win, so restate the gradient */
+  .calle__next .accent { background: var(--grad-brand); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+  .calle__next-title { font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.3rem); line-height: 1.05; letter-spacing: -.02em; font-weight: 600; }
+  .calle__next-text { font-size: var(--fs-small); line-height: 1.5; color: var(--fg-muted); max-width: 24ch; }
+  .calle__next-cta { margin-top: var(--s-2); white-space: normal; text-align: left; }
+
+  /* the pipe, its branches and the flowing tip */
+  .calle__pipe {
+    position: absolute; left: 0; right: 0; bottom: var(--pipe-y); height: 3px; border-radius: 3px;
+    background: var(--grad-brand);
+    box-shadow: 0 0 0 4px rgba(0, 208, 208, .08);
+  }
+  .calle__branch {
+    position: absolute; left: calc(50% - 1px); bottom: calc(-1 * (var(--pipe-y) + 14px) + var(--pipe-y) + 2px);
+    width: 2px; height: calc(var(--branch) + 14px - 2px);
+    background: color-mix(in oklab, var(--aqua), var(--lime) calc(var(--i) * 8.33%));
+    transform-origin: 50% 100%;
+  }
+  .calle__branch::after {
+    content: ""; position: absolute; left: 50%; bottom: -5px; width: 9px; height: 9px; translate: -50% 0;
+    border-radius: 50%; background: var(--bg); border: 2px solid currentColor;
+    color: color-mix(in oklab, var(--aqua), var(--lime) calc(var(--i) * 8.33%));
+  }
+  .calle__tip { display: none; }
+
+  .calle__swipe { display: flex; align-items: center; justify-content: flex-end; gap: .5rem; width: min(var(--maxw), 100% - 2 * var(--gutter)); margin: var(--s-4) auto 0; color: var(--fg-muted); }
+  .calle__swipe :global(svg) { color: var(--accent-text); }
+
+  /* ---------- touch / narrow: native scroll-snap street ---------- */
+  .calle__intro, .calle__counter { width: min(var(--maxw), 100% - 2 * var(--gutter)); margin-inline: auto; }
+  .calle__counter { margin-top: var(--s-6); }
+  .calle__rail {
+    margin-top: var(--s-7); overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scroll-padding-inline: var(--edge);
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .calle__rail::-webkit-scrollbar { display: none; }
+  .calle__card { scroll-snap-align: start; }
+
+  /* ---------- desktop with reduced motion: a wrapping grid ---------- */
+  @media (min-width: 768px) and (pointer: fine) and (prefers-reduced-motion: reduce) {
+    .calle__rail { overflow: visible; }
+    .calle__track { width: auto; padding-bottom: 0; }
+    .calle__list { flex-wrap: wrap; justify-content: center; align-items: stretch; gap: var(--s-5); }
+    .calle__card { width: min(260px, 100%); padding-bottom: 0; }
+    .calle__pipe, .calle__branch, .calle__swipe { display: none; }
+  }
+
+  /* ---------- desktop gate: pinned horizontal street (html.js: without JS the page keeps the swipe row) ---------- */
+  @media (min-width: 768px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    :global(.js) .calle { --intro-w: min(30rem, 33vw); --tall: min(58vh, 80vh - 210px); --short: calc(var(--tall) * .86); --pipe-y: 12vh; --branch: 8vh; padding: 0; }
+    :global(.js) .calle__stage { position: relative; height: 100vh; height: 100dvh; overflow: hidden; }
+    /* the street: a mist ground under the pipe */
+    :global(.js) .calle__stage::after { content: ""; position: absolute; inset: auto 0 0; height: calc(var(--pipe-y) + 2px); background: linear-gradient(180deg, var(--mist), color-mix(in srgb, var(--mist) 40%, var(--bg))); z-index: 0; }
+    :global(.js) .calle__bleed { display: block; top: 44%; }
+
+    :global(.js) .calle__intro { position: absolute; left: var(--edge); bottom: calc(var(--pipe-y) + var(--branch)); width: var(--intro-w); margin: 0; }
+    :global(.js) .calle__counter { position: absolute; top: max(calc(var(--header-h) + 14px), 9vh); right: var(--edge); width: auto; margin: 0; text-align: right; gap: 2.5rem; }
+    :global(.js) .calle__num { font-size: clamp(2.5rem, 1.5rem + 2.6vw, 4.25rem); }
+    :global(.js) .calle__stat--cities { transition: opacity .6s var(--ease-out), translate .6s var(--ease-out); }
+    :global(.js) .calle.is-pinned .calle__stat--cities:not(.is-on) { opacity: 0; translate: 0 14px; }
+
+    :global(.js) .calle__rail { position: absolute; inset: 0; margin: 0; overflow: visible; z-index: 1; }
+    :global(.js) .calle__track { height: 100%; display: flex; align-items: flex-end; padding: 0 var(--edge) var(--pipe-y) calc(var(--edge) + var(--intro-w) + 7vw); will-change: transform; }
+    :global(.js) .calle__list { gap: 3.2vw; }
+    :global(.js) .calle__card { width: auto; padding-bottom: var(--branch); }
+    :global(.js) .calle__arch { height: var(--tall); width: auto; }
+    :global(.js) .calle__card:nth-child(even) .calle__arch { height: var(--short); }
+    :global(.js) .calle__card--next .calle__arch { height: var(--tall); }
+    :global(.js) a.calle__arch img { width: 118%; max-width: none; margin-left: -9%; }
+    :global(.js) .calle__chip { font-size: .7rem; }
+
+    :global(.js) .calle__pipe { bottom: calc(var(--pipe-y) - 1px); height: 4px; }
+    :global(.js) .calle__branch { bottom: 0; height: var(--branch); }
+    :global(.js) .calle__tip {
+      display: block; position: absolute; left: -9px; bottom: calc(var(--pipe-y) - 8px); width: 18px; height: 18px; border-radius: 50%;
+      background: radial-gradient(circle, #fff 0 22%, var(--lime) 36%, rgba(152, 196, 0, .35) 58%, transparent 72%);
+      pointer-events: none;
+    }
+    :global(.js) .calle__swipe { display: none; }
+  }
+</style>

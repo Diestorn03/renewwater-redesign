@@ -1,0 +1,538 @@
+{
+"about/filter-system.webp": [
+1400,
+973
+],
+"about/team.webp": [
+1080,
+810
+],
+"brand/logo.webp": [
+942,
+160
+],
+"brand/mark.webp": [
+170,
+139
+],
+"brand/wqa.webp": [
+300,
+115
+],
+"clients/client-1-sm.webp": [
+520,
+520
+],
+"clients/client-1.webp": [
+1200,
+1200
+],
+"clients/client-10-sm.webp": [
+520,
+1126
+],
+"clients/client-10.webp": [
+924,
+2000
+],
+"clients/client-11-sm.webp": [
+520,
+693
+],
+"clients/client-11.webp": [
+810,
+1080
+],
+"clients/client-2-sm.webp": [
+520,
+693
+],
+"clients/client-2.webp": [
+1200,
+1600
+],
+"clients/client-3-sm.webp": [
+520,
+706
+],
+"clients/client-3.webp": [
+1200,
+1630
+],
+"clients/client-4-sm.webp": [
+520,
+693
+],
+"clients/client-4.webp": [
+1200,
+1600
+],
+"clients/client-5-sm.webp": [
+520,
+1126
+],
+"clients/client-5.webp": [
+924,
+2000
+],
+"clients/client-6-sm.webp": [
+520,
+697
+],
+"clients/client-6.webp": [
+1078,
+1445
+],
+"clients/client-7-sm.webp": [
+520,
+693
+],
+"clients/client-7.webp": [
+1200,
+1600
+],
+"clients/client-8-sm.webp": [
+520,
+693
+],
+"clients/client-8.webp": [
+1200,
+1600
+],
+"clients/client-9-sm.webp": [
+520,
+693
+],
+"clients/client-9.webp": [
+1200,
+1600
+],
+"hero/hero-arch-480.webp": [
+480,
+600
+],
+"hero/hero-arch-800.webp": [
+800,
+1000
+],
+"hero/poster-m.webp": [
+800,
+1400
+],
+"hero/poster.webp": [
+1600,
+1000
+],
+"home/contaminants.webp": [
+1024,
+680
+],
+"home/family-sm.webp": [
+800,
+448
+],
+"home/family.webp": [
+1060,
+594
+],
+"home/filters-sm.webp": [
+800,
+531
+],
+"home/filters.webp": [
+1600,
+1062
+],
+"home/glass-water-sm.webp": [
+800,
+450
+],
+"home/glass-water.webp": [
+1408,
+792
+],
+"home/plastic-ocean.webp": [
+600,
+399
+],
+"home/water-sample.webp": [
+1024,
+618
+],
+"installations/installation-1-sm.webp": [
+520,
+693
+],
+"installations/installation-1.webp": [
+1200,
+1600
+],
+"installations/installation-10-sm.webp": [
+520,
+693
+],
+"installations/installation-10.webp": [
+1200,
+1600
+],
+"installations/installation-11-sm.webp": [
+520,
+1126
+],
+"installations/installation-11.webp": [
+924,
+2000
+],
+"installations/installation-2-sm.webp": [
+520,
+693
+],
+"installations/installation-2.webp": [
+1200,
+1600
+],
+"installations/installation-3-sm.webp": [
+520,
+693
+],
+"installations/installation-3.webp": [
+1200,
+1600
+],
+"installations/installation-4-sm.webp": [
+520,
+693
+],
+"installations/installation-4.webp": [
+1200,
+1600
+],
+"installations/installation-5-sm.webp": [
+520,
+693
+],
+"installations/installation-5.webp": [
+1200,
+1600
+],
+"installations/installation-6-sm.webp": [
+520,
+693
+],
+"installations/installation-6.webp": [
+1200,
+1600
+],
+"installations/installation-7-sm.webp": [
+520,
+1126
+],
+"installations/installation-7.webp": [
+924,
+2000
+],
+"installations/installation-8-sm.webp": [
+520,
+693
+],
+"installations/installation-8.webp": [
+1200,
+1600
+],
+"installations/installation-9-sm.webp": [
+520,
+693
+],
+"installations/installation-9.webp": [
+1200,
+1600
+],
+"join/booth.webp": [
+600,
+367
+],
+"join/installer-sm.webp": [
+800,
+531
+],
+"join/installer.webp": [
+1600,
+1062
+],
+"join/team-1.webp": [
+1080,
+810
+],
+"join/team-2.webp": [
+1200,
+1200
+],
+"join/team-3.webp": [
+1200,
+1200
+],
+"join/team-4.webp": [
+1200,
+1600
+],
+"join/team-5.webp": [
+1200,
+1600
+],
+"partners/foundation-white.webp": [
+584,
+96
+],
+"partners/foundation.webp": [
+584,
+96
+],
+"partners/homerun-white.webp": [
+309,
+96
+],
+"partners/homerun.webp": [
+309,
+96
+],
+"partners/pci-white.webp": [
+167,
+96
+],
+"partners/pci.webp": [
+167,
+96
+],
+"partners/rffc-white.webp": [
+310,
+96
+],
+"partners/rffc.webp": [
+310,
+96
+],
+"partners/synchrony-white.webp": [
+453,
+96
+],
+"partners/synchrony.webp": [
+453,
+96
+],
+"partners/time-white.webp": [
+276,
+96
+],
+"partners/time.webp": [
+276,
+96
+],
+"partners/ygrene-white.webp": [
+262,
+96
+],
+"partners/ygrene.webp": [
+262,
+96
+],
+"products/cut-5-pasos-eco.webp": [
+357,
+800
+],
+"products/cut-agua-de-pozo-plus.webp": [
+1172,
+738
+],
+"products/cut-agua-de-pozo.webp": [
+554,
+762
+],
+"products/cut-astrid.webp": [
+538,
+764
+],
+"products/cut-linea-clasica.webp": [
+454,
+748
+],
+"products/cut-linea-economica.webp": [
+408,
+714
+],
+"products/cut-osmosis-inversa.webp": [
+572,
+606
+],
+"products/cut-renew-apto-4-pasos.webp": [
+282,
+794
+],
+"products/cut-renew-city.webp": [
+376,
+778
+],
+"products/cut-renew-duo.webp": [
+492,
+766
+],
+"products/cut-renew-small-4-pasos.webp": [
+215,
+800
+],
+"products/product-1-sm.webp": [
+560,
+725
+],
+"products/product-1.webp": [
+1236,
+1600
+],
+"products/product-10-sm.webp": [
+560,
+725
+],
+"products/product-10.webp": [
+1236,
+1600
+],
+"products/product-11-sm.webp": [
+560,
+725
+],
+"products/product-11.webp": [
+1236,
+1600
+],
+"products/product-12-sm.webp": [
+560,
+725
+],
+"products/product-12.webp": [
+1236,
+1600
+],
+"products/product-13-sm.webp": [
+560,
+725
+],
+"products/product-13.webp": [
+1236,
+1600
+],
+"products/product-14-sm.webp": [
+560,
+725
+],
+"products/product-14.webp": [
+1236,
+1600
+],
+"products/product-2-sm.webp": [
+560,
+725
+],
+"products/product-2.webp": [
+1236,
+1600
+],
+"products/product-3-sm.webp": [
+560,
+725
+],
+"products/product-3.webp": [
+1236,
+1600
+],
+"products/product-4-sm.webp": [
+560,
+725
+],
+"products/product-4.webp": [
+1236,
+1600
+],
+"products/product-5-sm.webp": [
+560,
+725
+],
+"products/product-5.webp": [
+1236,
+1600
+],
+"products/product-6-sm.webp": [
+560,
+725
+],
+"products/product-6.webp": [
+1236,
+1600
+],
+"products/product-7-sm.webp": [
+560,
+725
+],
+"products/product-7.webp": [
+1236,
+1600
+],
+"products/product-8-sm.webp": [
+560,
+725
+],
+"products/product-8.webp": [
+1236,
+1600
+],
+"products/product-9-sm.webp": [
+560,
+725
+],
+"products/product-9.webp": [
+1236,
+1600
+],
+"reviews/review-1.webp": [
+393,
+156
+],
+"reviews/review-2.webp": [
+376,
+157
+],
+"reviews/review-3.webp": [
+373,
+266
+],
+"reviews/review-4.webp": [
+376,
+220
+],
+"reviews/review-5.webp": [
+379,
+196
+],
+"tiles/tile-anionica.webp": [
+80,
+168
+],
+"tiles/tile-carbon.webp": [
+80,
+168
+],
+"tiles/tile-cationica.webp": [
+80,
+168
+],
+"tiles/tile-garnet.webp": [
+80,
+168
+],
+"tiles/tile-grava.webp": [
+80,
+168
+],
+"tiles/tile-kdf.webp": [
+80,
+168
+]
+}

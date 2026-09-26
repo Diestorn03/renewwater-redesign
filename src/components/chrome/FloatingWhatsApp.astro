@@ -1,0 +1,58 @@
+---
+/**
+ * Floating WhatsApp (≥768px). chrome.js toggles .is-shown (after the hero, hidden over #laboratorio / #encuentranos)
+ * and .is-open (pill for 4 s on 'rw:etapas-complete'); hover / keyboard focus open it too.
+ */
+import { useI18n, pick } from '../../i18n/index.js';
+import copy from '../../i18n/areas/chrome.js';
+import { buildWa } from '../../data/site.js';
+import Icon from '../ui/Icon.astro';
+interface Props { waRef?: string }
+const { waRef = 'web-fab' } = Astro.props;
+const { o, lang } = useI18n(Astro);
+const c = pick(copy, lang);
+---
+<a class="fab" href={buildWa({ text: o.floatingButton.whatsappMessage, ref: waRef })} target="_blank" rel="noopener" aria-label={c.fabLabel}>
+  <span class="fab__ring" aria-hidden="true"></span>
+  <span class="fab__body">
+    <span class="fab__glyph"><Icon name="whatsapp" size={26} /></span>
+    <span class="fab__label" aria-hidden="true">{c.fab}</span>
+  </span>
+</a>
+
+<style>
+  :global(html.lb-vt) .fab { opacity: 0; }
+  .fab {
+    --size: 60px;
+    position: fixed; right: clamp(16px, 2.2vw, 32px); bottom: clamp(16px, 2.2vw, 32px); z-index: var(--z-fab);
+    display: none; height: var(--size); width: var(--size); border-radius: var(--r-pill); color: #fff;
+    view-transition-name: rw-fab;
+    transition: width .5s var(--ease-out), opacity .35s var(--ease-water), transform .45s var(--ease-water);
+  }
+  @media (min-width: 768px) { .fab { display: block; } }
+  .fab__body {
+    position: relative; display: flex; align-items: center; width: 100%; height: 100%; border-radius: inherit; overflow: hidden;
+    background: var(--navy); box-shadow: var(--sh-float);
+  }
+  /* 1.5px gradient ring (mask-composite, same trick as .btn--ghost) */
+  .fab__body::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; background: var(--grad-brand);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+    pointer-events: none;
+  }
+  .fab__glyph { flex: none; display: grid; place-items: center; width: var(--size); height: var(--size); }
+  .fab__label { white-space: nowrap; padding-right: 1.5rem; font-weight: 600; font-size: .98rem; opacity: 0; transform: translateX(-8px); transition: opacity .25s var(--ease-water), transform .45s var(--ease-out); }
+  .fab.is-open, .fab:hover, .fab:focus-visible { width: var(--open-w, 220px); }
+  .fab:is(.is-open, :hover, :focus-visible) .fab__body { box-shadow: var(--sh-float), var(--sh-glow); }
+  .fab:is(.is-open, :hover, :focus-visible) .fab__label { opacity: 1; transform: none; transition-delay: .12s; }
+  .fab:focus-visible { outline-offset: 4px; border-radius: var(--r-pill); }
+
+  /* pulse every 8 s while shown and collapsed */
+  .fab__ring { position: absolute; left: 0; top: 0; width: var(--size); height: var(--size); border-radius: 50%; border: 1.5px solid var(--aqua); opacity: 0; pointer-events: none; }
+  .fab.is-shown:not(.is-open, :hover) .fab__ring { animation: fab-pulse 8s var(--ease-out) 1.5s infinite; }
+  @keyframes fab-pulse { 0% { transform: scale(1); opacity: .9; } 16% { transform: scale(1.6); opacity: 0; } 100% { transform: scale(1.6); opacity: 0; } }
+
+  /* JS manages visibility; without JS the button simply stays */
+  :global(.js) .fab:not(.is-shown) { opacity: 0; transform: scale(.8); pointer-events: none; visibility: hidden; transition: opacity .35s var(--ease-water), transform .45s var(--ease-water), visibility 0s .45s; }
+  @media (prefers-reduced-motion: reduce) { .fab__ring { display: none; } }
+</style>

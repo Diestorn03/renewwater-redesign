@@ -1,0 +1,31 @@
+/* ==========================================================
+   "La Onda": page transitions (Astro ClientRouter + View Transitions API).
+   The new page opens as a circle from the click point (--vt-x/--vt-y, set on pointerdown / Enter of internal
+   links by src/scripts/chrome.js and re-applied after the swap); the old page settles back (opacity .6, scale .98).
+   The header (view-transition-name: site-header), the FAB and the mobile bar keep their own groups, so they do
+   not get swept by the circle. Reduced motion: 150 ms crossfade. No View Transitions support: Astro's fallback.
+   ========================================================== */
+::view-transition-old(root) {
+  animation: rw-onda-old .65s cubic-bezier(.65, 0, .35, 1) both;
+  transform-origin: var(--vt-x, 50%) var(--vt-y, 50%);
+}
+::view-transition-new(root) {
+  animation: rw-onda-new .65s cubic-bezier(.65, 0, .35, 1) both;
+  mix-blend-mode: normal;
+}
+@keyframes rw-onda-old { to { opacity: .6; transform: scale(.98); } }
+@keyframes rw-onda-new {
+  from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%)); }
+  to { clip-path: circle(150vmax at var(--vt-x, 50%) var(--vt-y, 50%)); }
+}
+/* chrome that sits still while the page changes underneath */
+::view-transition-group(site-header),
+::view-transition-group(rw-fab),
+::view-transition-group(rw-bar) { animation-duration: .3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: rw-fade .15s linear both !important; transform: none; clip-path: none; }
+  ::view-transition-old(root) { animation-direction: reverse !important; }
+}
+@keyframes rw-fade { from { opacity: 0; } to { opacity: 1; } }
