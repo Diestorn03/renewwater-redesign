@@ -9,10 +9,11 @@ import { onPage } from './engine.js';
 onPage(({ gsap, env }) => {
   const root = document.querySelector('.cero');
   if (!root) return;
-  const zero = root.querySelector('.cero__zero');
+  // --lvl lives on the wrap: the water layers under it read it (user units, unitless)
+  const zero = root.querySelector('.cero__zero-wrap');
   const css = getComputedStyle(root);
-  const EMPTY = css.getPropertyValue('--lvl-empty').trim();
-  const FULL = css.getPropertyValue('--lvl-full').trim();
+  const EMPTY = +css.getPropertyValue('--lvl-empty');
+  const FULL = +css.getPropertyValue('--lvl-full');
   const observers = [];
   const io = (el, fn, opts) => { const o = new IntersectionObserver(fn, opts); o.observe(el); observers.push(o); return o; };
 

@@ -56,7 +56,7 @@ const cards = icons.map((icon, i) => ({ icon, title: c.titles[i], text: o.home[`
 
   /* pipe: grey track + gradient fill (scaleX, transform only) */
   .sol__rail { position: absolute; top: calc(var(--node) / 2 - 1px); left: var(--node-x); right: 0; height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; }
-  .sol__fill { position: absolute; inset: 0; background: var(--grad-brand); transform-origin: 0 50%; transform: scaleX(var(--p, 1)); }
+  .sol__fill { position: absolute; inset: 0; background: var(--grad-brand); transform-origin: 0 50%; transform: scaleX(var(--p, 1)); will-change: transform; }
   .sol__node {
     position: absolute; top: 0; left: calc(var(--node-x) - var(--node) / 2); width: var(--node); height: var(--node); border-radius: 50%;
     background: var(--white); border: 2px solid var(--line); display: grid; place-items: center;
@@ -110,7 +110,9 @@ const cards = icons.map((icon, i) => ({ icon, title: c.titles[i], text: o.home[`
     const track = root.querySelector('.sol__track');
     const items = [...root.querySelectorAll('.sol__item')];
     const rail = root.querySelector('.sol__rail');
-    const setP = (p) => track.style.setProperty('--p', p.toFixed(4));
+    const fill = root.querySelector('.sol__fill');
+    // --p goes on the fill itself: set on the track it was inherited by the whole list and restyled it on every frame
+    const setP = (p) => fill.style.setProperty('--p', p.toFixed(4));
     if (env.reduced) { setP(1); items.forEach((it) => it.classList.add('is-on')); return; }
     setP(0);
 

@@ -29,6 +29,8 @@ onPage(({ gsap, ScrollTrigger, env }) => {
 
   const after = $('.so__after');
   if (env.desktop) {
+    // scrubbed every frame: the photo, its clip and the tide line each get a GPU layer so the stage never repaints
+    gsap.set([after, $('.so__tideline'), $('.so__after img')], { willChange: 'transform' });
     gsap.timeline({ scrollTrigger: { trigger: root, start: 'top top', end: 'bottom bottom', scrub: 0.6 } })
       .fromTo(after, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none' }, 0)
       .fromTo($('.so__tideline'), { yPercent: 100 }, { yPercent: 0, ease: 'none' }, 0)

@@ -33,7 +33,12 @@ onPage(({ gsap, env, scrollTo }) => {
   nums[1].textContent = `+${counts[1]}`;
   root.classList.add('is-pinned');
 
-  let W = 0, D = 0, centres = [];
+  // everything below moves on every scroll frame: give each mover its own GPU layer so the (very wide) track never
+  // repaints. The photos' parallax is the big one: 12 images inside rounded, clipped arches.
+  const imgs = cards.map((c) => c.querySelector('img')).filter(Boolean);
+  gsap.set([pipe, tip, bleed, ...branches, ...imgs], { willChange: 'transform' });
+
+  let W = 0, D = 0, centres = [], shown = -1;
   const measure = () => {
     W = track.scrollWidth;
     D = Math.max(0, W - innerWidth);
@@ -47,7 +52,8 @@ onPage(({ gsap, env, scrollTo }) => {
     tip.style.opacity = tipX >= W - 24 ? '0' : '1';
     branches.forEach((b, i) => { b.style.transform = `scaleY(${gsap.utils.clamp(0, 1, (tipX - centres[i]) / FILL)})`; });
     bleed.style.transform = `translate3d(${-p * D * 0.22}px,0,0)`;
-    nums[0].textContent = `+${Math.round(total * p)}`;
+    const n = Math.round(total * p);
+    if (n !== shown) { shown = n; nums[0].textContent = `+${n}`; } // text only changes when the number does
     cities.classList.toggle('is-on', p >= 0.5);
   };
 
@@ -99,5 +105,6 @@ onPage(({ gsap, env, scrollTo }) => {
     root.classList.remove('is-pinned');
     cities.classList.remove('is-on');
     [pipe, tip, bleed, ...branches].forEach((el) => el.removeAttribute('style'));
+    imgs.forEach((el) => { el.style.willChange = ''; });
   };
 });

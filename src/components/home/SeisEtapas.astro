@@ -313,6 +313,9 @@ const labHref = pin ? '#laboratorio' : url('analysis');
     :global(html.js) .et--pin .et__skip:hover { color: var(--aqua); }
     :global(html.js) .et--pin .et__closing { max-width: 26ch; }
     :global(html.js) .et--pin .et__stream { transform: scaleY(0); }
+    /* etapas.js writes these transforms on every scrub frame: each one on its own GPU layer, so the pinned stage
+       (tank gradients, shadows, text) is never repainted while scrolling */
+    :global(html.js) .et--pin :is(.et__dry, .et__dim, .et__rail-fill, .et__bar-fill, .et__stream) { will-change: transform; }
 
     :global(html.js) .et--pin .et__odo { grid-area: odo; align-self: center; display: grid; grid-template-columns: auto auto; align-items: end; column-gap: .6rem; transition: opacity .5s var(--ease-water); }
     :global(html.js) .et--pin[data-step="0"] .et__odo { opacity: .35; }

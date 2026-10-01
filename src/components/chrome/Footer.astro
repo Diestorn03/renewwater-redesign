@@ -103,20 +103,22 @@ const social = [
 
     <div class="ftr__giant" aria-hidden="true">
       <svg viewBox="0 0 1000 108" preserveAspectRatio="xMidYMax meet" focusable="false">
-        <defs>
-          <linearGradient id="ftr-word-grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1000" y2="0">
-            <stop offset="0" stop-color="#00D0D0" /><stop offset=".38" stop-color="#00D08C" /><stop offset=".68" stop-color="#00CC60" /><stop offset="1" stop-color="#98C400" />
-          </linearGradient>
-          <linearGradient id="ftr-word-edge" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#fff" /><stop offset=".86" stop-color="#fff" /><stop offset="1" stop-color="#fff" stop-opacity="0" />
-          </linearGradient>
-          <mask id="ftr-word-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="108">
-            <g class="ftr__fill"><rect x="-1160" y="0" width="1160" height="108" fill="url(#ftr-word-edge)" /></g>
-          </mask>
-        </defs>
         <text class="ftr__word ftr__word--line" x="500" y="100" text-anchor="middle" textLength="992" lengthAdjust="spacing">RENEW WATER</text>
-        <text class="ftr__word ftr__word--fill" x="500" y="100" text-anchor="middle" textLength="992" lengthAdjust="spacing" fill="url(#ftr-word-grad)" mask="url(#ftr-word-mask)">RENEW WATER</text>
       </svg>
+      <!-- the fill: a window (soft right edge) slides left → right while its content slides the other way, so the
+           filled word stays put and only the edge travels. Both are transforms on GPU layers: nothing repaints. -->
+      <div class="ftr__fillwin">
+        <div class="ftr__fillin">
+          <svg viewBox="0 0 1000 108" preserveAspectRatio="xMidYMax meet" focusable="false">
+            <defs>
+              <linearGradient id="ftr-word-grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1000" y2="0">
+                <stop offset="0" stop-color="#00D0D0" /><stop offset=".38" stop-color="#00D08C" /><stop offset=".68" stop-color="#00CC60" /><stop offset="1" stop-color="#98C400" />
+              </linearGradient>
+            </defs>
+            <text class="ftr__word" x="500" y="100" text-anchor="middle" textLength="992" lengthAdjust="spacing" fill="url(#ftr-word-grad)">RENEW WATER</text>
+          </svg>
+        </div>
+      </div>
     </div>
   </footer>
 )}
@@ -193,8 +195,16 @@ const social = [
   .ftr__top :global(.ftr__top-ico) { transform: rotate(-90deg); transition: transform var(--d-base) var(--ease-water); }
   .ftr__top:hover :global(.ftr__top-ico) { transform: rotate(-90deg) translateX(3px); }
 
-  .ftr__giant { width: calc(100% - 2 * clamp(8px, 1.5vw, 24px)); margin: clamp(.5rem, 2vw, 1.5rem) auto 0; line-height: 0; }
+  .ftr__giant { position: relative; width: calc(100% - 2 * clamp(8px, 1.5vw, 24px)); margin: clamp(.5rem, 2vw, 1.5rem) auto 0; line-height: 0; }
   .ftr__giant svg { width: 100%; height: auto; overflow: visible; }
+  /* fill window: 116% of the word wide (the old mask rect was 1160 units over a 1000-unit word), so its 14% soft edge
+     ends past the last letter once filled. Starts fully left (unfilled); chrome.js moves the window to 0 and the
+     content (the word's width) from +116% back to 0, so the word itself never moves. */
+  .ftr__fillwin {
+    position: absolute; top: 0; bottom: 0; left: 0; width: 116%; overflow: hidden; transform: translateX(-100%); will-change: transform;
+    -webkit-mask-image: linear-gradient(90deg, #000 86%, transparent); mask-image: linear-gradient(90deg, #000 86%, transparent);
+  }
+  .ftr__fillin { position: absolute; top: 0; bottom: 0; left: 0; width: calc(100% / 1.16); transform: translateX(116%); will-change: transform; }
   .ftr__word { font-family: var(--font-brand); font-size: 110px; letter-spacing: 0; } /* Orbitron "RENEW WATER" at 110px ≈ 991 units: fits textLength without squeezing */
   .ftr__word--line { fill: none; stroke: rgba(143, 179, 196, .28); stroke-width: 1; vector-effect: non-scaling-stroke; }
   /* mobile bar clearance */
@@ -215,5 +225,5 @@ const social = [
     .ftr__grid { grid-template-columns: 1.35fr .8fr 1.15fr 1fr; }
     .ftr__brand { grid-column: auto; }
   }
-  @media (prefers-reduced-motion: reduce) { .ftr__fill { transform: translateX(1160px); } }
+  @media (prefers-reduced-motion: reduce) { .ftr__fillwin, .ftr__fillin { transform: none; -webkit-mask-image: none; mask-image: none; } }
 </style>

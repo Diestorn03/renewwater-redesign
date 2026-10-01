@@ -25,13 +25,24 @@ const INK = { x0: 34, x1: 1572, top: 835, bottom: 114 }, PAD = 12;
 const X = INK.x0 - PAD, Y = -(INK.top + PAD), VW = INK.x1 - INK.x0 + 2 * PAD, VH = INK.top + INK.bottom + 2 * PAD;
 const FULL = -Math.round(INK.top * 0.92); // water surface ends 8% below the top of the glyphs
 const EMPTY = INK.bottom + 44;           // surface (plus wave amplitude) below the lowest ink
-// quadratic-chain sine: one period = q + t; the path covers the glyphs at every offset of its loop
-const wave = (P: number, A: number, lift: number) => {
-  let d = `M0 ${-lift}`;
-  for (let x = 0; x < X + VW + P; x += P) d += ` q${P / 4} ${-A} ${P / 2} 0 t${P / 2} 0`;
-  return `${d} V${VH - FULL} H0 Z`; // deep enough to still cover the $ tail when raised to FULL
-};
-const P1 = VW / 2, P2 = VW / 1.5;
+// The water is HTML on GPU layers (it used to be <path>s animated inside an SVG <mask>, which re-laid out and repainted
+// the whole "$0" on every frame). Each wave is a strip twice the box wide whose top edge is one period of a
+// quadratic-chain sine (the same q + t curve as before), tiled with mask-image and slid by its period with transform;
+// the gradient inside counter-slides so its colours stay put. Units: 1 user unit = 1/VW of the box (u() below).
+const WAVES = [
+  { k: 'back', P: VW / 1.5, A: 26, lift: 16 }, // period, amplitude, lift above the level line (user units)
+  { k: 'front', P: VW / 2, A: 21, lift: 0 },
+];
+const T = VH - FULL + 60; // strip height: still covers the $ tail when the level is raised to FULL
+const waves = WAVES.map(({ k, P, A, lift }) => {
+  const b = A + 2; // the wave's mean line inside its tile
+  const tile = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${P} ${T}' preserveAspectRatio='none'><path d='M0 ${b}q${P / 4} ${-A} ${P / 2} 0t${P / 2} 0V${T}H0Z'/></svg>`;
+  return {
+    k,
+    // the strip's top in box units at level 0 (glyph baseline = INK.top + PAD below the box top)
+    style: `--top:${INK.top + PAD - lift - b};--h:${T};--tile:url("data:image/svg+xml,${encodeURIComponent(tile)}");--tile-w:${(100 * P) / (2 * VW)}%;--shift:${(100 * P) / VW}%`,
+  };
+});
 
 // Logos are 96 px high (tools/prep-logos.py). Display height is optically balanced so wide and compact marks
 // weigh the same: equal area around a 32 px reference, clamped to 24–40 px.
@@ -56,28 +67,23 @@ const Title = compact ? 'h3' : 'h2'; // compact sits under the host section's ow
   class:list={['cero', compact ? 'cero--compact' : 'section']}
   data-theme={compact ? undefined : 'dark'}
   aria-labelledby={compact ? undefined : 'cero-title'}
-  style={`--lvl-full:${FULL}px;--lvl-empty:${EMPTY}px;--p1:${P1};--p2:${P2}`}
+  style={`--lvl-full:${FULL};--lvl-empty:${EMPTY};--vh:${VH}`}
 >
   <div class:list={[!compact && 'wrap']}>
     <div class="cero__hero">
-      <div class="cero__zero-wrap">
+      <div class="cero__zero-wrap" style={`aspect-ratio:${VW}/${VH};--vw:${VW};--x:${X};--y:${Y}`}>
+        <!-- water: tint + two waves, clipped to the "$0" glyphs (objectBoundingBox copy of the same text) -->
+        <div class="cero__water" aria-hidden="true">
+          <div class="cero__level">
+            {waves.map((w) => <div class={`cero__wave cero__wave--${w.k}`} style={w.style}><div class="cero__fill"></div></div>)}
+          </div>
+        </div>
         <svg class="cero__zero" viewBox={`${X} ${Y} ${VW} ${VH}`} aria-hidden="true" focusable="false">
           <defs>
-            <clipPath id="cero-clip"><text class="cero__glyphs" x="0" y="0">$0</text></clipPath>
-            <linearGradient id="cero-grad" gradientUnits="userSpaceOnUse" x1={X} y1="0" x2={X + VW} y2="0">
-              <stop offset="0" stop-color="#00D0D0" /><stop offset=".38" stop-color="#00D08C" /><stop offset=".68" stop-color="#00CC60" /><stop offset="1" stop-color="#98C400" />
-            </linearGradient>
-            <mask id="cero-mask" maskUnits="userSpaceOnUse" x={X} y={Y} width={VW} height={VH}>
-              <g class="cero__level">
-                <path class="cero__wave cero__wave--back" d={wave(P2, 26, 16)} fill="#fff" fill-opacity=".55" />
-                <path class="cero__wave cero__wave--front" d={wave(P1, 21, 0)} fill="#fff" />
-              </g>
-            </mask>
+            <!-- user space of the HTML water layer = its CSS px; the glyphs are laid out at the same real size as the
+                 outline (a 1/VW objectBoundingBox scale made Chrome lay the text out at ~0.6px and it came out smaller) -->
+            <clipPath id="cero-clip"><text class="cero__glyphs cero__cliptext" x="0" y="0">$0</text></clipPath>
           </defs>
-          <g clip-path="url(#cero-clip)">
-            <rect class="cero__tint" x={X} y={Y} width={VW} height={VH} />
-            <rect x={X} y={Y} width={VW} height={VH} fill="url(#cero-grad)" mask="url(#cero-mask)" />
-          </g>
           <text class="cero__glyphs cero__outline" x="0" y="0">$0</text>
         </svg>
       </div>
@@ -133,27 +139,52 @@ const Title = compact ? 'h3' : 'h2'; // compact sits under the host section's ow
 
   /* ---------- the $0 ---------- */
   .cero__hero { display: grid; gap: clamp(1.5rem, 4vw, 3rem); align-items: center; }
-  .cero__zero-wrap { position: relative; }
-  .cero__zero { width: min(100%, 680px); height: auto; overflow: visible; }
+  .cero__zero-wrap { position: relative; width: min(100%, 680px); container-type: inline-size; }
+  .cero__zero { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   .cero__glyphs { font-family: var(--font-brand); font-size: 1000px; letter-spacing: 0; }
-  /* tokens only, so compact takes the nearest section theme (aqua on navy, aqua-ink on foam) */
-  .cero__tint { fill: var(--accent-text); fill-opacity: .06; }
+  /* 100cqw / --vw = CSS px per user unit of the glyph box */
+  .cero__cliptext {
+    font-size: calc(1000 * 100cqw / var(--vw));
+    transform: translate(calc(var(--x) * -100cqw / var(--vw)), calc(var(--y) * -100cqw / var(--vw)));
+  }
   .cero__outline { fill: none; stroke: var(--accent-text); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
 
-  /* --lvl: water surface offset. Default full (no JS / reduced), .is-armed = empty, GSAP scrubs it inline on desktop */
-  .cero__level { transform: translateY(var(--lvl, var(--lvl-full))); }
-  .cero__zero.is-armed { --lvl: var(--lvl-empty); }
-  .cero__zero .cero__level { transition: transform 1.6s var(--ease-water); }
-  .cero__wave--front { animation: cero-front 4s linear infinite; }
-  .cero__wave--back { animation: cero-back 7.5s linear infinite; }
-  .cero__zero.is-idle .cero__wave { animation-play-state: paused; }
-  @keyframes cero-front { to { transform: translateX(calc(var(--p1) * -1px)); } }
-  @keyframes cero-back { from { transform: translateX(calc(var(--p2) * -1px)); } to { transform: translateX(0); } }
+  /* water, under the outline: the tint uses tokens only, so compact takes the nearest section theme (aqua on navy,
+     aqua-ink on foam). 100cqh / --vh = one user unit of the glyph box. */
+  .cero__water {
+    position: absolute; inset: 0; overflow: hidden; clip-path: url(#cero-clip); container-type: size;
+    background: color-mix(in srgb, var(--accent-text) 6%, transparent);
+  }
+  /* --lvl: water surface offset (user units). Default full (no JS / reduced), .is-armed = empty, GSAP scrubs it on desktop */
+  .cero__level {
+    position: absolute; inset: 0; will-change: transform;
+    transform: translateY(calc(var(--lvl, var(--lvl-full)) * 100cqh / var(--vh)));
+    transition: transform 1.6s var(--ease-water);
+  }
+  .cero__zero-wrap.is-armed { --lvl: var(--lvl-empty); }
+  .cero__wave {
+    position: absolute; left: 0; width: 200%; will-change: transform;
+    top: calc(var(--top) * 100cqh / var(--vh)); height: calc(var(--h) * 100cqh / var(--vh));
+    -webkit-mask: var(--tile) 0 0 / var(--tile-w) 100% repeat-x; mask: var(--tile) 0 0 / var(--tile-w) 100% repeat-x;
+  }
+  .cero__wave--back { opacity: .55; }
+  /* the gradient spans the glyph box (half the strip) and counter-slides, so its colours never move */
+  .cero__fill { position: absolute; top: 0; bottom: 0; left: 0; width: 50%; background: var(--grad-brand); will-change: transform; }
+  .cero__wave--front { animation: cero-strip-l 4s linear infinite; }
+  .cero__wave--front .cero__fill { animation: cero-fill-l 4s linear infinite; }
+  .cero__wave--back { animation: cero-strip-r 7.5s linear infinite; }
+  .cero__wave--back .cero__fill { animation: cero-fill-r 7.5s linear infinite; }
+  .cero__zero-wrap.is-idle :is(.cero__wave, .cero__fill) { animation-play-state: paused; }
+  /* one period (--shift of the box = half of it for the 200%-wide strip) per loop: seamless */
+  @keyframes cero-strip-l { from { transform: translateX(0); } to { transform: translateX(calc(var(--shift) / -2)); } }
+  @keyframes cero-fill-l { from { transform: translateX(0); } to { transform: translateX(var(--shift)); } }
+  @keyframes cero-strip-r { from { transform: translateX(calc(var(--shift) / -2)); } to { transform: translateX(0); } }
+  @keyframes cero-fill-r { from { transform: translateX(var(--shift)); } to { transform: translateX(0); } }
 
   .cero__caption { display: grid; gap: var(--s-4); justify-items: start; }
   .cero__title { font-size: var(--fs-h2); line-height: 1.02; letter-spacing: -.03em; }
   .cero__text { font-size: var(--fs-lead); line-height: 1.5; color: var(--fg-muted); max-width: 30ch; }
-  .cero__credit { font-size: var(--fs-small); color: var(--fg-muted); opacity: .85; }
+  .cero__credit { font-size: var(--fs-small); color: var(--fg-muted); } /* credit disclaimer: full muted colour keeps it ≥ 4.5:1 */
 
   /* ---------- tickets ---------- */
   .cero__tickets { list-style: none; display: grid; gap: var(--s-6) var(--s-5); margin-top: clamp(2.5rem, 6vw, 4.5rem); }
@@ -200,10 +231,10 @@ const Title = compact ? 'h3' : 'h2'; // compact sits under the host section's ow
   }
   /* desktop gate: GSAP scrubs --lvl, so no CSS easing on top of it */
   @media (min-width: 768px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-    .cero__zero .cero__level { transition: none; }
+    .cero__level { transition: none; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .cero__wave { animation: none; }
+    .cero__wave, .cero__fill { animation: none; }
     .cero__logos { flex-wrap: wrap; justify-content: center; width: auto; transform: none !important; row-gap: 8px; }
     .cero__logos > [aria-hidden="true"] { display: none; }
     .cero__marquee { -webkit-mask: none; mask: none; }

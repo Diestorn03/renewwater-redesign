@@ -348,6 +348,10 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
         scrollTrigger: { trigger: root, start: 'top top', end: '+=100%', pin: true, scrub: .6, anticipatePin: 1 },
       });
       pinST = tl.scrollTrigger;
+      // scrubbed every frame: own GPU layers so the blur and moves are composited instead of repainting the hero
+      gsap.set(q('.hero__head'), { willChange: 'transform, filter' });
+      gsap.set([q('.hero__figure'), q('.hero__bleed'), q('.hero__act')], { willChange: 'transform' });
+      gsap.set(q('.hero__deep'), { willChange: 'opacity' });
       tl.to(depth, { v: 1, duration: 1, onUpdate: () => gl?.setDepth(depth.v) }, 0)
         .to(q('.hero__deep'), { opacity: 1, duration: 1 }, 0)
         .fromTo(q('.hero__head'), { y: 0, filter: 'blur(0px)' }, { y: () => -innerHeight * .1, filter: 'blur(6px)', duration: .65, ease: 'power1.in' }, .35)

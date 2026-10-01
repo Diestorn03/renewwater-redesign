@@ -3,6 +3,8 @@
  * El Hilo: one thread down the left margin of <main> (≥1024px, fine pointer), drawn by scroll, aqua → lime.
  * Rendered once by Base as the first child of <main>. chrome.js builds the path from main's height on every
  * page load and ScrollTrigger refresh; reduced motion shows it fully drawn. Decorative only.
+ * Performance: the thread is redrawn on every scroll frame, so it lives on its own contained GPU layer (it would
+ * otherwise repaint the page's root layer each frame) and its glowing tip is an HTML dot moved with transform only.
  */
 ---
 <div class="hilo" aria-hidden="true">
@@ -14,17 +16,21 @@
     </defs>
     <path class="hilo__ghost" d="" />
     <path class="hilo__line" d="" pathLength="1" stroke="url(#hilo-grad)" />
-    <circle class="hilo__tip" r="3" cx="24" cy="0" />
   </svg>
+  <i class="hilo__tip"></i>
 </div>
 
 <style>
-  .hilo { display: none; position: absolute; top: 0; left: 0; width: 48px; height: 100%; z-index: 3; pointer-events: none; }
+  .hilo { display: none; position: absolute; top: 0; left: 0; width: 48px; height: 100%; z-index: 3; pointer-events: none; contain: strict; will-change: transform; }
   .hilo.is-on { display: block; }
   .hilo__svg { display: block; overflow: visible; }
   .hilo path { fill: none; stroke-linecap: round; }
   .hilo__ghost { stroke: rgba(143, 179, 196, .12); stroke-width: 1; }
   .hilo__line { stroke-width: 1.5; stroke-dasharray: 1 1; stroke-dashoffset: 1; opacity: .75; }
-  .hilo__tip { fill: #EAFBF9; filter: drop-shadow(0 0 4px #00D0D0) drop-shadow(0 0 10px rgba(0, 208, 208, .6)); opacity: 0; transition: opacity .3s; }
+  .hilo__tip {
+    position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%;
+    background: #EAFBF9; box-shadow: 0 0 4px #00D0D0, 0 0 10px rgba(0, 208, 208, .6);
+    opacity: 0; transition: opacity .3s; will-change: transform;
+  }
   .hilo.is-drawing .hilo__tip { opacity: 1; }
 </style>

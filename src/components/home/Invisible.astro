@@ -114,8 +114,11 @@ const chips = [
     const leave = () => chips.forEach((c) => { c.x(0); c.y(0); });
     media.addEventListener('pointermove', move);
     media.addEventListener('pointerleave', leave);
-    // on the way out the chips sink toward the tank of the next chapter
-    gsap.to(root.querySelectorAll('.inv__pos'), {
+    // on the way out the chips sink toward the tank of the next chapter (scrubbed: each chip on its own GPU layer, so
+    // moving them neither repaints the photo nor re-renders the others' frosted glass)
+    const pos = root.querySelectorAll('.inv__pos');
+    gsap.set(pos, { willChange: 'transform, opacity' });
+    gsap.to(pos, {
       y: (i) => innerHeight * (.24 + i * .02), opacity: .4, ease: 'none',
       scrollTrigger: { trigger: root, start: 'center 40%', end: 'bottom top', scrub: .6, invalidateOnRefresh: true },
     });

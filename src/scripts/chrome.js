@@ -112,9 +112,10 @@ onPage(() => {
     if (link) a.href = new URL(link.href).pathname; // pathname only: the tag carries the production origin
   });
 
-  let lastY = window.scrollY;
+  // scrollY is read in the scroll event (layout is clean there), never inside the rAF that runs after GSAP's writes
+  let lastY = window.scrollY, sy = lastY;
   const update = raf(() => {
-    const y = window.scrollY;
+    const y = sy;
     hdr.classList.toggle('is-scrolled', y > 80);
     if (y < 400) { hdr.classList.remove('is-hidden'); lastY = y; return; }
     const d = y - lastY;
@@ -124,7 +125,8 @@ onPage(() => {
   });
   hdr.classList.remove('is-hidden');
   update();
-  window.addEventListener('scroll', update, { passive: true });
+  const onScroll = () => { sy = window.scrollY; update(); };
+  window.addEventListener('scroll', onScroll, { passive: true });
 
   const zones = [...document.querySelectorAll('main section[data-theme], footer[data-theme]')];
   const under = new Set();
@@ -135,11 +137,11 @@ onPage(() => {
   }, { rootMargin: '0px 0px -95% 0px' });
   zones.forEach((z) => io.observe(z));
 
-  return () => { window.removeEventListener('scroll', update); update.cancel(); io.disconnect(); };
+  return () => { window.removeEventListener('scroll', onScroll); update.cancel(); io.disconnect(); };
 });
 
 /* ---------- Floating WhatsApp + mobile action bar ---------- */
-onPage(() => {
+onPage(({ onRefresh }) => {
   const fab = document.querySelector('.fab');
   const bar = document.querySelector('.abar');
   if (!fab && !bar) return;
@@ -147,12 +149,18 @@ onPage(() => {
   const blocking = new Set();
   let menuIsOpen = menuOpen();
 
-  const pastHero = () => {
-    if (!hero) return window.scrollY > window.innerHeight;
+  // the hero's bottom (document coordinates) is measured on boot and on every ScrollTrigger refresh, not per frame
+  let sy = window.scrollY, heroBottom = 0, pinned = false;
+  const measure = () => {
+    if (!hero) return;
     const spacer = hero.parentElement?.classList.contains('pin-spacer') ? hero.parentElement : null;
-    // pinned hero: show at ~75% of the pin, when its CTAs have faded; otherwise once most of the hero has gone
-    return (spacer || hero).getBoundingClientRect().bottom < window.innerHeight * (spacer ? 1.25 : 0.75);
+    pinned = !!spacer;
+    heroBottom = (spacer || hero).getBoundingClientRect().bottom + window.scrollY;
   };
+  measure();
+  onRefresh(measure);
+  // pinned hero: show at ~75% of the pin, when its CTAs have faded; otherwise once most of the hero has gone
+  const pastHero = () => (hero ? heroBottom - sy < window.innerHeight * (pinned ? 1.25 : 0.75) : sy > window.innerHeight);
   const update = raf(() => {
     const show = pastHero() && !blocking.size && !menuIsOpen;
     fab?.classList.toggle('is-shown', show);
@@ -175,18 +183,20 @@ onPage(() => {
   };
   const label = fab?.querySelector('.fab__label');
   if (label) fab.style.setProperty('--open-w', `${60 + label.scrollWidth}px`);
+  const onScroll = () => { sy = window.scrollY; update(); };
+  const onResize = () => { measure(); update(); };
   document.addEventListener('rw:etapas-complete', openPill);
   document.addEventListener('rw:menu', onMenu);
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onResize);
   update();
 
   return () => {
     io.disconnect(); update.cancel(); clearTimeout(closeTimer);
     document.removeEventListener('rw:etapas-complete', openPill);
     document.removeEventListener('rw:menu', onMenu);
-    window.removeEventListener('scroll', update);
-    window.removeEventListener('resize', update);
+    window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('resize', onResize);
   };
 });
 
@@ -205,12 +215,14 @@ onPage(({ gsap, env }) => {
   const grad = hilo.querySelector('.hilo__grad');
   const tip = hilo.querySelector('.hilo__tip');
   let total = 1, height = 0, top = 0;
+  let lut = new Float32Array(4), steps = 1; // tip positions sampled along the path once per build, never per frame
   const state = { p: env.reduced ? 1 : 0 };
 
   const draw = () => {
     line.style.strokeDashoffset = `${1 - state.p}`;
-    const pt = line.getPointAtLength(state.p * total);
-    tip.setAttribute('transform', `translate(${(pt.x - 24).toFixed(1)} ${pt.y.toFixed(1)})`);
+    const f = state.p * steps, i = Math.min(steps - 1, Math.floor(f)), t = f - i;
+    const x = lut[2 * i] + (lut[2 * i + 2] - lut[2 * i]) * t, y = lut[2 * i + 1] + (lut[2 * i + 3] - lut[2 * i + 1]) * t;
+    tip.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;
     hilo.classList.toggle('is-drawing', state.p > 0.002 && state.p < 0.998);
   };
   // drawn tip sits at 70% of the viewport; progress comes straight from the scroll position, so pins and
@@ -236,6 +248,9 @@ onPage(({ gsap, env }) => {
       line.setAttribute('d', d);
       ghost.setAttribute('d', d);
       total = line.getTotalLength();
+      steps = Math.max(1, Math.ceil(total / 12)); // one sample per ~12px of thread, linearly interpolated in draw()
+      lut = new Float32Array((steps + 1) * 2);
+      for (let i = 0; i <= steps; i++) { const pt = line.getPointAtLength((total * i) / steps); lut[2 * i] = pt.x; lut[2 * i + 1] = pt.y; }
     }
     if (follow) { state.p = target(); follow(state.p); }
     draw();
@@ -253,7 +268,8 @@ onPage(({ gsap, env, onRefresh }) => {
   const f = document.querySelector('.ftr:not(.ftr--min)');
   if (!f) return;
   const mark = f.querySelector('.ftr__mark');
-  const fill = f.querySelector('.ftr__fill');
+  const win = f.querySelector('.ftr__fillwin');
+  const fillIn = f.querySelector('.ftr__fillin');
   if (env.reduced) { mark?.classList.add('is-drawn'); return; }
 
   const thread = f.querySelector('.ftr__thread');
@@ -272,6 +288,7 @@ onPage(({ gsap, env, onRefresh }) => {
       stop.setAttribute('y2', y.toFixed(1)); stop.setAttribute('x2', x.toFixed(1));
     };
     thread.classList.add('is-on');
+    thread.style.willChange = 'transform'; // its dash is scrubbed every frame: repaint only this small layer
     build();
     onRefresh(build);
     gsap.fromTo(path, { strokeDashoffset: 1 }, {
@@ -286,10 +303,14 @@ onPage(({ gsap, env, onRefresh }) => {
     io.observe(mark);
   }
 
-  if (fill) {
-    const to = { x: 1160, ease: 'none' };
-    if (env.desktop) gsap.fromTo(fill, { x: 0 }, { ...to, scrollTrigger: { trigger: f, start: 'top bottom', end: 'bottom bottom', scrub: 0.6 } });
-    else gsap.fromTo(fill, { x: 0 }, { ...to, duration: 1.6, ease: 'power2.inOut', scrollTrigger: { trigger: fill.closest('svg'), start: 'top 92%', once: true } });
+  if (win && fillIn) {
+    // one timeline moves the window and counter-moves its content, so the two can never drift apart
+    // x: 0 — GSAP would otherwise parse the CSS translateX(∓100%) into px and keep it under the xPercent tween
+    const fill = (ease, vars) => gsap.timeline(vars)
+      .fromTo(win, { x: 0, xPercent: -100 }, { xPercent: 0, ease }, 0)
+      .fromTo(fillIn, { x: 0, xPercent: 116 }, { xPercent: 0, ease }, 0); // the window is 116% of the word wide
+    if (env.desktop) fill('none', { scrollTrigger: { trigger: f, start: 'top bottom', end: 'bottom bottom', scrub: 0.6 } });
+    else fill('power2.inOut', { defaults: { duration: 1.6 }, scrollTrigger: { trigger: win.parentElement, start: 'top 92%', once: true } });
   }
-  return () => io?.disconnect();
+  return () => { io?.disconnect(); f.querySelector('.ftr__thread')?.style.removeProperty('will-change'); };
 });

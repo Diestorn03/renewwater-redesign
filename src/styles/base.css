@@ -225,6 +225,8 @@ dialog { color: inherit; }
 [data-offscreen] *, [data-offscreen] *::before, [data-offscreen] *::after { animation-play-state: paused !important; }
 /* engine-driven movers get their own compositor layer so moving them never repaints the page */
 .marquee__track, .stack-card { will-change: transform; }
+/* stack-card dimming (engine initStack): a card-coloured veil fades in over the content on its own layer */
+.stack-veil { position: absolute; inset: 0; z-index: 2; border-radius: inherit; background: inherit; opacity: 0; pointer-events: none; will-change: opacity; }
 
 /* ---------- misc ---------- */
 .float-loop { animation: floaty 9s ease-in-out infinite; }
