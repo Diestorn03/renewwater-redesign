@@ -146,6 +146,9 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
     :global(.js) .hero.is-intro :is(.hero__kicker, .hero__in) { opacity: 0; animation: hero-unhide .01s 5s forwards; }
   }
   @keyframes hero-unhide { to { transform: none; opacity: 1; } }
+  /* the engine did not boot within 4 s (Base.astro safety net): show the hero now */
+  :global(html.fx-fallback) .hero.is-intro .hero__li { transform: none; }
+  :global(html.fx-fallback) .hero.is-intro :is(.hero__kicker, .hero__in) { opacity: 1; }
   .hero__title .accent { padding-right: .06em; }
 
   /* lens: an ungridded copy of the H1 filled with the brand gradient, magnified inside a circle that follows the pointer */
@@ -225,7 +228,7 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
 <script>
   import { onPage } from '../../scripts/engine.js';
 
-  onPage(({ gsap, SplitText, env, introGate }) => {
+  onPage(({ gsap, SplitText, env, introGate, late }) => {
     const root = document.getElementById('inicio');
     if (!root) return;
     const q = (s) => root.querySelector(s);
@@ -292,8 +295,10 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
     };
 
     /* ---------------- intro ---------------- */
-    if (env.reduced) {
+    if (env.reduced || late()) {
+      // late: the CSS safety net already showed the hero; keep it instead of hiding it and replaying the intro
       root.classList.remove('is-intro');
+      lensOn();
       introDone();
     } else {
       gsap.set(lines, { y: 0, yPercent: 115 });        // y: 0 — gsap would otherwise read the CSS pre-hide matrix into y
@@ -387,7 +392,7 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
       off.forEach((f) => f());
       split?.revert();
       ctx.revert();
-      gl?.destroy(); gl = null;
+      if (gl) { gl.destroy(); gl = null; const c = q('.hero__gl'); c?.replaceWith(c.cloneNode()); } // a lost context never comes back
       root.classList.remove('is-gl');
     };
   });

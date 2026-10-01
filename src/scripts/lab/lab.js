@@ -26,7 +26,8 @@ onPage(({ gsap, env, scrollTo }) => {
   let peak = 0, holding = false, done = false, pressedAt = 0, lastInput = 0, quarter = 0, tw;
   const st = { h: 0 };   // purification progress, 0..1
   const stickyTop = () => (matchMedia('(max-width: 899px)').matches
-    ? stage.getBoundingClientRect().bottom
+    // the stuck position, not the live rect: swapping the face for the result card briefly moves the sticky stage
+    ? parseFloat(getComputedStyle(stage).top) + stage.offsetHeight
     : parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 72);
   const restored = form.querySelectorAll('input[name="symptom"]:checked').length > 0;
   const glass = createGlass(canvas, { reduced, empty: !reduced && !restored, maxDpr: env.desktop ? 2 : 1.5, onCount: renderCount });
@@ -36,7 +37,8 @@ onPage(({ gsap, env, scrollTo }) => {
   let liveTimer;
   function say(text) { live.textContent = ''; requestAnimationFrame(() => { live.textContent = text; }); }
   function renderCount({ total, by }) {
-    peak = Math.max(peak, total);
+    // before the hold: what the glass holds (answers can also remove dots); during it: dots still landing count too
+    if (!done) peak = st.h === 0 ? total : Math.max(peak, total);
     if (!done) countEl.textContent = total;
     root.querySelectorAll('[data-lab-legend] [data-cls]').forEach((li) => {
       const n = by[li.dataset.cls] || 0;
@@ -45,7 +47,7 @@ onPage(({ gsap, env, scrollTo }) => {
     });
     hint.classList.toggle('is-hidden', total > 0 || done);
     clearTimeout(liveTimer);
-    if (!done && st.h === 0) liveTimer = setTimeout(() => { if (!done && st.h === 0) say(cfg.copy.live.count.replace('{n}', total)); }, 900);
+    if (!done && st.h === 0 && total > 0) liveTimer = setTimeout(() => { if (!done && st.h === 0) say(cfg.copy.live.count.replace('{n}', total)); }, 900);
   }
 
   /* ---------- answers ---------- */
@@ -201,7 +203,7 @@ onPage(({ gsap, env, scrollTo }) => {
     holdLabel.textContent = cfg.copy.holdDone;
     glass.finish(); glass.glow(true);
     stage.classList.add('is-clean'); hint.classList.add('is-hidden');
-    countEl.textContent = `${peak} → 0`;
+    countEl.textContent = peak ? `${peak} → 0` : '0';
     say(cfg.copy.live.done);
     if (env.coarse) navigator.vibrate?.(10);
     fillResult();

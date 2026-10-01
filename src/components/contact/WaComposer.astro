@@ -9,7 +9,7 @@ import Icon from '../ui/Icon.astro';
 
 const { t, lang } = useI18n(Astro);
 const c = pick(copy, lang).composer;
-const productNames = [...products].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((p) => p.name);
+const productNames = [...products].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).map((p) => p.title?.[lang] ?? p.name);
 const cfg = JSON.stringify({ msg: c.msg, reasons: c.reasons, ref: 'web-contacto' });
 ---
 <form class="wac" data-theme="light" data-wac={cfg} action={`https://wa.me/${whatsappNumber}`} method="get" aria-labelledby="wac-title">
@@ -129,6 +129,7 @@ const cfg = JSON.stringify({ msg: c.msg, reasons: c.reasons, ref: 'web-contacto'
 </script>
 
 <style>
+  .wac :is(input, select, textarea) { scroll-margin-top: calc(var(--header-h) + 3.5rem); }
   .wac {
     position: relative; background: var(--surface); color: var(--fg); border-radius: var(--r-lg); padding: clamp(1.25rem, 3.5vw, 2.5rem);
     box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .75); display: grid; gap: 1.4rem;

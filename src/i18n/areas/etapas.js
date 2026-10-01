@@ -33,7 +33,7 @@ export default {
     // output reads "{n} × 52 = {n·52} al año que dejarías de comprar"
     calcTail: 'al año que dejarías de comprar',
     waText: (n) => (n > 0
-      ? `Hola Renew Water, en mi casa compramos unos ${n} paquetes o botellones de agua por semana (${n * 52} al año). Quiero mi análisis de agua gratis.`
+      ? `Hola Renew Water, en mi casa compramos ${n === 1 ? 'un paquete o botellón' : `unos ${n} paquetes o botellones`} de agua por semana (${n * 52} al año). Quiero mi análisis de agua gratis.`
       : 'Hola Renew Water, quiero mi análisis de agua gratis.'),
     before: 'Antes: plástico de un solo uso',
     after: 'Después: agua de tu grifo',
@@ -50,7 +50,7 @@ export default {
     stages: [
       { key: 'grava', name: 'Gravel', verb: 'Clarifies', chips: [{ label: 'Coarse sediment', kind: 'sedimento' }, { label: 'Sand', kind: 'sedimento' }] },
       { key: 'garnet', name: 'Garnet', verb: 'Refines', chips: [{ label: 'Fine sediment', kind: 'sedimento' }] },
-      { key: 'cationica', name: 'Cation Resin', verb: 'Softens', chips: [{ label: 'Hardness (calcium & magnesium)', kind: 'dureza' }] },
+      { key: 'cationica', name: 'Cation Resin', verb: 'Softens', chips: [{ label: 'Hardness (Ca & Mg)', kind: 'dureza' }] },
       { key: 'anionica', name: 'Anion Resin', verb: 'Conditions', chipsLabel: 'Brings', chips: [{ label: 'More balanced pH', kind: null }] },
       { key: 'carbon', name: 'Activated Carbon', verb: 'Filters', chips: [{ label: 'Chlorine', kind: 'cloro' }, { label: 'Pesticides', kind: 'quimico' }, { label: 'Odors & off-tastes', kind: null }] },
       { key: 'kdf', name: 'KDF', verb: 'Decontaminates', chips: [{ label: 'Heavy metals', kind: 'metal' }] },
@@ -67,7 +67,7 @@ export default {
     calcLabel: 'How many packs or jugs of water does your family buy each week?',
     calcTail: 'a year you’d stop buying',
     waText: (n) => (n > 0
-      ? `Hi Renew Water, my family buys about ${n} packs or jugs of water a week (${n * 52} a year). I’d like my free water analysis.`
+      ? `Hi Renew Water, my family buys ${n === 1 ? 'one pack or jug' : `about ${n} packs or jugs`} of water a week (${n * 52} a year). I’d like my free water analysis.`
       : 'Hi Renew Water, I’d like my free water analysis.'),
     before: 'Before: single-use plastic',
     after: 'After: water from your tap',

@@ -59,7 +59,7 @@ const phone = phoneFor(lang);
 <style>
   .hdr {
     position: fixed; inset: 0 0 auto; z-index: var(--z-header); height: var(--header-h);
-    color: var(--fg); view-transition-name: site-header;
+    color: var(--fg);
     transition: transform .35s var(--ease-water), color .35s var(--ease-water);
   }
   /* glass layer: transparent over the hero, 78% + blur after 80px (94% solid on touch) */
@@ -72,7 +72,11 @@ const phone = phoneFor(lang);
   @media (pointer: fine) { .hdr::before { -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); } }
   @media (pointer: coarse) { .hdr::before { background: color-mix(in srgb, var(--bg) 94%, transparent); } }
   .hdr.is-scrolled::before { opacity: 1; }
-  .hdr.is-hidden { transform: translateY(-100%); }
+  /* named only during a page transition: a permanent view-transition-name makes .hdr a backdrop root and kills the blur */
+  :global(html:active-view-transition) .hdr { view-transition-name: site-header; }
+  :global(html:active-view-transition) :is(.hdr, .hdr *) { transition: none !important; }
+  /* the extra 40px takes the CTA's glow out of the viewport too */
+  .hdr.is-hidden { transform: translateY(calc(-100% - 40px)); }
   .hdr:has(:focus-visible) { transform: none; }
 
   .hdr__bar { position: relative; height: 100%; display: flex; align-items: center; gap: clamp(1rem, 2.4vw, 2.5rem); }

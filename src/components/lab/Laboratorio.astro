@@ -18,8 +18,8 @@ const c = pick(copy, lang);
 // only the products the rules can suggest travel to the client
 const slugs = new Set([...rules.rules.flatMap((r) => [r.product, r.alt]), ...rules.drinking.products].filter(Boolean));
 const labProducts = Object.fromEntries(products.filter((p) => slugs.has(p.slug)).map((p) => [p.slug, {
-  name: p.name,
-  short: p.name.replace(/\s*\(.*?\)\s*$/, ''),
+  name: p.title?.[lang] ?? p.name,
+  short: (p.title?.[lang] ?? p.name).replace(/\s*\(.*?\)\s*$/, ''),
   stages: typeof p.stages === 'number' ? p.stages : null,
   thumb: asset(p.thumb),
   ideal: p.idealFor?.[lang] || p.tagline?.[lang] || '',
@@ -271,9 +271,16 @@ const titleId = hero ? 'lab-h1' : 'lab-title';
     .lab__legend { display: grid; }
     .lab__legend li { min-height: 24px; font-size: .82rem; }
   }
-  @media (max-width: 400px) {
+  /* phones, and the 900-1279px range where the form card spans 5 of 12 columns and is phone-narrow */
+  @media (max-width: 400px), (min-width: 900px) and (max-width: 1279px) {
     .lab__chips--3 .lab__chip { padding-inline: .5rem; font-size: .9rem; gap: .35rem; }
     .lab__chips--3 .lab__chip :global(svg) { display: none; }
+  }
+  @media (min-width: 900px) and (max-width: 1365px) {
+    /* "Apartamento o condo" needs ~11rem on one line: stack the two choices when the card is narrower than that */
+    .lab__chips--2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
+    .lab__chips--2 .lab__chip { padding-inline: .6rem; gap: .35rem; }
+    .lab__chips--2 .lab__chip :global(svg) { display: none; }
   }
 
   /* ---------- desktop: form card left (5 cols), glass right (7 cols) ---------- */

@@ -42,6 +42,8 @@ const c = pick(copy, lang);
     }
     function skip() { l.classList.add('is-skip'); }
     function onKey(e) { if (e.key === 'Escape') skip(); }
+    // the exit wipe starts: the hero intro (engine introGate) begins under it instead of after it
+    l.addEventListener('animationstart', function (e) { if (e.target === l) document.dispatchEvent(new CustomEvent('rw:loader-exit')); });
     l.addEventListener('animationend', function (e) { if (e.target === l) done(); });
     l.querySelector('.loader__skip').addEventListener('click', skip);
     document.addEventListener('keydown', onKey);

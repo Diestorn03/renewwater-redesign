@@ -177,37 +177,37 @@ const cards = homes.map((p, i) => ({ ...p, n: pad(i + 1), smH: Math.round((520 *
     .calle__pipe, .calle__branch, .calle__swipe { display: none; }
   }
 
-  /* ---------- desktop gate: pinned horizontal street (html.js: without JS the page keeps the swipe row) ---------- */
+  /* ---------- desktop gate: pinned horizontal street (html.is-desktop-fx is set by the engine at boot: without it the page keeps the swipe row) ---------- */
   @media (min-width: 768px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-    :global(.js) .calle { --intro-w: min(30rem, 33vw); --tall: min(58vh, 80vh - 210px); --short: calc(var(--tall) * .86); --pipe-y: 12vh; --branch: 8vh; padding: 0; }
-    :global(.js) .calle__stage { position: relative; height: 100vh; height: 100dvh; overflow: hidden; }
+    :global(html.is-desktop-fx) .calle { --intro-w: min(30rem, 33vw); --tall: min(58vh, 80vh - 210px); --short: calc(var(--tall) * .86); --pipe-y: 12vh; --branch: 8vh; padding: 0; }
+    :global(html.is-desktop-fx) .calle__stage { position: relative; height: 100vh; height: 100dvh; overflow: hidden; }
     /* the street: a mist ground under the pipe */
-    :global(.js) .calle__stage::after { content: ""; position: absolute; inset: auto 0 0; height: calc(var(--pipe-y) + 2px); background: linear-gradient(180deg, var(--mist), color-mix(in srgb, var(--mist) 40%, var(--bg))); z-index: 0; }
-    :global(.js) .calle__bleed { display: block; top: 44%; }
+    :global(html.is-desktop-fx) .calle__stage::after { content: ""; position: absolute; inset: auto 0 0; height: calc(var(--pipe-y) + 2px); background: linear-gradient(180deg, var(--mist), color-mix(in srgb, var(--mist) 40%, var(--bg))); z-index: 0; }
+    :global(html.is-desktop-fx) .calle__bleed { display: block; top: 44%; }
 
-    :global(.js) .calle__intro { position: absolute; left: var(--edge); bottom: calc(var(--pipe-y) + var(--branch)); width: var(--intro-w); margin: 0; }
-    :global(.js) .calle__counter { position: absolute; top: max(calc(var(--header-h) + 14px), 9vh); right: var(--edge); width: auto; margin: 0; text-align: right; gap: 2.5rem; }
-    :global(.js) .calle__num { font-size: clamp(2.5rem, 1.5rem + 2.6vw, 4.25rem); }
-    :global(.js) .calle__stat--cities { transition: opacity .6s var(--ease-out), translate .6s var(--ease-out); }
-    :global(.js) .calle.is-pinned .calle__stat--cities:not(.is-on) { opacity: 0; translate: 0 14px; }
+    :global(html.is-desktop-fx) .calle__intro { position: absolute; left: var(--edge); bottom: calc(var(--pipe-y) + var(--branch)); width: var(--intro-w); margin: 0; }
+    :global(html.is-desktop-fx) .calle__counter { position: absolute; top: max(calc(var(--header-h) + 14px), 9vh); right: var(--edge); width: auto; margin: 0; text-align: right; gap: 2.5rem; }
+    :global(html.is-desktop-fx) .calle__num { font-size: clamp(2.5rem, 1.5rem + 2.6vw, 4.25rem); }
+    :global(html.is-desktop-fx) .calle__stat--cities { transition: opacity .6s var(--ease-out), translate .6s var(--ease-out); }
+    :global(html.is-desktop-fx) .calle.is-pinned .calle__stat--cities:not(.is-on) { opacity: 0; translate: 0 14px; }
 
-    :global(.js) .calle__rail { position: absolute; inset: 0; margin: 0; overflow: visible; z-index: 1; }
-    :global(.js) .calle__track { height: 100%; display: flex; align-items: flex-end; padding: 0 var(--edge) var(--pipe-y) calc(var(--edge) + var(--intro-w) + 7vw); will-change: transform; }
-    :global(.js) .calle__list { gap: 3.2vw; }
-    :global(.js) .calle__card { width: auto; padding-bottom: var(--branch); }
-    :global(.js) .calle__arch { height: var(--tall); width: auto; }
-    :global(.js) .calle__card:nth-child(even) .calle__arch { height: var(--short); }
-    :global(.js) .calle__card--next .calle__arch { height: var(--tall); }
-    :global(.js) a.calle__arch img { width: 118%; max-width: none; margin-left: -9%; }
-    :global(.js) .calle__chip { font-size: .7rem; }
+    :global(html.is-desktop-fx) .calle__rail { position: absolute; inset: 0; margin: 0; overflow: visible; z-index: 1; }
+    :global(html.is-desktop-fx) .calle__track { height: 100%; display: flex; align-items: flex-end; padding: 0 var(--edge) var(--pipe-y) calc(var(--edge) + var(--intro-w) + 7vw); will-change: transform; }
+    :global(html.is-desktop-fx) .calle__list { gap: 3.2vw; }
+    :global(html.is-desktop-fx) .calle__card { width: auto; padding-bottom: var(--branch); }
+    :global(html.is-desktop-fx) .calle__arch { height: var(--tall); width: auto; }
+    :global(html.is-desktop-fx) .calle__card:nth-child(even) .calle__arch { height: var(--short); }
+    :global(html.is-desktop-fx) .calle__card--next .calle__arch { height: var(--tall); }
+    :global(html.is-desktop-fx) a.calle__arch img { width: 118%; max-width: none; margin-left: -9%; }
+    :global(html.is-desktop-fx) .calle__chip { font-size: .7rem; }
 
-    :global(.js) .calle__pipe { bottom: calc(var(--pipe-y) - 1px); height: 4px; }
-    :global(.js) .calle__branch { bottom: 0; height: var(--branch); }
-    :global(.js) .calle__tip {
+    :global(html.is-desktop-fx) .calle__pipe { bottom: calc(var(--pipe-y) - 1px); height: 4px; }
+    :global(html.is-desktop-fx) .calle__branch { bottom: 0; height: var(--branch); }
+    :global(html.is-desktop-fx) .calle__tip {
       display: block; position: absolute; left: -9px; bottom: calc(var(--pipe-y) - 8px); width: 18px; height: 18px; border-radius: 50%;
       background: radial-gradient(circle, #fff 0 22%, var(--lime) 36%, rgba(152, 196, 0, .35) 58%, transparent 72%);
       pointer-events: none;
     }
-    :global(.js) .calle__swipe { display: none; }
+    :global(html.is-desktop-fx) .calle__swipe { display: none; }
   }
 </style>

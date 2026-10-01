@@ -1,0 +1,107 @@
+---
+// Bilingual 404 body: /404.html shows Spanish first, /en/not-found/ English first. A static line-art filter: a murky drop falls in,
+// the six bands light up, a clean drop comes out (CSS only; static under reduced motion). Each block links to
+// the home and lab of its own language.
+import Icon from '../ui/Icon.astro';
+import { useI18n } from '../../i18n/index.js';
+import { routes } from '../../i18n/routes.js';
+import copy from '../../i18n/areas/chrome.js';
+import es from '../../i18n/es.js';
+import en from '../../i18n/en.js';
+interface Props { primary?: 'es' | 'en' }
+const { primary = 'es' } = Astro.props;
+const { base } = useI18n(Astro);
+const all = [
+  { lang: 'es', c: copy.es.notFound, t: es, home: `${base}${routes.home.es}`, lab: `${base}${routes.analysis.es}` },
+  { lang: 'en', c: copy.en.notFound, t: en, home: `${base}${routes.home.en}`, lab: `${base}${routes.analysis.en}` },
+];
+const blocks = primary === 'en' ? [...all].reverse() : all;
+const bands = [0, 1, 2, 3, 4, 5];
+const drop = 'M0 -14C0 -14 -9 -2 -9 4.5a9 9 0 0 0 18 0C9 -2 0 -14 0 -14Z';
+---
+<section class="nf section" data-theme="dark">
+  <div class="nf__glow" aria-hidden="true"></div>
+  <div class="wrap nf__grid">
+    <div class="nf__art" aria-hidden="true">
+      <span class="nf__404">404</span>
+      <svg class="nf__filter" viewBox="0 0 240 420" focusable="false">
+        <defs>
+          <linearGradient id="nf-clean" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#00D0D0" /><stop offset="1" stop-color="#98C400" />
+          </linearGradient>
+        </defs>
+        <g class="nf__drop nf__drop--in"><path d={drop} /></g>
+        <rect class="nf__line" x="94" y="40" width="52" height="26" rx="7" />
+        <path class="nf__line" d="M110 40V32h20v8" />
+        <path class="nf__line nf__tank" d="M60 100C60 76 88 66 120 66s60 10 60 34v196c0 24-28 34-60 34s-60-10-60-34Z" />
+        {bands.map((i) => <path class="nf__band" style={`--i:${i}`} d={`M72 ${118 + i * 34}H168`} />)}
+        <path class="nf__line" d="M120 330v22m-14 0h28" />
+        <g class="nf__drop nf__drop--out"><path d={drop} fill="url(#nf-clean)" /></g>
+      </svg>
+    </div>
+
+    <div class="nf__copy">
+      {blocks.map((b, i) => (
+        <div class:list={['nf__block', i && 'nf__block--en']} lang={b.lang}>
+          {i === 0 && <p class="kicker">{b.c.kicker}</p>}
+          {i === 0
+            ? <h1 class="nf__title">{b.c.title} <span class="accent">{b.c.accent}</span></h1>
+            : <h2 class="nf__title nf__title--sm">{b.c.title} <span class="accent">{b.c.accent}</span></h2>}
+          <p class="nf__text">{b.c.text}</p>
+          <div class="cta-row">
+            <a class={`btn ${i ? 'btn--ghost btn--sm' : 'btn--primary'}`} href={b.home}><Icon name="house" size={20} />{b.c.home}</a>
+            <a class={`btn ${i ? 'btn--text' : 'btn--ghost'}`} href={b.lab}>{b.t.cta.tryLab}<Icon name="arrow" size={18} class="arrow" /></a>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .nf { min-height: 100svh; display: grid; align-items: center; padding-top: calc(var(--header-h) + clamp(32px, 6vh, 72px)); overflow: clip; }
+  .nf__glow {
+    position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(45% 50% at 25% 50%, rgba(0, 208, 208, .14), transparent 70%), linear-gradient(180deg, var(--navy), var(--abyss));
+  }
+  .nf__grid { display: grid; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+  .nf__art { position: relative; display: grid; place-items: center; }
+  .nf__404 {
+    position: absolute; inset: 0; display: grid; place-items: center; z-index: -1;
+    font-family: var(--font-brand); font-size: clamp(7rem, 4rem + 16vw, 17rem); line-height: 1; letter-spacing: .02em;
+    color: transparent; -webkit-text-stroke: 1px rgba(143, 179, 196, .22);
+  }
+  .nf__filter { width: clamp(150px, 22vw, 250px); height: auto; overflow: visible; }
+  .nf__line { fill: none; stroke: var(--haze); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .nf__tank { fill: color-mix(in srgb, var(--current) 60%, transparent); }
+  .nf__band { fill: none; stroke: rgba(143, 179, 196, .3); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 3 7; animation: nf-band 3.2s linear infinite; animation-delay: calc(.9s + var(--i) * .16s); }
+  @keyframes nf-band { 0%, 100% { stroke: rgba(143, 179, 196, .3); } 6%, 18% { stroke: var(--aqua); } 30% { stroke: rgba(143, 179, 196, .3); } }
+  .nf__drop { transform-box: fill-box; }
+  .nf__drop--in path { fill: var(--c-sedimento); }
+  .nf__drop--in { animation: nf-in 3.2s cubic-bezier(.55, 0, 1, .45) infinite; }
+  @keyframes nf-in {
+    0% { transform: translate(120px, -40px); opacity: 0; }
+    6% { opacity: 1; }
+    26% { transform: translate(120px, 30px); opacity: 1; }
+    30%, 100% { transform: translate(120px, 36px); opacity: 0; }
+  }
+  .nf__drop--out { animation: nf-out 3.2s cubic-bezier(.55, 0, 1, .45) infinite; }
+  @keyframes nf-out {
+    0%, 70% { transform: translate(120px, 356px) scale(.2); opacity: 0; }
+    76% { transform: translate(120px, 364px) scale(1); opacity: 1; }
+    100% { transform: translate(120px, 430px) scale(1); opacity: 0; }
+  }
+  .nf__copy { display: grid; gap: clamp(2rem, 4vw, 3rem); }
+  .nf__block { display: grid; gap: 1.1rem; justify-items: start; }
+  .nf__block--en { padding-top: clamp(1.5rem, 3vw, 2.5rem); border-top: 1px solid var(--line); }
+  .nf__title { font-size: clamp(2.3rem, 1.2rem + 3.8vw, 4.6rem); line-height: 1; letter-spacing: -.035em; font-weight: 600; max-width: 14ch; }
+  .nf__title--sm { font-size: clamp(1.6rem, 1.1rem + 1.6vw, 2.4rem); max-width: none; }
+  .nf__text { color: var(--fg-muted); max-width: 46ch; }
+  @media (min-width: 900px) { .nf__grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); } }
+  @media (prefers-reduced-motion: reduce) {
+    .nf__band, .nf__drop--in { animation: none; }
+    .nf__drop--in { opacity: 0; }
+    .nf__drop--out { animation: none; transform: translate(120px, 370px); opacity: 1; }
+    .nf__band { stroke: var(--aqua); }
+  }
+</style>

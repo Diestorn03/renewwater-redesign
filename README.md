@@ -102,3 +102,5 @@ Tipografías:
 5. **Noticias:** faltan los enlaces de las noticias 2 y 4 de "Sobre Nosotros".
 6. **Beneficios:** ajustes de redacción propuestos (por ejemplo, quitar "incluyendo la India").
 7. **Licencia de Nasalization:** es de Typodermic y sus metadatos dicen "not freely distributable". Por eso la propuesta usa Orbitron. Si Renew Water tiene la licencia web, se puede volver a su tipografía.
+8. **Nombre en inglés de "5 Pasos Eco":** la propuesta usa "5-Stage Eco", igual que "Renew Apto 4-Stage". Confirmar si el nombre se traduce.
+9. **Fotos en mejor resolución:** la foto del plástico en el océano mide 600 px y se ve suave en pantallas grandes. Las texturas del tanque de las 6 etapas salen de una franja de 40 px del folleto. Los recortes de producto traen la sombra gris del folleto. Con fotos originales de mayor tamaño se reemplazan sin tocar código.

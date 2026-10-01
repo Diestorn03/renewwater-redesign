@@ -156,13 +156,13 @@ const social = [
     display: inline-grid; place-items: center; min-width: 4.9rem; height: 24px; padding: 0 .55rem; border-radius: var(--r-pill);
     border: 1px solid var(--line); font-family: var(--font-mono); font-weight: 500; font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-muted);
   }
-  .ftr__phone { font-variant-numeric: tabular-nums; color: var(--fg); background: none; }
+  .ftr__phone { font-variant-numeric: tabular-nums; color: var(--fg); background: none; white-space: nowrap; }
   .ftr__phone:hover .ftr__tag { border-color: var(--aqua); color: var(--aqua); }
   .ftr__mail { word-break: break-all; }
   .ftr__addr { align-items: flex-start; line-height: 1.45; padding-block: .5rem; background: none; }
   .ftr__addr :global(.ftr__pin) { flex: none; margin-top: .15rem; color: var(--aqua); }
   .ftr__social { background: none; gap: .8rem; }
-  .ftr__sicon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); color: var(--fg); transition: border-color var(--d-fast), background-color var(--d-fast); }
+  .ftr__sicon { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); color: var(--fg); transition: border-color var(--d-fast), background-color var(--d-fast); }
   .ftr__social:hover .ftr__sicon { border-color: var(--aqua); background: color-mix(in srgb, var(--aqua) 12%, transparent); }
   .ftr__sname { display: block; font-size: .8rem; color: var(--fg-muted); line-height: 1.2; }
   .ftr__handle { display: block; color: var(--fg); line-height: 1.3; }

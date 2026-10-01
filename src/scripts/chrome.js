@@ -27,6 +27,8 @@ document.addEventListener('keydown', (e) => {
 }, true);
 document.addEventListener('astro:after-swap', () => {
   root.classList.add('js'); // Base adds it from <head> once; ClientRouter's root-attribute swap drops it
+  const hdr = document.querySelector('.hdr'), first = document.querySelector('main section[data-theme]');
+  if (hdr && first && !location.hash) hdr.dataset.theme = first.dataset.theme; // the IntersectionObserver confirms it later
   applyOrigin();
   origin = null;
   closeMenu(true);
@@ -40,11 +42,17 @@ document.addEventListener('click', (e) => {
 /* ---------- Motion switch (footer): everything animates by default; this opts out, remembered per browser ---------- */
 document.addEventListener('click', (e) => {
   if (!e.target.closest?.('[data-motion-toggle]')) return;
-  try { localStorage.setItem('rw-motion', root.classList.contains('rw-calm') ? 'full' : 'calm'); } catch { return; }
+  try { localStorage.setItem('rw-motion', root.classList.contains('rw-calm') ? 'full' : 'calm'); sessionStorage.setItem('rw-motion-return', e.detail === 0 ? 'kbd' : '1'); } catch { return; }
+  history.replaceState(history.state, '', location.pathname + location.search); // a #hash would win over the return to the switch
   location.reload(); // pins, WebGL and Lenis are built at boot: reloading switches all of them at once
 });
-onPage(() => {
+onPage(({ scrollTo }) => {
   document.querySelectorAll('[data-motion-toggle]').forEach((b) => b.setAttribute('aria-pressed', String(root.classList.contains('rw-calm'))));
+  let back = null;
+  try { back = sessionStorage.getItem('rw-motion-return'); sessionStorage.removeItem('rw-motion-return'); } catch { /* no storage */ }
+  const btn = back && document.querySelector('[data-motion-toggle]');
+  // after the reload the page height changes (pins appear or go), so the old pixel offset lands mid-page: return to the switch
+  if (btn) requestAnimationFrame(() => requestAnimationFrame(() => { getLenis()?.resize(); scrollTo(btn, { immediate: true, offset: -innerHeight / 2 }); btn.focus({ preventScroll: true, focusVisible: back === 'kbd' }); }));
 });
 
 /* ---------- Mobile menu (lives in the persisted header: bound once per header element) ---------- */
@@ -127,6 +135,8 @@ onPage(() => {
   update();
   const onScroll = () => { sy = window.scrollY; update(); };
   window.addEventListener('scroll', onScroll, { passive: true });
+  const onLanded = () => { sy = lastY = window.scrollY; if (sy >= 400) hdr.classList.add('is-hidden'); };
+  document.addEventListener('rw:landed', onLanded);
 
   const zones = [...document.querySelectorAll('main section[data-theme], footer[data-theme]')];
   const under = new Set();
@@ -137,7 +147,7 @@ onPage(() => {
   }, { rootMargin: '0px 0px -95% 0px' });
   zones.forEach((z) => io.observe(z));
 
-  return () => { window.removeEventListener('scroll', onScroll); update.cancel(); io.disconnect(); };
+  return () => { window.removeEventListener('scroll', onScroll); document.removeEventListener('rw:landed', onLanded); update.cancel(); io.disconnect(); };
 });
 
 /* ---------- Floating WhatsApp + mobile action bar ---------- */
@@ -171,7 +181,7 @@ onPage(({ onRefresh }) => {
     update();
   }, { rootMargin: '-15% 0px -15% 0px' });
   // hidden over the lab and the final CTA (they carry their own WhatsApp buttons) and over the closing wordmark
-  document.querySelectorAll('#laboratorio, #encuentranos, .ftr__giant').forEach((el) => io.observe(el));
+  document.querySelectorAll('#laboratorio, #encuentranos, .ftr').forEach((el) => io.observe(el));
 
   const onMenu = (e) => { menuIsOpen = e.detail.open; update(); };
   let closeTimer;
@@ -310,7 +320,7 @@ onPage(({ gsap, env, onRefresh }) => {
       .fromTo(win, { x: 0, xPercent: -100 }, { xPercent: 0, ease }, 0)
       .fromTo(fillIn, { x: 0, xPercent: 116 }, { xPercent: 0, ease }, 0); // the window is 116% of the word wide
     if (env.desktop) fill('none', { scrollTrigger: { trigger: f, start: 'top bottom', end: 'bottom bottom', scrub: 0.6 } });
-    else fill('power2.inOut', { defaults: { duration: 1.6 }, scrollTrigger: { trigger: win.parentElement, start: 'top 92%', once: true } });
+    else fill('power2.inOut', { defaults: { duration: 1.6 }, scrollTrigger: { trigger: win.parentElement, start: 'clamp(top 92%)', once: true } });
   }
   return () => { io?.disconnect(); f.querySelector('.ftr__thread')?.style.removeProperty('will-change'); };
 });

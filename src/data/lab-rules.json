@@ -14,7 +14,7 @@
     { "when": { "origin": "pozo", "anySymptom": ["metal", "turbia"] }, "product": "agua-de-pozo-plus", "alt": "agua-de-pozo" },
     { "when": { "origin": "pozo" }, "product": "agua-de-pozo", "alt": "agua-de-pozo-plus" },
     { "when": { "home": "apto" }, "product": "renew-apto-4-pasos", "alt": "renew-small-4-pasos" },
-    { "when": { "origin": "ciudad", "home": "casa" }, "product": "renew-city", "alt": "renew-duo" }
+    { "when": { "origin": "ciudad" }, "product": "renew-city", "alt": "renew-duo" }
   ],
   "fallback": { "product": null, "alt": null },
   "drinking": { "flag": "beber", "products": ["osmosis-inversa", "astrid"] }

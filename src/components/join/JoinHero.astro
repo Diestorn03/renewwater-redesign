@@ -83,12 +83,12 @@ const tiles = [
 
 <script>
   import { onPage } from '../../scripts/engine.js';
-  onPage(({ gsap, env, introGate }) => {
+  onPage(({ gsap, env, introGate, late }) => {
     const root = document.getElementById('unete');
     if (!root) return;
     const chars = root.querySelectorAll('.jh__ch');
     const tiles = root.querySelectorAll('.jh__tile');
-    if (env.reduced) { root.classList.add('is-in'); return; }
+    if (env.reduced || late()) { root.classList.add('is-in'); return; } // late: the safety net already showed it
     let cancelled = false;
     introGate().then(() => {
       if (cancelled) return;
@@ -132,6 +132,8 @@ const tiles = [
   }
   :global(.js) .jh:not(.is-in) .jh__ch { opacity: 0; }
   :global(.js) .jh:not(.is-in) .jh__tile { clip-path: inset(100% 0 0 0); }
+  :global(html.fx-fallback) .jh:not(.is-in) .jh__ch { opacity: 1; }
+  :global(html.fx-fallback) .jh:not(.is-in) .jh__tile { clip-path: none; }
   .jh__lead { color: var(--fg-muted); max-width: 44ch; }
   .jh__copy .trust-note { flex-wrap: nowrap; align-items: flex-start; }
   .jh__copy .trust-note :global(svg) { color: var(--aqua); flex: none; margin-top: .2em; }
@@ -154,6 +156,7 @@ const tiles = [
     .jh__grid { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
     .jh__mosaic { margin-top: 4vh; }
   }
+  @media (min-width: 1024px) and (max-height: 820px) { .jh__copy { align-self: start; } }
   @media (max-width: 1023px) {
     .jh { min-height: 0; }
     .jh__mosaic { max-width: 560px; }

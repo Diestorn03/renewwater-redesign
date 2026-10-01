@@ -90,7 +90,7 @@ export function introGate() {
 }
 const fontsReady = () => Promise.race([document.fonts?.ready ?? Promise.resolve(), new Promise((r) => setTimeout(r, 900))]);
 
-const api = () => ({ gsap, ScrollTrigger, SplitText, env, lenis, scrollTo, introGate, emit, onRefresh, getLenis });
+const api = () => ({ gsap, ScrollTrigger, SplitText, env, lenis, scrollTo, introGate, emit, onRefresh, getLenis, late: () => late });
 
 /** Register a per-page initialiser (see header). Called on every page load; return an optional cleanup. */
 export function onPage(fn) {
@@ -132,12 +132,13 @@ document.addEventListener('click', (e) => {
   const el = document.getElementById(decodeURIComponent(url.hash.slice(1)));
   if (!el) return;
   e.preventDefault();
-  scrollTo(el);
+  // going down hides the header (chrome.js), so the target goes flush to the top; going up the header shows, keep its offset
+  scrollTo(el, el.getBoundingClientRect().top > 0 ? { offset: 0 } : {});
   // keyboard users continue from the target, not from <body>
   if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
   el.focus({ preventScroll: true });
   history.replaceState(history.state, '', url.hash);
-});
+}, true); // capture: ClientRouter's own click listener would claim the link first
 
 /* ---------------- Reveals ---------------- */
 const REVEALS = {
@@ -219,13 +220,13 @@ function initCounters() {
     if (env.reduced) { el.textContent = fmt(target); return; }
     el.textContent = fmt(0);
     const obj = { v: 0 };
-    gsap.to(obj, { v: target, duration: 2, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%', once: true }, onUpdate: () => { el.textContent = fmt(obj.v); } });
+    gsap.to(obj, { v: target, duration: 2, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%', once: true }, onUpdate: () => { if (el.hasAttribute('data-count')) el.textContent = fmt(obj.v); } });
   });
 }
 
 /* ---------------- SVG drawing ---------------- */
 function initDraw() {
-  gsap.utils.toArray('[data-draw]').forEach((svg) => {
+  gsap.utils.toArray('[data-draw]:not(.lm)').forEach((svg) => {
     const paths = svg.querySelectorAll('path, line, polyline, polygon, circle, rect, ellipse');
     if (!paths.length || env.reduced) return;
     if (svg.dataset.draw === 'scrub') {
@@ -373,6 +374,7 @@ function teardown() {
 }
 // How the current page was reached (astro:before-preparation): 'traverse' = Back/Forward
 let navType = 'push';
+let savedY = null;
 function boot() {
   teardown();
   const root = document.documentElement;
@@ -393,28 +395,48 @@ function boot() {
   queueRefresh();
   // Scroll position, once the pins exist (they add their spacers above everything below them): the #hash target,
   // or the saved position on Back/Forward. ClientRouter restores scroll before the pins are built, so it lands short.
-  const how = navType; navType = 'push';
+  const how = navType, y0 = savedY; navType = 'push'; savedY = null;
   requestAnimationFrame(() => requestAnimationFrame(() => {
     if (ctx !== gen) return;
+    lenis?.resize(); // it still holds the previous page's scroll limit and would clamp the target to it
     const el = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
-    if (el) scrollTo(el, { immediate: true });
-    else if (how === 'traverse' && history.state?.scrollY != null) scrollTo(history.state.scrollY, { immediate: true, offset: 0 });
+    if (how === 'traverse' && y0 != null) scrollTo(y0, { immediate: true, offset: 0 });
+    else if (el) { scrollTo(el, { immediate: true, offset: 0 }); hashLanding = { el, y: window.scrollY }; emit('rw:landed'); } // a jump down: the header hides
   }));
 }
 
 // First page: boot as soon as the DOM is parsed (every deferred module, i.e. every section, has registered by then).
 // Waiting for astro:page-load meant waiting for every image, so first-viewport reveals started seconds late.
 let first = true;
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { if (!booted) boot(); }, { once: true });
-else queueMicrotask(() => { if (!booted) boot(); });
+// Module scripts execute while readyState is already 'interactive', before DOMContentLoaded: waiting for it lets every
+// section module register first (the astro:page-load handler below covers a module that loads later than that).
+if (document.readyState === 'complete') queueMicrotask(() => { if (!booted) boot(); });
+else document.addEventListener('DOMContentLoaded', () => { if (!booted) boot(); }, { once: true });
 document.addEventListener('astro:page-load', () => { if (first) { first = false; if (booted) return; } boot(); });
-window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true }); // late images change section heights
-document.addEventListener('astro:before-preparation', (e) => { navType = e.navigationType || 'push'; });
-document.addEventListener('astro:before-swap', teardown);
+// late images change section heights; a #hash landing is re-aimed once if the visitor has not scrolled since
+let hashLanding = null;
+window.addEventListener('load', () => {
+  ScrollTrigger.refresh();
+  const h = hashLanding; hashLanding = null;
+  if (h?.el.isConnected && Math.abs(window.scrollY - h.y) < 2) { lenis?.resize(); scrollTo(h.el, { immediate: true, offset: 0 }); emit('rw:landed'); }
+}, { once: true });
+document.addEventListener('astro:before-preparation', (e) => {
+  navType = e.navigationType || 'push';
+  savedY = navType === 'traverse' ? history.state?.scrollY ?? null : null;
+});
+document.addEventListener('astro:before-swap', (e) => {
+  teardown();
+  // the incoming <html> replaces these classes: give it the final ones so Astro restores scroll in the real layout
+  const now = document.documentElement.classList, next = e.newDocument.documentElement.classList;
+  next.add('js');
+  next.toggle('rw-calm', storedCalm());
+  ['is-desktop-fx', 'lenis', 'lenis-smooth'].forEach((c) => next.toggle(c, now.contains(c)));
+});
 // ClientRouter swaps <html> attributes: restore the `js` class the head script set on the first load
 document.addEventListener('astro:after-swap', () => {
   document.documentElement.classList.add('js');
   document.documentElement.classList.toggle('rw-calm', storedCalm());
+  document.getElementById('loader')?.remove(); // the intro only plays on the first page of a visit
   // a new page starts at the top; hash targets and Back/Forward positions are restored by boot() once the pins exist
   if (navType !== 'traverse' && !location.hash) { window.scrollTo(0, 0); lenis?.scrollTo(0, { immediate: true }); }
 });
@@ -426,7 +448,7 @@ const rebootOnChange = () => {
   bpTimer = setTimeout(() => {
     const here = [...document.querySelectorAll('main section[id]')].find((s) => s.getBoundingClientRect().bottom > 0);
     window.scrollTo(0, 0); boot();
-    requestAnimationFrame(() => requestAnimationFrame(() => { if (here?.isConnected) scrollTo(here, { immediate: true, offset: 0 }); }));
+    requestAnimationFrame(() => requestAnimationFrame(() => { lenis?.resize(); if (here?.isConnected) scrollTo(here, { immediate: true, offset: 0 }); }));
   }, 150);
 };
 mqDesktop.addEventListener('change', rebootOnChange);

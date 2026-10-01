@@ -17,8 +17,7 @@ const phone = phoneFor(lang);
 const social = [['instagram', socials.instagram], ['tiktok', socials.tiktok], ['facebook', socials.facebook]] as const;
 ---
 <dialog id="rw-menu" class="menu" aria-label={c.menuLabel} data-theme="dark">
-  <div class="menu__glow" aria-hidden="true"></div>
-  <LogoMark size="min(118vw, 620px)" class="menu__ghost" />
+  <div class="menu__glow" aria-hidden="true"><LogoMark size="min(118vw, 620px)" class="menu__ghost" /></div>
   <div class="menu__top wrap">
     <a class="menu__home" href={url('home')} aria-label={c.homeLabel}><LogoMark size={40} weight={1.35} /></a>
     <button class="menu__close" type="button" autofocus data-menu-close aria-label={t.nav.closeMenu}><Icon name="close" size={24} /></button>
@@ -60,7 +59,7 @@ const social = [['instagram', socials.instagram], ['tiktok', socials.tiktok], ['
   .menu::backdrop { background: transparent; }
   :global(html.menu-open) { overflow: hidden; }
   .menu__glow {
-    position: absolute; inset: 0; pointer-events: none;
+    position: absolute; inset: 0; pointer-events: none; overflow: hidden;
     background:
       radial-gradient(60% 40% at 12% 8%, rgba(0, 208, 208, .16), transparent 70%),
       radial-gradient(50% 40% at 95% 100%, rgba(152, 196, 0, .12), transparent 70%);

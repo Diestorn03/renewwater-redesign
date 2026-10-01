@@ -277,8 +277,8 @@ const labHref = pin ? '#laboratorio' : url('analysis');
 
   /* ============ desktop gate: pinned stage (100vh), panel = odometer + cross-faded items ============ */
   @media (min-width: 768px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-    :global(html.js) .et--pin { --tw: clamp(180px, 16.5vw, 270px); --th: clamp(280px, 57vh, 640px); padding: 0; }
-    :global(html.js) .et--pin .et__stage {
+    :global(html.is-desktop-fx) .et--pin { --tw: clamp(180px, 16.5vw, 270px); --th: clamp(280px, 57vh, 640px); padding: 0; }
+    :global(html.is-desktop-fx) .et--pin .et__stage {
       position: relative; height: 100vh; min-height: 560px;
       padding-block: calc(var(--header-h) + 3vh) 5vh;
       grid-template-columns: calc(var(--tw) + clamp(56px, 13vw, 220px)) auto minmax(0, 1fr);
@@ -286,40 +286,40 @@ const labHref = pin ? '#laboratorio' : url('analysis');
       grid-template-areas: "tank head head" "tank odo stage" "tank meters meters";
       column-gap: clamp(1.5rem, 3.4vw, 4rem);
     }
-    :global(html.js) .et--pin .et__title { font-size: min(var(--fs-h2), 6.4vh); max-width: 18ch; }
-    :global(html.js) .et--pin .et__tankcol { margin: 0; align-self: center; justify-items: end; }
-    :global(html.js) .et--pin .et__tank { position: relative; top: auto; }
-    :global(html.js) .et--pin .et__sim { display: block; justify-self: start; white-space: nowrap; margin-top: -3.5vh; }
-    :global(html.js) .et--pin .et__callouts { display: grid; }
-    :global(html.js) .et--pin .et__canvas { display: block; }
-    :global(html.js) .et--pin .et__band { background-size: 80px 168px; cursor: pointer; }
+    :global(html.is-desktop-fx) .et--pin .et__title { font-size: min(var(--fs-h2), 6.4vh); max-width: 18ch; }
+    :global(html.is-desktop-fx) .et--pin .et__tankcol { margin: 0; align-self: center; justify-items: end; }
+    :global(html.is-desktop-fx) .et--pin .et__tank { position: relative; top: auto; }
+    :global(html.is-desktop-fx) .et--pin .et__sim { display: block; justify-self: start; white-space: nowrap; margin-top: -3.5vh; }
+    :global(html.is-desktop-fx) .et--pin .et__callouts { display: grid; }
+    :global(html.is-desktop-fx) .et--pin .et__canvas { display: block; }
+    :global(html.is-desktop-fx) .et--pin .et__band { background-size: 80px 168px; cursor: pointer; }
 
     /* stacked panel cell: intro / item 1..6 / out, cross-faded (opacity + translate only; all stay in the a11y tree) */
-    :global(html.js) .et--pin :is(.et__intro, .et__list, .et__out) { grid-area: stage; align-self: center; margin: 0; }
-    :global(html.js) .et--pin .et__out { grid-column: odo-start / stage-end; }
-    :global(html.js) .et--pin .et__item { grid-area: 1 / 1; border: 0; padding: 0; grid-template-columns: 1fr; }
-    :global(html.js) .et--pin .et__num { display: none; }
-    :global(html.js) .et--pin .et__name { font-size: clamp(1.75rem, .9rem + 1.9vw, 3rem); letter-spacing: -.025em; }
-    :global(html.js) .et--pin :is(.et__intro, .et__item, .et__out) {
+    :global(html.is-desktop-fx) .et--pin :is(.et__intro, .et__list, .et__out) { grid-area: stage; align-self: center; margin: 0; }
+    :global(html.is-desktop-fx) .et--pin .et__out { grid-column: odo-start / stage-end; }
+    :global(html.is-desktop-fx) .et--pin .et__item { grid-area: 1 / 1; border: 0; padding: 0; grid-template-columns: 1fr; }
+    :global(html.is-desktop-fx) .et--pin .et__num { display: none; }
+    :global(html.is-desktop-fx) .et--pin .et__name { font-size: clamp(1.75rem, .9rem + 1.9vw, 3rem); letter-spacing: -.025em; }
+    :global(html.is-desktop-fx) .et--pin :is(.et__intro, .et__item, .et__out) {
       opacity: 0; transform: translate3d(0, 24px, 0); pointer-events: none;
       transition: opacity .45s var(--ease-water), transform .8s var(--ease-out);
     }
-    :global(html.js) .et--pin[data-step="0"] .et__intro,
-    :global(html.js) .et--pin .et__item.is-active,
-    :global(html.js) .et--pin[data-step="7"] .et__out { opacity: 1; transform: none; pointer-events: auto; transition-delay: .1s; }
-    :global(html.js) .et--pin .et__hint { display: inline-flex; align-items: center; gap: .5rem; margin-top: var(--s-5); color: var(--accent-text); }
-    :global(html.js) .et--pin[data-step="0"] .et__hint :global(svg) { animation: et-bob 1.8s var(--ease-in-out) infinite; }
-    :global(html.js) .et--pin .et__skip { position: absolute; right: 0; top: calc(var(--header-h) + 3vh - 12px); margin: 0; z-index: 3; color: var(--fg-muted); }
-    :global(html.js) .et--pin .et__skip:hover { color: var(--aqua); }
-    :global(html.js) .et--pin .et__closing { max-width: 26ch; }
-    :global(html.js) .et--pin .et__stream { transform: scaleY(0); }
+    :global(html.is-desktop-fx) .et--pin[data-step="0"] .et__intro,
+    :global(html.is-desktop-fx) .et--pin .et__item.is-active,
+    :global(html.is-desktop-fx) .et--pin[data-step="7"] .et__out { opacity: 1; transform: none; pointer-events: auto; transition-delay: .1s; }
+    :global(html.is-desktop-fx) .et--pin .et__hint { display: inline-flex; align-items: center; gap: .5rem; margin-top: var(--s-5); color: var(--accent-text); }
+    :global(html.is-desktop-fx) .et--pin[data-step="0"] .et__hint :global(svg) { animation: et-bob 1.8s var(--ease-in-out) infinite; }
+    :global(html.is-desktop-fx) .et--pin .et__skip { position: absolute; right: 0; top: calc(var(--header-h) + 3vh - 12px); margin: 0; z-index: 3; color: var(--fg-muted); }
+    :global(html.is-desktop-fx) .et--pin .et__skip:hover { color: var(--aqua); }
+    :global(html.is-desktop-fx) .et--pin .et__closing { max-width: 26ch; }
+    :global(html.is-desktop-fx) .et--pin .et__stream { transform: scaleY(0); }
     /* etapas.js writes these transforms on every scrub frame: each one on its own GPU layer, so the pinned stage
        (tank gradients, shadows, text) is never repainted while scrolling */
-    :global(html.js) .et--pin :is(.et__dry, .et__dim, .et__rail-fill, .et__bar-fill, .et__stream) { will-change: transform; }
+    :global(html.is-desktop-fx) .et--pin :is(.et__dry, .et__dim, .et__rail-fill, .et__bar-fill, .et__stream) { will-change: transform; }
 
-    :global(html.js) .et--pin .et__odo { grid-area: odo; align-self: center; display: grid; grid-template-columns: auto auto; align-items: end; column-gap: .6rem; transition: opacity .5s var(--ease-water); }
-    :global(html.js) .et--pin[data-step="0"] .et__odo { opacity: .35; }
-    :global(html.js) .et--pin[data-step="7"] .et__odo { opacity: 0; }
+    :global(html.is-desktop-fx) .et--pin .et__odo { grid-area: odo; align-self: center; display: grid; grid-template-columns: auto auto; align-items: end; column-gap: .6rem; transition: opacity .5s var(--ease-water); }
+    :global(html.is-desktop-fx) .et--pin[data-step="0"] .et__odo { opacity: .35; }
+    :global(html.is-desktop-fx) .et--pin[data-step="7"] .et__odo { opacity: 0; }
     .et__odo-label { grid-column: 1 / -1; color: var(--fg-muted); margin-bottom: .6rem; }
     .et__odo-digits { display: inline-flex; font-size: min(var(--fs-num-xl), 24vh, 13vw); line-height: .82; letter-spacing: -.02em; }
     .et__odo-digits > span:first-child, .et__odo-strip > span { background: var(--grad-brand-v); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -328,7 +328,7 @@ const labHref = pin ? '#laboratorio' : url('analysis');
     .et__odo-strip > span { display: block; height: .82em; line-height: .82; text-align: center; }
     .et__odo-total { color: var(--fg-muted); padding-bottom: .4rem; }
 
-    :global(html.js) .et--pin .et__meters { grid-area: meters; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: end; padding-bottom: 2.4rem; }
+    :global(html.is-desktop-fx) .et--pin .et__meters { grid-area: meters; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: end; padding-bottom: 2.4rem; }
     .et__rail { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); }
     .et__rail-track { position: absolute; left: calc(100% / 12); right: calc(100% / 12); top: 15px; height: 2px; background: var(--line); border-radius: 2px; }
     .et__rail-fill { position: absolute; inset: 0; background: var(--grad-brand); transform-origin: 0 50%; transform: scaleX(0); box-shadow: 0 0 10px rgba(0,208,208,.5); }
@@ -344,7 +344,7 @@ const labHref = pin ? '#laboratorio' : url('analysis');
     .et__bar-fill { display: block; height: 100%; transform-origin: 0 50%; background: linear-gradient(90deg, #6d5236, var(--c-sedimento) 60%, #c9a06a); }
 
     /* flyer-style callouts: number + name + leader line ending on the band */
-    .et__callouts { position: absolute; list-style: none; right: 88%; width: clamp(48px, 13vw, 220px); top: calc(9% + 86.5% * .16); bottom: 4.5%; grid-template-rows: repeat(6, minmax(0, 1fr)); }
+    .et__callouts { position: absolute; list-style: none; right: 88%; width: clamp(48px, 15vw, 220px); top: calc(9% + 86.5% * .16); bottom: 4.5%; grid-template-rows: repeat(6, minmax(0, 1fr)); }
     .et__callout { display: flex; align-items: center; justify-content: flex-end; gap: .5rem; color: var(--fg-muted); font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; cursor: pointer; transition: color var(--d-base); }
     .et__callout .num { font-size: .8rem; }
     .et__callout i { flex: 1 1 auto; max-width: 64px; min-width: 18px; height: 1px; background: currentColor; opacity: .5; position: relative; }
@@ -353,7 +353,7 @@ const labHref = pin ? '#laboratorio' : url('analysis');
     .et__callout.is-active i { opacity: 1; }
     .et__callout.is-active i::after { background: var(--aqua); box-shadow: 0 0 10px var(--aqua); }
   }
-  @media (min-width: 768px) and (max-width: 1199px) { .et__callout-name { display: none; } }
+  @media (min-width: 768px) and (max-width: 1259px) { .et__callout-name { display: none; } }
   @media (prefers-reduced-motion: reduce) { .et__skip { display: none; } }
   @keyframes et-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
 </style>

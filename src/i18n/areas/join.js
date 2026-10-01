@@ -35,7 +35,7 @@ export default {
       ],
       // {rol} and {n} are filled in the browser; the ref tag is appended by buildWa
       msgBase: 'Hola, vi la oportunidad laboral en la web y quiero aplicar',
-      msgRole: ' como {rol}',
+      msgRole: ' para el puesto de {rol}',
       msgCount: ' Me identifico con {n} de 7 puntos del perfil.',
       privacy: 'Tus respuestas no se guardan: solo se escriben en tu mensaje de WhatsApp.',
     },
@@ -79,7 +79,7 @@ export default {
         { id: 'ventas', label: 'Sales' },
       ],
       msgBase: "Hi, I saw the job opportunity on the website and I'd like to apply",
-      msgRole: ' as {rol}',
+      msgRole: ' for the {rol} position',
       msgCount: ' I identify with {n} of the 7 profile points.',
       privacy: "Your answers aren't stored: they're only written into your WhatsApp message.",
     },

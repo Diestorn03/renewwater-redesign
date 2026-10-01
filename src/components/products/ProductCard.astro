@@ -59,7 +59,7 @@ const cats = p.categories.filter((k) => k !== 'linea');
     background: radial-gradient(closest-side, rgba(0, 28, 56, .22), rgba(0, 28, 56, 0)); filter: blur(2px);
   }
   .pcard__media img {
-    position: absolute; top: 7%; bottom: 9%; left: 8%; right: 8%; width: 84%; height: 84%; object-fit: contain;
+    position: absolute; top: 7%; bottom: 9%; left: 8%; right: 8%; width: 84%; height: 84%; object-fit: contain; object-position: 50% 100%;
     mix-blend-mode: multiply; transform-origin: 50% 90%;
     transition: transform .7s var(--ease-out);
   }
@@ -93,11 +93,13 @@ const cats = p.categories.filter((k) => k !== 'linea');
     .pcard__media { width: 40%; flex: none; aspect-ratio: auto; min-height: 200px; margin: 8px 0 8px 8px; }
     .pcard__body { padding: 1rem 1rem 1rem .9rem; gap: .4rem; min-width: 0; }
     .pcard__title { font-size: 1.15rem; }
-    .pcard__tag { font-size: .88rem; }
+    .pcard__tag { font-size: .88rem; -webkit-line-clamp: 3; }
     .pcard__cats { display: none; }
     .pcard__actions { grid-template-columns: minmax(0, 1fr) 48px; padding-top: .5rem; }
-    .pcard__actions .btn--primary { order: -1; }
+    .pcard__actions .btn--primary { order: -1; padding: 0 .5rem; gap: .4rem; }
     .pcard__detail { padding: 0 !important; width: 48px; }
     .pcard__detail-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   }
+  /* under 380px the English "Get a quote" plus the WhatsApp glyph is wider than the pill; the aria-label still says WhatsApp */
+  @media (max-width: 379px) { .pcard__actions .btn--primary :global(.icon) { display: none; } }
 </style>

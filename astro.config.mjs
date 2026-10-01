@@ -21,8 +21,9 @@ function motionToClass() {
   // (otherwise Astro would add its data-astro-cid attribute to <html> and the rule would never match).
   const scope = (sel, cond, astro) => {
     const g = (s) => (astro ? `:global(${s})` : s);
-    if (/^:global\((html|:root)(?![\w-])/.test(sel)) return sel.replace(/^:global\((html|:root)/, `:global($1:where(${cond})`);
-    if (/^(html|:root)(?![\w-])/.test(sel)) return sel.replace(/^(html|:root)/, `$1:where(${cond})`);
+    // .js lives on <html> itself (Base.astro), so it takes the condition like html does, never as an ancestor
+    if (/^:global\((html|:root|\.js)(?![\w-])/.test(sel)) return sel.replace(/^:global\((html|:root|\.js)/, `:global($1:where(${cond})`);
+    if (/^(html|:root|\.js)(?![\w-])/.test(sel)) return sel.replace(/^(html|:root|\.js)/, `$1:where(${cond})`);
     if (sel.startsWith('::')) return `${g(`html:where(${cond})`)}${sel}`; // ::view-transition-* hang off the root itself
     return `${g(`:where(html${cond})`)} ${sel}`;
   };
@@ -62,7 +63,7 @@ export default defineConfig({
     locales: ['es', 'en'],
     routing: { prefixDefaultLocale: false },
   },
-  integrations: [sitemap({ i18n: { defaultLocale: 'es', locales: { es: 'es-US', en: 'en-US' } } })],
+  integrations: [sitemap({ filter: (page) => !page.includes('/not-found/'), i18n: { defaultLocale: 'es', locales: { es: 'es-US', en: 'en-US' } } })],
   build: { inlineStylesheets: 'auto' },
   devToolbar: { enabled: false },
   vite: { css: { postcss: { plugins: [motionToClass()] } } },

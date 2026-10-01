@@ -1,0 +1,10 @@
+---
+// English 404 (the root 404.html redirects /en/* misses here). Not linked, not in the sitemap.
+import Base from '../../layouts/Base.astro';
+import NotFound from '../../components/chrome/NotFound.astro';
+import es from '../../i18n/es.js';
+import en from '../../i18n/en.js';
+---
+<Base title={`${en.meta.notFound} · ${es.meta.notFound}`} noindex>
+  <NotFound primary="en" />
+</Base>

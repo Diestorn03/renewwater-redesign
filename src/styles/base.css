@@ -218,6 +218,9 @@ dialog { color: inherit; }
 /* ---------- reveal primitives (the engine drives these; content stays visible without JS) ---------- */
 .js [data-reveal] { opacity: 0; }
 .js [data-split], .js [data-lit] { visibility: hidden; }
+/* safety net (Base.astro): the engine did not boot within 4 s; it takes over from this state if it arrives later */
+html.fx-fallback [data-reveal] { opacity: 1 !important; }
+html.fx-fallback :is([data-split], [data-lit]) { visibility: visible !important; }
 .split-line { overflow: clip; padding-bottom: .06em; margin-bottom: -.06em; }
 
 /* ---------- performance ---------- */

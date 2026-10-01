@@ -23,9 +23,10 @@ interface Props {
   description?: string;
   image?: string;             // base-less path of the share image, defaults to /og.jpg
   minimalChrome?: boolean;    // /analisis landing: header without links, no footer columns
+  noindex?: boolean;          // keep this page out of search engines even outside the demo build
 }
 const { t, lang, asset, hreflang, base } = useI18n(Astro);
-const { title, description = t.meta.description, image = '/og.jpg', minimalChrome = false } = Astro.props;
+const { title, description = t.meta.description, image = '/og.jpg', minimalChrome = false, noindex = false } = Astro.props;
 const origin = Astro.site?.origin ?? '';
 const canonical = origin + Astro.url.pathname;
 const demo = !!import.meta.env.PUBLIC_DEMO;
@@ -38,7 +39,7 @@ const fullTitle = `${title} · ${t.siteName}`;
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    {demo && <meta name="robots" content="noindex, nofollow" />}
+    {(demo || noindex) && <meta name="robots" content="noindex, nofollow" />}
     <meta name="theme-color" content="#001C38" />
     <link rel="icon" href={asset('/favicon-32.png')} type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href={asset('/apple-touch-icon.png')} />
@@ -62,6 +63,8 @@ const fullTitle = `${title} · ${t.siteName}`;
       // `rw-calm`: the visitor turned motion down with the footer switch (see the motion policy in astro.config.mjs).
       document.documentElement.classList.add('js');
       try { if (localStorage.getItem('rw-motion') === 'calm') document.documentElement.classList.add('rw-calm'); } catch (e) {}
+      // safety net: if the engine has not booted after 4 s (failed or very slow bundle), show the pre-hidden content
+      setTimeout(function () { var r = document.documentElement; if (!r.classList.contains('fx-ready')) r.classList.add('fx-fallback'); }, 4000);
     </script>
     <ClientRouter />
     <slot name="head" />
