@@ -1,12 +1,15 @@
 ---
 /**
- * Loader "El Trazo": first visit per session only, never with calm motion (footer switch), never without JS.
+ * Loader "El Trazo": on every full page load (first visit, F5, a typed URL), never on client-side navigations
+ * (ClientRouter keeps the page and does not re-run this inline script), never with calm motion (footer switch),
+ * never without JS. The first load of a tab session plays the full entrance; later full loads (F5) a short one.
  * It covers the page while it gets ready and only leaves when the engine says the page is settled ('rw:ready':
  * fonts, images, ScrollTrigger measurements, the hero's split title and shader), so the visitor never sees the
  * page assembling itself or stuttering.
  * Every move is a transform or an opacity change, which the browser runs on the compositor: the loader stays fluid
  * while the main thread is busy booting the page behind it.
- *   entrance (~1 s, always played in full): the mark fills up like water, the wordmark slides in, then a drop drips
+ *   entrance (~1 s, ~0.5 s on reloads, always played in full): the mark fills up like water, the wordmark slides in,
+ *   then a drop drips
  *   in a loop while waiting (the page behind cannot be scrolled meanwhile; the 5 s cap only counts visible time)
  *   exit: the stage lifts and fades, a last drop falls toward the hero, the overlay slides up while its panel
  *         counter-slides down (the bottom edge sweeps up the screen with the picture held still)
@@ -35,10 +38,12 @@ const c = pick(copy, lang);
     if (!l) return;
     var root = document.documentElement, show = false;
     var reduced = root.classList.contains('rw-calm'); // footer motion switch (Base.astro sets it from localStorage)
-    try { show = !reduced && !window.__rwIntro && !sessionStorage.getItem('rw-intro'); sessionStorage.setItem('rw-intro', '1'); }
-    catch (e) { show = !reduced && !window.__rwIntro; }
+    var again = false; // a later full load in this tab session (F5, a typed URL): the short entrance
+    try { again = !!sessionStorage.getItem('rw-intro'); sessionStorage.setItem('rw-intro', '1'); } catch (e) {}
+    show = !reduced && !window.__rwIntro;
     window.__rwIntro = 1;
     if (!show) { l.remove(); return; }
+    if (again) l.classList.add('is-quick'); // set before the first paint, so the short timings apply from the start
     root.classList.add('rw-intro');
     var leaving = false, finished = false, ready = false, entered = false;
     // the page behind must not scroll while it is covered (the scenes are built for the top of the page)
@@ -113,6 +118,11 @@ const c = pick(copy, lang);
     mask: var(--wm) 95.59% 50.56% / 131.75% 225.35% no-repeat;
     transform: translate3d(101%, 0, 0); animation: ld-in .55s cubic-bezier(.33, 1, .68, 1) .5s forwards;
   }
+  /* reloads: the same entrance, quicker (the visitor has seen the full one) */
+  .loader.is-quick :is(.loader__mark, .loader__mark-in) { animation-duration: .5s; animation-delay: 0s; }
+  .loader.is-quick .loader__mark::after { animation-delay: .45s; }
+  .loader.is-quick :is(.loader__wordwin, .loader__word) { animation-duration: .38s; animation-delay: .12s; }
+  .loader.is-quick .loader__drop { animation-delay: .55s; }
   @keyframes ld-in { to { transform: none; } }
   @keyframes ld-fade { to { opacity: 0; } }
 

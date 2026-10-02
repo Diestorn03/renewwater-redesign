@@ -89,7 +89,7 @@ Tipografías:
 ## Accesibilidad y rendimiento
 
 - **Móvil y pantallas táctiles:** sin WebGL, sin escenas fijadas y sin scroll suave. Recorridos nativos con scroll-snap y áreas táctiles de 48 px o más.
-- **Movimiento:** el sitio anima siempre, aunque el sistema operativo pida "reducir movimiento". Muchos PCs de oficina traen esa opción apagada y la propuesta se vería plana. El pie tiene un interruptor accesible **"Reducir movimiento"** (`aria-pressed`, se recuerda en `localStorage`) que desactiva el loader, los pins, los scrubs, el WebGL y las marquesinas, y muestra el estado final. En el CSS se sigue escribiendo `@media (prefers-reduced-motion: …)` normal: un plugin PostCSS en [astro.config.mjs](astro.config.mjs) lo convierte en la clase `html.rw-calm` al compilar. En JS, `env.reduced` lee esa misma clase.
+- **Movimiento:** el sitio anima siempre, aunque el sistema operativo pida "reducir movimiento". Muchos PCs de oficina traen esa opción apagada y la propuesta se vería plana. El pie tiene un interruptor accesible **"Reducir movimiento"** (`aria-pressed`, se recuerda en `localStorage`) que desactiva la pantalla de carga, los pins, los scrubs, el WebGL y las marquesinas, y muestra el estado final. En el CSS se sigue escribiendo `@media (prefers-reduced-motion: …)` normal: un plugin PostCSS en [astro.config.mjs](astro.config.mjs) lo convierte en la clase `html.rw-calm` al compilar. En JS, `env.reduced` lee esa misma clase.
 - **Canvas accesibles:** todo canvas tiene equivalente en texto (lista de etapas, conteo `aria-live` del laboratorio).
 - **Imágenes:** WebP optimizadas (de 25 MB originales a unos 9 MB en total, con miniaturas), carga diferida y medidas fijas para evitar saltos.
 
