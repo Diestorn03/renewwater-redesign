@@ -29,7 +29,9 @@
           env.reduced  = html.rw-calm (footer switch; the OS reduce-motion setting is deliberately not used)
           env.coarse   = pointer: coarse
   Pins, scrubs, WebGL, Lenis, tilt, magnetic and cursor effects only run when env.desktop is true.
-  introGate() resolves when the loader has finished (event 'rw:loader-done') or right away when there is no loader.
+  introGate() resolves when the loader starts leaving (event 'rw:loader-exit') or right away when there is no loader.
+  holdReady(promise) keeps the loader up until that promise settles (capped): sections use it for work that must
+  happen out of sight (the hero splits its title and compiles its shader behind the loader).
 */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -80,17 +82,32 @@ export function scrollTo(target, opts = {}) {
 }
 export function introGate() {
   const loader = document.getElementById('loader');
-  if (!loader || loader.classList.contains('is-done')) return Promise.resolve();
+  if (!loader || loader.classList.contains('is-done') || loader.classList.contains('is-exit')) return Promise.resolve();
   return Promise.race([
     // 'rw:loader-exit' fires when the loader's exit wipe starts, so the hero intro overlaps it instead of following it
     new Promise((r) => document.addEventListener('rw:loader-exit', r, { once: true })),
     new Promise((r) => document.addEventListener('rw:loader-done', r, { once: true })),
-    new Promise((r) => setTimeout(r, 3000)),
+    new Promise((r) => setTimeout(r, 5600)), // the loader itself leaves after 5 s at the latest
   ]);
 }
 const fontsReady = () => Promise.race([document.fonts?.ready ?? Promise.resolve(), new Promise((r) => setTimeout(r, 900))]);
 
-const api = () => ({ gsap, ScrollTrigger, SplitText, env, lenis, scrollTo, introGate, emit, onRefresh, getLenis, late: () => late });
+/* ---------------- Readiness: the loader stays until the first page is settled ---------------- */
+// 'rw:ready' fires once fonts, the window load (with its ScrollTrigger refresh) and every holdReady() promise are done,
+// plus two frames so that work is painted under the loader. Loader.astro leaves on it (and on its own time cap).
+const holds = [];
+const holdReady = (p) => { holds.push(Promise.race([Promise.resolve(p).catch(() => {}), new Promise((r) => setTimeout(r, 2500))])); };
+let readySent = false;
+function signalReady() {
+  if (readySent) return;
+  readySent = true;
+  const loaded = document.readyState === 'complete' ? null : new Promise((r) => window.addEventListener('load', r, { once: true }));
+  Promise.all([fontsReady(), loaded, ...holds.splice(0)])
+    .then(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))))
+    .then(() => emit('rw:ready'));
+}
+
+const api = () => ({ gsap, ScrollTrigger, SplitText, env, lenis, scrollTo, introGate, emit, onRefresh, getLenis, late: () => late, holdReady });
 
 /** Register a per-page initialiser (see header). Called on every page load; return an optional cleanup. */
 export function onPage(fn) {
@@ -393,6 +410,7 @@ function boot() {
   fontsReady().then(() => { if (ctx !== gen) return; ctx.add(() => { initSplits(); initLit(); }); queueRefresh(); });
   booted = true;
   queueRefresh();
+  signalReady(); // first page only (later calls are no-ops): releases the loader once everything above has settled
   // Scroll position, once the pins exist (they add their spacers above everything below them): the #hash target,
   // or the saved position on Back/Forward. ClientRouter restores scroll before the pins are built, so it lands short.
   const how = navType, y0 = savedY; navType = 'push'; savedY = null;
@@ -410,9 +428,21 @@ function boot() {
 let first = true;
 // Module scripts execute while readyState is already 'interactive', before DOMContentLoaded: waiting for it lets every
 // section module register first (the astro:page-load handler below covers a module that loads later than that).
-if (document.readyState === 'complete') queueMicrotask(() => { if (!booted) boot(); });
-else document.addEventListener('DOMContentLoaded', () => { if (!booted) boot(); }, { once: true });
-document.addEventListener('astro:page-load', () => { if (first) { first = false; if (booted) return; } boot(); });
+// With the loader on screen, the long boot waits for one painted frame: the loader shows at once and its compositor
+// animations are already running while the main thread is busy (otherwise the first paint waited for the whole boot).
+let firstPending = false;
+const firstBoot = () => {
+  if (booted || firstPending) return;
+  if (!document.documentElement.classList.contains('rw-intro')) { boot(); return; }
+  firstPending = true;
+  let fired = false;
+  const go = () => { if (fired) return; fired = true; setTimeout(() => { firstPending = false; if (!booted) boot(); }, 0); };
+  requestAnimationFrame(go);
+  setTimeout(go, 120); // a tab opened in the background paints no frames: boot anyway
+};
+if (document.readyState === 'complete') queueMicrotask(firstBoot);
+else document.addEventListener('DOMContentLoaded', firstBoot, { once: true });
+document.addEventListener('astro:page-load', () => { if (first) { first = false; if (booted || firstPending) return; } boot(); });
 // late images change section heights; a #hash landing is re-aimed once if the visitor has not scrolled since
 let hashLanding = null;
 window.addEventListener('load', () => {

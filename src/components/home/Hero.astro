@@ -231,7 +231,7 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
 <script>
   import { onPage } from '../../scripts/engine.js';
 
-  onPage(({ gsap, SplitText, env, introGate, late }) => {
+  onPage(({ gsap, SplitText, env, introGate, late, holdReady }) => {
     const root = document.getElementById('inicio');
     if (!root) return;
     const q = (s) => root.querySelector(s);
@@ -310,7 +310,10 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
         Promise.all([document.fonts?.ready, document.fonts?.load('italic 400 1em "Instrument Serif"')]).catch(() => {}),
         new Promise((r) => setTimeout(r, 900)),
       ]);
-      Promise.all([fonts, introGate()]).then(() => onTick(() => {
+      // the split and the timeline are built as soon as fonts allow (behind the loader on a first visit, so the
+      // costly SplitText measuring never lands on the loader's exit); the timeline plays when the loader leaves
+      let introTl = null;
+      const built = fonts.then(() => new Promise((res) => onTick(() => {
         ctx.add(() => {
           const byChar = env.desktop;
           gsap.set(lines, { y: 0, yPercent: 0 });       // before splitting: revert() restores the HTML captured here
@@ -328,13 +331,17 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
             });
           }
           const figure = q('.hero__arch');
-          gsap.timeline({ defaults: { ease: 'expo.out' }, onComplete: () => { split?.revert(); split = null; root.classList.remove('is-intro'); gsap.set(figure, { clearProps: 'clipPath' }); lensOn(); introDone(); } })
+          introTl = gsap.timeline({ paused: true, defaults: { ease: 'expo.out' }, onComplete: () => { split?.revert(); split = null; root.classList.remove('is-intro'); gsap.set(figure, { clearProps: 'clipPath' }); lensOn(); introDone(); } })
             .fromTo(pieces, { yPercent: 115, filter: byChar ? 'blur(8px)' : 'blur(0px)' }, { yPercent: 0, filter: 'blur(0px)', duration: .9, stagger: byChar ? .02 : .06, clearProps: 'filter' }, 0)
             .to(ins, { autoAlpha: 1, y: 0, duration: .9, stagger: .08 }, .35)
             .fromTo(figure, { clipPath: 'circle(40% at 50% 55%)' }, { clipPath: 'circle(75% at 50% 55%)', duration: 1.4 }, .1)
             .fromTo(figure.querySelector('img'), { scale: 1.08 }, { scale: 1, duration: 1.8, ease: 'power3.out', clearProps: 'transform' }, .1);
         });
-      }));
+        res();
+      })));
+      holdReady(built);
+      // played inside a ticker tick: after a long main-thread block a plain call would start from a stale clock
+      Promise.all([built, introGate()]).then(() => onTick(() => introTl?.play()));
     }
 
     /* ---------------- desktop: pin + shader ---------------- */
@@ -373,12 +380,18 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
       const idle = window.requestIdleCallback || ((f) => setTimeout(f, 300));
       const cancelIdle = window.cancelIdleCallback || clearTimeout;
       let idleId = 0;
-      // shader compile waits for the intro so it never stutters the title; the poster is its first frame meanwhile
-      intro.then(() => { if (!dead) idleId = idle(async () => {
+      const createGL = async () => {
         const { createAguaViva } = await import('../../scripts/hero/agua-viva.js');
-        if (dead) return;
-        gl = createAguaViva(canvas, { onDegrade: () => { gl = null; root.classList.remove('is-gl'); } });
-        if (!gl) return;
+        return dead ? null : createAguaViva(canvas, { onDegrade: () => { gl = null; root.classList.remove('is-gl'); } });
+      };
+      // first visit: the loader covers the page, so the shader compiles now and the loader waits for it; otherwise it
+      // waits for the intro and an idle moment so it never stutters the title (the poster is its first frame meanwhile)
+      const early = document.documentElement.classList.contains('rw-intro') ? createGL() : null;
+      if (early) holdReady(early);
+      intro.then(() => { if (!dead) idleId = idle(async () => {
+        const made = await (early || createGL());
+        if (dead || !made) return;
+        gl = made;
         gl.setDepth(depth.v);
         const sync = () => { if (!gl) return; !document.hidden && !root.classList.contains('is-off') ? gl.start() : gl.stop(); };
         listen(document, 'visibilitychange', sync);
