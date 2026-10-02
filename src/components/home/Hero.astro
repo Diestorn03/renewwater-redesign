@@ -144,11 +144,14 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
   @media (prefers-reduced-motion: no-preference) {
     :global(.js) .hero.is-intro .hero__li { transform: translateY(115%); animation: hero-unhide .01s 5s forwards; }
     :global(.js) .hero.is-intro :is(.hero__kicker, .hero__in) { opacity: 0; animation: hero-unhide .01s 5s forwards; }
+    :global(.js) .hero.is-intro .hero__arch { clip-path: circle(40% at 50% 55%); animation: hero-unclip .01s 5s forwards; }
   }
   @keyframes hero-unhide { to { transform: none; opacity: 1; } }
+  @keyframes hero-unclip { to { clip-path: none; } }
   /* the engine did not boot within 4 s (Base.astro safety net): show the hero now */
   :global(html.fx-fallback) .hero.is-intro .hero__li { transform: none; }
   :global(html.fx-fallback) .hero.is-intro :is(.hero__kicker, .hero__in) { opacity: 1; }
+  :global(html.fx-fallback) .hero.is-intro .hero__arch { clip-path: none; }
   .hero__title .accent { padding-right: .06em; }
 
   /* lens: an ungridded copy of the H1 filled with the brand gradient, magnified inside a circle that follows the pointer */
@@ -325,10 +328,10 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
             });
           }
           const figure = q('.hero__arch');
-          gsap.timeline({ defaults: { ease: 'expo.out' }, onComplete: () => { split?.revert(); split = null; root.classList.remove('is-intro'); lensOn(); introDone(); } })
+          gsap.timeline({ defaults: { ease: 'expo.out' }, onComplete: () => { split?.revert(); split = null; root.classList.remove('is-intro'); gsap.set(figure, { clearProps: 'clipPath' }); lensOn(); introDone(); } })
             .fromTo(pieces, { yPercent: 115, filter: byChar ? 'blur(8px)' : 'blur(0px)' }, { yPercent: 0, filter: 'blur(0px)', duration: .9, stagger: byChar ? .02 : .06, clearProps: 'filter' }, 0)
             .to(ins, { autoAlpha: 1, y: 0, duration: .9, stagger: .08 }, .35)
-            .fromTo(figure, { clipPath: 'circle(40% at 50% 55%)' }, { clipPath: 'circle(75% at 50% 55%)', duration: 1.4, clearProps: 'clipPath' }, .1)
+            .fromTo(figure, { clipPath: 'circle(40% at 50% 55%)' }, { clipPath: 'circle(75% at 50% 55%)', duration: 1.4 }, .1)
             .fromTo(figure.querySelector('img'), { scale: 1.08 }, { scale: 1, duration: 1.8, ease: 'power3.out', clearProps: 'transform' }, .1);
         });
       }));

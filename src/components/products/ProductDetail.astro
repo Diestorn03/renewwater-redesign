@@ -233,7 +233,7 @@ const rel = related(p);
   .pd-bar__call { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: 50%; color: var(--foam-text); border: 1px solid rgba(143, 179, 196, .35); }
 
   /* short laptop screens: the sticky column (photo, flyers, CTA card) must fit under the header */
-  @media (min-width: 901px) and (max-height: 800px) { .pd__media { height: clamp(160px, 100vh - 470px, 34vh); } }
+  @media (min-width: 901px) and (max-height: 800px) { .pd__media { height: clamp(160px, 100vh - 500px, 34vh); } }
   @media (max-width: 1100px) { .pd__trust { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 900px) {
     .pd__grid { display: flex; flex-direction: column; align-items: stretch; gap: 1.5rem; }

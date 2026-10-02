@@ -134,6 +134,8 @@ const tiles = [
   :global(.js) .jh:not(.is-in) .jh__tile { clip-path: inset(100% 0 0 0); }
   :global(html.fx-fallback) .jh:not(.is-in) .jh__ch { opacity: 1; }
   :global(html.fx-fallback) .jh:not(.is-in) .jh__tile { clip-path: none; }
+  :global(.js) .jh:not(.is-in) .jh__badge { opacity: 0; }
+  :global(html.fx-fallback) .jh:not(.is-in) .jh__badge { opacity: 1; }
   .jh__lead { color: var(--fg-muted); max-width: 44ch; }
   .jh__copy .trust-note { flex-wrap: nowrap; align-items: flex-start; }
   .jh__copy .trust-note :global(svg) { color: var(--aqua); flex: none; margin-top: .2em; }
@@ -163,5 +165,5 @@ const tiles = [
     .jh__badge { left: 12px; bottom: -22px; white-space: nowrap; }
     .jh__mosaic { margin-bottom: 22px; }
   }
-  @media (prefers-reduced-motion: reduce) { :global(.js) .jh:not(.is-in) .jh__ch, :global(.js) .jh:not(.is-in) .jh__tile { opacity: 1; clip-path: none; } }
+  @media (prefers-reduced-motion: reduce) { :global(.js) .jh:not(.is-in) :is(.jh__ch, .jh__tile, .jh__badge) { opacity: 1; clip-path: none; } }
 </style>
