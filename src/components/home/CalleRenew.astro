@@ -49,7 +49,7 @@ const cards = homes.map((p, i) => ({ ...p, n: pad(i + 1), smH: Math.round((520 *
           {cards.map((p, i) => (
             <li class="calle__card" style={`--i:${i}`}>
               <a class="calle__arch" href={asset(p.src)} data-lightbox="instalaciones" data-caption={c.caption(p.n)} data-lb-morph data-tilt="5" aria-label={`${c.open}: ${c.caption(p.n)}`}>
-                <img src={asset(p.sm)} width="520" height={p.smH} alt={c.alt(p.n)} loading={i < 3 ? 'eager' : 'lazy'} decoding="async" draggable="false" />
+                <img src={asset(p.sm)} width="520" height={p.smH} alt={c.alt(p.n)} loading="lazy" decoding="async" draggable="false" />
                 <span class="calle__chip mono" aria-hidden="true">{c.chip(p.n)}</span>
               </a>
               <span class="calle__branch" aria-hidden="true"></span>

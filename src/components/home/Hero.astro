@@ -145,6 +145,7 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
     :global(.js) .hero.is-intro .hero__li { transform: translateY(115%); animation: hero-unhide .01s 5s forwards; }
     :global(.js) .hero.is-intro :is(.hero__kicker, .hero__in) { opacity: 0; animation: hero-unhide .01s 5s forwards; }
     :global(.js) .hero.is-intro .hero__arch { clip-path: circle(40% at 50% 55%); animation: hero-unclip .01s 5s forwards; }
+    :global(html.fx-ready) .hero.is-intro :is(.hero__li, .hero__kicker, .hero__in, .hero__arch) { animation: none; } /* the engine runs the intro */
   }
   @keyframes hero-unhide { to { transform: none; opacity: 1; } }
   @keyframes hero-unclip { to { clip-path: none; } }
@@ -238,7 +239,7 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
     const qa = (s) => [...root.querySelectorAll(s)];
     const ctx = gsap.context(() => {}, root);          // async tweens live here and die with the page
     const off = [];                                     // listener / observer cleanups
-    let dead = false, split = null, gl = null, pinST = null;
+    let dead = false, split = null, gl = null, pinST = null, early = null;
     const listen = (t, ev, fn, o) => { t.addEventListener(ev, fn, o); off.push(() => t.removeEventListener(ev, fn, o)); };
     // build async timelines inside a ticker tick: the engine runs lagSmoothing(0), so a timeline created after a long
     // main-thread block (page boot) would start from a stale clock and finish instantly
@@ -380,18 +381,20 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
       const idle = window.requestIdleCallback || ((f) => setTimeout(f, 300));
       const cancelIdle = window.cancelIdleCallback || clearTimeout;
       let idleId = 0;
-      const createGL = async () => {
+      const covered = () => document.documentElement.classList.contains('rw-intro') && !document.getElementById('loader')?.classList.contains('is-exit');
+      const createGL = async (onlyIfCovered) => {
         const { createAguaViva } = await import('../../scripts/hero/agua-viva.js');
-        return dead ? null : createAguaViva(canvas, { onDegrade: () => { gl = null; root.classList.remove('is-gl'); } });
+        if (dead || (onlyIfCovered && !covered())) return null;
+        return createAguaViva(canvas, { onDegrade: () => { gl = null; root.classList.remove('is-gl'); } });
       };
       // first visit: the loader covers the page, so the shader compiles now and the loader waits for it; otherwise it
       // waits for the intro and an idle moment so it never stutters the title (the poster is its first frame meanwhile)
-      const early = document.documentElement.classList.contains('rw-intro') ? createGL() : null;
+      early = covered() ? createGL(true) : null;
       if (early) holdReady(early);
       intro.then(() => { if (!dead) idleId = idle(async () => {
-        const made = await (early || createGL());
+        const made = (await early) || (dead ? null : await createGL(false));
         if (dead || !made) return;
-        gl = made;
+        gl = made; early = null;
         gl.setDepth(depth.v);
         const sync = () => { if (!gl) return; !document.hidden && !root.classList.contains('is-off') ? gl.start() : gl.stop(); };
         listen(document, 'visibilitychange', sync);
@@ -408,7 +411,9 @@ const micro = [t.trust.wqa, t.trust.projects, t.trust.down];
       off.forEach((f) => f());
       split?.revert();
       ctx.revert();
-      if (gl) { gl.destroy(); gl = null; const c = q('.hero__gl'); c?.replaceWith(c.cloneNode()); } // a lost context never comes back
+      if (gl || early) { gl?.destroy(); early?.then((m) => m?.destroy()); gl = early = null; const c = q('.hero__gl'); c?.replaceWith(c.cloneNode()); } // a lost context never comes back
+      // a phone lens sweep cut short by a reboot must not leave its circle over the title
+      q('.hero__title-wrap')?.style.removeProperty('--lr'); q('.hero__title-wrap')?.style.removeProperty('--ls');
       root.classList.remove('is-gl');
     };
   });

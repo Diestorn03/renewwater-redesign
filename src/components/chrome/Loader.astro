@@ -6,7 +6,8 @@
  * page assembling itself or stuttering.
  * Every move is a transform or an opacity change, which the browser runs on the compositor: the loader stays fluid
  * while the main thread is busy booting the page behind it.
- *   entrance (~1 s): the mark fills up like water, the wordmark slides in, then a drop drips in a loop while waiting
+ *   entrance (~1 s, always played in full): the mark fills up like water, the wordmark slides in, then a drop drips
+ *   in a loop while waiting (the page behind cannot be scrolled meanwhile; the 5 s cap only counts visible time)
  *   exit: the stage lifts and fades, a last drop falls toward the hero, the overlay slides up while its panel
  *         counter-slides down (the bottom edge sweeps up the screen with the picture held still)
  * The inline script removes #loader when it must not run, so introGate() resolves at once. Otherwise it dispatches
@@ -39,12 +40,21 @@ const c = pick(copy, lang);
     window.__rwIntro = 1;
     if (!show) { l.remove(); return; }
     root.classList.add('rw-intro');
-    var t0 = performance.now(), leaving = false, finished = false;
+    var leaving = false, finished = false, ready = false, entered = false;
+    // the page behind must not scroll while it is covered (the scenes are built for the top of the page)
+    var hold = { capture: true, passive: false };
+    // capture on window runs first: stopping it also keeps the event from Lenis (smooth scroll), which ignores preventDefault
+    function stop(e) { e.preventDefault(); e.stopImmediatePropagation(); }
+    window.addEventListener('wheel', stop, hold);
+    window.addEventListener('touchmove', stop, hold);
+    var scrollKeys = { ' ': 1, PageUp: 1, PageDown: 1, Home: 1, End: 1, ArrowUp: 1, ArrowDown: 1 };
     function done() {
       if (finished) return; finished = true;
       l.classList.add('is-done');
       root.classList.remove('rw-intro');
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('keydown', onKey, true);
+      window.removeEventListener('wheel', stop, hold); // released only now: input queued during the loader must not scroll the reveal
+      window.removeEventListener('touchmove', stop, hold);
       document.dispatchEvent(new CustomEvent('rw:loader-done', { detail: { x: innerWidth / 2, y: innerHeight * .72 } }));
       setTimeout(function () { l.remove(); }, 60);
     }
@@ -55,19 +65,29 @@ const c = pick(copy, lang);
       document.dispatchEvent(new CustomEvent('rw:loader-exit'));
       setTimeout(done, fast ? 700 : 1200); // in case animationend never arrives
     }
-    function onKey(e) { if (e.key === 'Escape') leave(true); }
-    // leave once the page is ready, never before the entrance has played, never later than 5 s
-    document.addEventListener('rw:ready', function () { setTimeout(leave, Math.max(0, 1050 - (performance.now() - t0))); }, { once: true });
-    setTimeout(leave, 5000);
-    l.addEventListener('animationend', function (e) { if (e.target === l) done(); });
+    function onKey(e) {
+      if (e.key === 'Escape') { leave(true); return; }
+      if (!finished && scrollKeys[e.key] && !(e.key === ' ' && e.target.closest && e.target.closest('button'))) e.preventDefault();
+    }
+    // leave once the page is ready AND the entrance (mark + wordmark) has played; the cap only counts visible time
+    function go() { if (ready && entered) leave(); }
+    document.addEventListener('rw:ready', function () { ready = true; go(); }, { once: true });
+    setTimeout(function cap() {
+      if (!document.hidden) leave();
+      else document.addEventListener('visibilitychange', function () { setTimeout(leave, 1500); }, { once: true });
+    }, 5000);
+    l.addEventListener('animationend', function (e) {
+      if (e.target === l) done();
+      else if (e.target.classList && e.target.classList.contains('loader__word')) { entered = true; go(); }
+    });
     l.querySelector('.loader__skip').addEventListener('click', function () { leave(true); });
-    document.addEventListener('keydown', onKey);
+    document.addEventListener('keydown', onKey, true);
   })();
 </script>
 
 <style>
   .loader { display: none; }
-  :global(html.rw-intro) .loader { position: fixed; inset: 0; z-index: var(--z-loader); display: block; overflow: hidden; will-change: transform; }
+  :global(html.rw-intro) .loader { position: fixed; inset: 0; z-index: var(--z-loader); display: block; overflow: hidden; will-change: transform; touch-action: none; }
   .loader__panel {
     position: absolute; inset: 0; display: grid; place-items: center; will-change: transform;
     background: radial-gradient(70% 55% at 50% 45%, #03203B 0%, var(--abyss) 70%);

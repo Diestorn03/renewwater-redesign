@@ -75,6 +75,7 @@ const phone = phoneFor(lang);
   /* named only during a page transition: a permanent view-transition-name makes .hdr a backdrop root and kills the blur */
   :global(html:active-view-transition) .hdr { view-transition-name: site-header; }
   :global(html:active-view-transition) :is(.hdr, .hdr *) { transition: none !important; }
+  :global(html.fx-fallback) .hdr::before { opacity: 1; background: color-mix(in srgb, var(--navy) 92%, transparent); }
   /* the extra 40px takes the CTA's glow out of the viewport too */
   .hdr.is-hidden { transform: translateY(calc(-100% - 40px)); }
   .hdr:has(:focus-visible) { transform: none; }

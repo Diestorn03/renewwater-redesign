@@ -80,6 +80,10 @@ export function scrollTo(target, opts = {}) {
   const y = typeof target === 'number' ? target : el ? el.getBoundingClientRect().top + window.scrollY + offset : 0;
   window.scrollTo({ top: y, behavior: env.reduced || opts.immediate ? 'auto' : 'smooth' });
 }
+// resolves after ms of wall time, or 1.6 s after the tab becomes visible if it was hidden by then
+const visibleTimeout = (ms) => new Promise((r) => setTimeout(() => {
+  if (!document.hidden) r(); else document.addEventListener('visibilitychange', () => setTimeout(r, 1600), { once: true });
+}, ms));
 export function introGate() {
   const loader = document.getElementById('loader');
   if (!loader || loader.classList.contains('is-done') || loader.classList.contains('is-exit')) return Promise.resolve();
@@ -87,7 +91,7 @@ export function introGate() {
     // 'rw:loader-exit' fires when the loader's exit wipe starts, so the hero intro overlaps it instead of following it
     new Promise((r) => document.addEventListener('rw:loader-exit', r, { once: true })),
     new Promise((r) => document.addEventListener('rw:loader-done', r, { once: true })),
-    new Promise((r) => setTimeout(r, 5600)), // the loader itself leaves after 5 s at the latest
+    visibleTimeout(5600), // the loader itself leaves after 5 s at the latest (visible time)
   ]);
 }
 const fontsReady = () => Promise.race([document.fonts?.ready ?? Promise.resolve(), new Promise((r) => setTimeout(r, 900))]);
@@ -96,12 +100,12 @@ const fontsReady = () => Promise.race([document.fonts?.ready ?? Promise.resolve(
 // 'rw:ready' fires once fonts, the window load (with its ScrollTrigger refresh) and every holdReady() promise are done,
 // plus two frames so that work is painted under the loader. Loader.astro leaves on it (and on its own time cap).
 const holds = [];
-const holdReady = (p) => { holds.push(Promise.race([Promise.resolve(p).catch(() => {}), new Promise((r) => setTimeout(r, 2500))])); };
+const holdReady = (p) => { if (!readySent) holds.push(Promise.race([Promise.resolve(p).catch(() => {}), new Promise((r) => setTimeout(r, 2500))])); };
 let readySent = false;
 function signalReady() {
   if (readySent) return;
   readySent = true;
-  const loaded = document.readyState === 'complete' ? null : new Promise((r) => window.addEventListener('load', r, { once: true }));
+  const loaded = document.readyState === 'complete' ? null : Promise.race([new Promise((r) => window.addEventListener('load', r, { once: true })), new Promise((r) => setTimeout(r, 3000))]);
   Promise.all([fontsReady(), loaded, ...holds.splice(0)])
     .then(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))))
     .then(() => emit('rw:ready'));
@@ -438,7 +442,7 @@ const firstBoot = () => {
   let fired = false;
   const go = () => { if (fired) return; fired = true; setTimeout(() => { firstPending = false; if (!booted) boot(); }, 0); };
   requestAnimationFrame(go);
-  setTimeout(go, 120); // a tab opened in the background paints no frames: boot anyway
+  if (document.hidden) setTimeout(go, 120); // a tab opened in the background paints no frames: boot anyway
 };
 if (document.readyState === 'complete') queueMicrotask(firstBoot);
 else document.addEventListener('DOMContentLoaded', firstBoot, { once: true });
